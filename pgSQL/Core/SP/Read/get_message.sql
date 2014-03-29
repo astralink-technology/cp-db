@@ -1,0 +1,77 @@
+-- Always copy the function name and the parameters below to this section before changing the stored procedure
+DROP FUNCTION IF EXISTS get_message(
+    pMessageId varchar(32)
+    , pMessage text
+    , pType char(1)
+    , pOwnerId varchar(32)
+    , pTriggerEvent char(2)
+    , pPageSize integer
+    , pSkipSize integer
+);
+-- Start function
+CREATE FUNCTION get_message(
+    pMessageId varchar(32)
+    , pMessage text
+    , pType char(1)
+    , pOwnerId varchar(32)  
+    , pTriggerEvent char(2)
+    , pPageSize integer
+    , pSkipSize integer
+)
+RETURNS TABLE(
+	message_id varchar(32) 
+	, message text
+	, type char(1)
+	, create_date timestamp without time zone
+	, last_update timestamp without time zone
+	, owner_id varchar(32)
+	, trigger_event char(2)
+	, subject varchar(128)
+	, total_rows integer
+) AS
+$BODY$
+DECLARE
+    totalRows integer;
+BEGIN
+    -- count the total rows
+    SELECT
+      COUNT(*)
+    INTO STRICT
+      totalRows
+    FROM message m WHERE (
+      ((pMessageId IS NULL) OR (m.message_id = pMessageId)) AND
+      ((pMessage IS NULL) OR (m.message = pMessage)) AND
+      ((pType IS NULL) OR (m.type = pType)) AND
+      ((pOwnerId IS NULL) OR (m.owner_id = pOwnerId)) AND
+      ((pTriggerEvent IS NULL) OR (m.trigger_event = pTriggerEvent))
+    );
+
+    -- create a temp table to get the data
+    CREATE TEMP TABLE message_init AS
+      SELECT
+        m.message_id
+        , m.message
+        , m.type
+        , m.create_date
+        , m.last_update
+        , m.owner_id
+        , m.trigger_event
+        , m.subject
+      FROM message m WHERE (
+        ((pMessageId IS NULL) OR (m.message_id = pMessageId)) AND
+        ((pMessage IS NULL) OR (m.message = pMessage)) AND
+        ((pType IS NULL) OR (m.type = pType)) AND
+        ((pOwnerId IS NULL) OR (m.owner_id = pOwnerId)) AND
+        ((pTriggerEvent IS NULL) OR (m.trigger_event = pTriggerEvent))
+        )
+      ORDER BY m.create_date
+      LIMIT pPageSize OFFSET pSkipSize;
+
+    RETURN QUERY
+    SELECT
+      *
+      , totalRows
+    FROM message_init;
+END;
+$BODY$
+LANGUAGE plpgsql;
