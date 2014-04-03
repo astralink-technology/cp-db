@@ -34,7 +34,7 @@ VALUES(
   , NULL
 );
 
--- Create Enterprise EyeOrcas
+-- Create Enterprise EyeOrcas Production
 INSERT INTO enterprise(
       enterprise_id,
       name,
@@ -45,7 +45,7 @@ INSERT INTO enterprise(
 )
 VALUES(
   'NU7X5GFX-R5919B3C-TRYF6W8E'
-  , 'Eye Orcas - Production'
+  , 'EyeOrcas - Production'
   , NULL
   , NULL
   , '2014-2-22 15:20:32'
@@ -63,28 +63,10 @@ INSERT INTO enterprise(
 )
 VALUES(
   '16989GW8-XSOAW5A5-HZQ1L7OM'
-  , 'Eye Orcas - Dev'
+  , 'EyeOrcas - Dev'
   , NULL
   , NULL
   , '2014-2-24 14:26:12'
-  , NULL
-);
-
--- Create Enterprise EyeOrcas Local Dev
-INSERT INTO enterprise(
-      enterprise_id,
-      name,
-      code,
-      description,
-      create_date,
-      last_update
-)
-VALUES(
-  'FNYMN4L5-NNAA98JT-TDIX8ZQB'
-  , 'Eye Orcas - Local'
-  , NULL
-  , NULL
-  , '2014-2-24 14:22:22'
   , NULL
 );
 

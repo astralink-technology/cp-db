@@ -6,6 +6,5 @@ create table phone (
 	code varchar(8),
 	create_date timestamp without time zone,
 	last_update timestamp without time zone,
-	entity_id varchar(32),
-	device_id varchar(32)
+	owner_id varchar(32)
 );

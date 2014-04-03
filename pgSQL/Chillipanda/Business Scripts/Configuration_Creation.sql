@@ -1,4 +1,4 @@
--- Create DB Configuration EyeOrcas
+-- Create DB Configuration EyeOrcas Portal Production
 INSERT INTO configuration (
       configuration_id,
       name,
@@ -17,7 +17,7 @@ INSERT INTO configuration (
 )
 VALUES(
   '553ZMJ5H-JFYWEWOY-3I405DEY'
-  , 'Eye Orcas - Production'
+  , 'EyeOrcas - Production'
   , NULL
   , '23.21.214.219'
   , '5432'
@@ -32,7 +32,7 @@ VALUES(
   , NULL
 );
 
--- Create DB Configuration EyeOrcas dev
+-- Create DB Configuration EyeOrcas Portal Dev
 INSERT INTO configuration (
       configuration_id,
       name,
@@ -51,7 +51,7 @@ INSERT INTO configuration (
 )
 VALUES(
   '7NEND5BA-FBD68752-49Q4YEQ4'
-  , 'Eye Orcas - Development'
+  , 'EyeOrcas - Development'
   , NULL
   , '75.101.164.53'
   , '5432'
@@ -62,40 +62,6 @@ VALUES(
   , NULL
   , 'D'
   , '16989GW8-XSOAW5A5-HZQ1L7OM'
-  , '2014-2-24 14:24:35'
-  , NULL
-);
-
--- Create DB Configuration EyeOrcas Local
-INSERT INTO configuration (
-      configuration_id,
-      name,
-      file_url,
-      value,
-      value2,
-      value3,
-      value_hash,
-      value2_hash,
-      value3_hash,
-      description,
-	    type,
-      enterprise_id,
-      create_date,
-      last_update
-)
-VALUES(
-  'JC765DWE-SPTIAEL8-0UCRR2LW'
-  , 'Eye Orcas - Local'
-  , NULL
-  , 'localhost'
-  , '5432'
-  , 'shiwei'
-  , 'orcasEyeDB'
-  , 'sh1w31p@ssw0rd'
-  , NULL
-  , NULL
-  , 'D'
-  , 'FNYMN4L5-NNAA98JT-TDIX8ZQB'
   , '2014-2-24 14:24:35'
   , NULL
 );
