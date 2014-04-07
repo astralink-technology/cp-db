@@ -22,8 +22,6 @@ CREATE FUNCTION add_device_relationship_value(
 	, pLastUpdate timestamp without time zone
 	, pDeviceRelationshipId varchar(32)
 	, pDescription text
-	, pAppVersion varchar(16)
-	, pFirmwareVersion varchar(16)
 )
 RETURNS varchar(32) AS 
 $BODY$
@@ -42,9 +40,7 @@ BEGIN
         , create_date
         , last_update
         , device_relationship_id
-	, description
-	, app_version
-	, firmware_version
+	      , description
     ) VALUES(
         pDeviceRelationshipValueId
         , pName
@@ -60,8 +56,6 @@ BEGIN
         , pLastUpdate
         , pDeviceRelationshipId
 	      , pDescription
-	, pAppVersion
-	, pFirmwareVersion
     );
     RETURN pDeviceRelationshipId;
 END;

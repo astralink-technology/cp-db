@@ -25,6 +25,8 @@ CREATE FUNCTION add_device_value(
 	, pLocationName varchar(64)
 	, pLatitude decimal
 	, pLongitude decimal
+	, pAppVersion varchar(16)
+	, pFirmwareVersion varchar(16)
 )
 RETURNS varchar(32) AS 
 $BODY$
@@ -42,10 +44,12 @@ BEGIN
         , create_date
         , last_update
         , device_id
-	, description
-	, location_name
-	, latitude
-	, longitude
+        , description
+        , location_name
+        , latitude
+        , longitude
+        , app_version
+        , firmware_version
     ) VALUES(
         pDeviceValueId
         , pPush
@@ -60,9 +64,11 @@ BEGIN
         , pLastUpdate
         , pDeviceId
 	      , pDescription
-	, pLocationName
-	, pLatitude
-	, pLongitude
+        , pLocationName
+        , pLatitude
+        , pLongitude
+        , pAppVersion
+        , pFirmwareVersion
     );
     RETURN pDeviceId;
 END;

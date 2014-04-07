@@ -24,6 +24,8 @@ CREATE FUNCTION update_device_value(
 	, pLocationName varchar(64)
 	, pLatitude decimal
 	, pLongitude decimal
+	, pAppVersion varchar(16)
+	, pFirmwareVersion varchar(16)
 )
 RETURNS BOOL AS 
 $BODY$
@@ -43,6 +45,8 @@ DECLARE
     nLocationName varchar(64);
     nLatitude decimal;
     nLongitude decimal;
+	  nAppVersion varchar(16);
+	  nFirmwareVersion varchar(16);
 
     oDeviceValueId varchar(32);
     oPush char(1);
@@ -59,6 +63,8 @@ DECLARE
     oLocationName varchar(64);
     oLatitude decimal;
     oLongitude decimal;
+	  oAppVersion varchar(16);
+	  oFirmwareVersion varchar(16);
 
 BEGIN
     -- ID is needed if not return
@@ -77,10 +83,12 @@ BEGIN
           , dv.salt
           , dv.last_update
           , dv.device_id
-	  , dv.description
-	  , dv.location_name
-	  , dv.latitude
-	  , dv.longitude
+          , dv.description
+          , dv.location_name
+          , dv.latitude
+          , dv.longitude
+          , dv.app_vesion
+          , dv.firmware_version
         INTO STRICT
           oPush
           , oSms
@@ -92,10 +100,12 @@ BEGIN
           , oSalt
           , oLastUpdate
           , oDeviceId
-	  , oDescription
-	  , oLocationName
-	  , oLatitude
-	  , oLongitude
+          , oDescription
+          , oLocationName
+          , oLatitude
+          , oLongitude
+          , oAppVersion
+          , oFirmwareVersion
         FROM device_value dv WHERE
             dv.device_value_id = pDeviceValueId or dv.device_id = pDeviceId;
 
@@ -219,6 +229,22 @@ BEGIN
             nLongitude := pLongitude;
         END IF;
 
+        IF pAppVersion IS NULL THEN
+            nAppVersion := oAppVersion;
+        ELSEIF pAppVersion = '' THEN
+            nAppVersion := NULL;
+        ELSE
+            nAppVersion := pAppVersion;
+        END IF;
+        
+        IF pFirmwareVersion IS NULL THEN
+            nFirmwareVersion := oFirmwareVersion;
+        ELSEIF pFirmwareVersion = '' THEN
+            nFirmwareVersion := NULL;
+        ELSE
+            nFirmwareVersion := pFirmwareVersion;
+        END IF;
+
 
         -- start the update
         UPDATE 
@@ -233,10 +259,12 @@ BEGIN
           , hash = nHash
           , salt = nSalt
           , last_update = nLastUpdate
-	  , description = nDescription
-	  , location_name = nLocationName
-	  , latitude = nLatitude
-	  , longitude = nLongitude
+          , description = nDescription
+          , location_name = nLocationName
+          , latitude = nLatitude
+          , longitude = nLongitude
+          , app_version = nAppVersion
+          , firmware_version = nFirmwareVersion
          WHERE (
           ((pDeviceId IS NULL) OR (device_id = pDeviceId)) AND
           ((device_value_id = pDeviceValueId)) -- device value ID is required

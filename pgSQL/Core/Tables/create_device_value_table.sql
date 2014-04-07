@@ -14,5 +14,7 @@ create table device_value (
 	device_id varchar(32),
 	location_name varchar(64),
 	latitude decimal,
-	longitude decimal
+	longitude decimal,
+	app_version varchar(16),
+	firmware_version varchar(16),
 );

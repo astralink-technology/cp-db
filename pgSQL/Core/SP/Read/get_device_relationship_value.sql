@@ -18,8 +18,6 @@ CREATE FUNCTION get_device_relationship_value(
 	, pResolution varchar(16)
 	, pQuality varchar(16)
 	, pDeviceRelationshipId varchar(32)
-	, pAppVersion varchar(16)
-	, pFirmwareVersion varchar(16)
 	, pPageSize integer
 	, pSkipSize integer
 )
@@ -38,8 +36,6 @@ RETURNS TABLE(
 	last_update timestamp without time zone,
 	device_relationship_id varchar(32),
 	description text,
-	app_version varchar(16),
-	firmware_version varchar(16),
 	total_rows integer
 ) AS
 $BODY$
@@ -60,8 +56,6 @@ BEGIN
         ((pType IS NULL) OR (drv.type = pType)) AND
         ((pResolution IS NULL) OR (drv.resolution = pResolution)) AND
         ((pQuality IS NULL) OR (drv.quality = pQuality)) AND
-        ((pAppVersion IS NULL) OR (drv.app_version = pAppVersion)) AND
-        ((pFirmwareVersion IS NULL) OR (drv.firmware_version = pFirmwareVersion)) AND
         ((pDeviceRelationshipId IS NULL) OR (drv.device_relationship_id = pDeviceRelationshipId))
     );
 
@@ -82,8 +76,6 @@ BEGIN
         , drv.last_update
         , drv.device_relationship_id
         , drv.description
-        , drv.app_version
-        , drv.firmware_version
       FROM device_relationship_value drv WHERE (
         ((pDeviceRelationshipValueId IS NULL) OR (drv.device_relationship_value_id = pDeviceRelationshipValueId)) AND
         ((pName IS NULL) OR (drv.name = pName)) AND
@@ -93,8 +85,6 @@ BEGIN
         ((pType IS NULL) OR (drv.type = pType)) AND
         ((pResolution IS NULL) OR (drv.resolution = pResolution)) AND
         ((pQuality IS NULL) OR (drv.quality = pQuality)) AND
-        ((pAppVersion IS NULL) OR (drv.app_version = pAppVersion)) AND
-        ((pFirmwareVersion IS NULL) OR (drv.firmware_version = pFirmwareVersion)) AND
         ((pDeviceRelationshipId IS NULL) OR (drv.device_relationship_id = pDeviceRelationshipId))
     )
     ORDER BY drv.create_date
