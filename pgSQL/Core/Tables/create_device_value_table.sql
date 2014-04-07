@@ -11,5 +11,8 @@ create table device_value (
 	type varchar(32),
 	create_date timestamp without time zone,
 	last_update timestamp without time zone,
-	device_id varchar(32)
+	device_id varchar(32),
+	location_name varchar(64),
+	latitude decimal,
+	longitude decimal
 );

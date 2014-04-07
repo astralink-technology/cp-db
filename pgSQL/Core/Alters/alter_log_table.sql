@@ -19,3 +19,10 @@ ALTER TABLE log
 -- Alters to log table 20140123
 ALTER TABLE log
   ALTER COLUMN type TYPE char(1);
+
+-- Alters to log table 20140407
+ALTER TABLE log
+    ADD COLUMN snapshot_value1 varchar(16);
+
+ALTER TABLE log
+    ADD COLUMN snapshot_value2 varchar(16);

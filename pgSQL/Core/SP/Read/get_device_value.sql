@@ -1,16 +1,12 @@
--- Always copy the function name and the parameters below to this section before changing the stored procedure
-DROP FUNCTION IF EXISTS get_device_value(
-	pDeviceValueId varchar(32)
-	, pPush char(1)
-	, pSms char(1)
-	, pToken varchar(256)
-	, pType varchar(32)
-	, pResolution varchar(16)
-	, pQuality varchar(16)
-	, pDeviceId varchar(32)
-	, pPageSize integer
-	, pSkipSize integer
-);
+-- Drop function
+DO $$
+DECLARE fname text;
+BEGIN
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_device_value' LOOP
+  EXECUTE 'DROP FUNCTION ' || fname;
+END loop;
+RAISE INFO 'FUNCTION % DROPPED', fname;
+END$$;
 -- Start function
 CREATE FUNCTION get_device_value(
 	pDeviceValueId varchar(32)
@@ -21,6 +17,9 @@ CREATE FUNCTION get_device_value(
 	, pResolution varchar(16)
 	, pQuality varchar(16)
 	, pDeviceId varchar(32)
+	, pLocationName varchar(64)
+	, pLatitude decimal
+	, pLongitude decimal
 	, pPageSize integer
 	, pSkipSize integer
 )
@@ -38,6 +37,9 @@ RETURNS TABLE(
 	last_update timestamp without time zone,
 	device_id varchar(32),
 	description text,
+	location_name varchar(64),
+	latitude decimal,
+	longitude decimal,
 	total_rows integer
 ) AS
 $BODY$
@@ -70,6 +72,9 @@ BEGIN
         , dv.last_update
         , dv.device_id
         , dv.description
+      , dv.location_name
+      , dv.latitude
+      , dv.longitude
       FROM device_value dv WHERE (
         ((pDeviceValueId IS NULL) OR (dv.device_value_id = pDeviceValueId)) AND
         ((pDeviceId IS NULL) OR (dv.device_id = pDeviceId))

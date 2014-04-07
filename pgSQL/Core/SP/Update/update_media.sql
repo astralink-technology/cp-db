@@ -1,21 +1,12 @@
--- Always copy the function name and the parameters below to this section before changing the stored procedure
-DROP FUNCTION IF EXISTS update_media(
-    pMediaId varchar(32)
-    , pTitle varchar(32)
-    , pType char(1)
-    , pFilename text
-    , pMediaUrl text 
-    , pStatus char(1)
-    , pDescription text
-    , pFileType varchar(16)
-    , pImgUrl text
-    , pImgUrl2 text
-    , pImgUrl3 text
-    , pImgUrl4 text
-    , pDeviceId varchar(32)
-    , pEntityId varchar(32)
-    , pFileSize decimal
-);
+-- Drop function
+DO $$
+DECLARE fname text;
+BEGIN
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'update_media' LOOP
+  EXECUTE 'DROP FUNCTION ' || fname;
+END loop;
+RAISE INFO 'FUNCTION % DROPPED', fname;
+END$$;
 -- Start function
 CREATE FUNCTION update_media(
     pMediaId varchar(32)

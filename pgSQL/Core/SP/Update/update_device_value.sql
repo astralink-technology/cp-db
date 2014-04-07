@@ -1,18 +1,12 @@
--- Always copy the function name and the parameters below to this section before changing the stored procedure
-DROP FUNCTION IF EXISTS update_device_value(
-	pDeviceValueId varchar(32)
-	, pPush char(1)
-	, pSms char(1)
-	, pToken varchar(128)
-	, pType varchar(32)
-	, pResolution varchar(16)
-	, pQuality varchar(16)
-	, pHash varchar(60)
-	, pSalt varchar(16)
-	, pLastUpdate timestamp without time zone
-	, pDeviceId varchar(32)
-	, pDescription varchar(32)
-);
+-- Drop function
+DO $$
+DECLARE fname text;
+BEGIN
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'update_device_value' LOOP
+  EXECUTE 'DROP FUNCTION ' || fname;
+END loop;
+RAISE INFO 'FUNCTION % DROPPED', fname;
+END$$;
 -- Start function
 CREATE FUNCTION update_device_value(
 	pDeviceValueId varchar(32)
@@ -27,6 +21,9 @@ CREATE FUNCTION update_device_value(
 	, pLastUpdate timestamp without time zone
 	, pDeviceId varchar(32)
 	, pDescription varchar(32)
+	, pLocationName varchar(64)
+	, pLatitude decimal
+	, pLongitude decimal
 )
 RETURNS BOOL AS 
 $BODY$
@@ -43,6 +40,9 @@ DECLARE
     nLastUpdate timestamp without time zone;
     nDeviceId varchar(32);
     nDescription varchar(32);
+    nLocationName varchar(64);
+    nLatitude decimal;
+    nLongitude decimal;
 
     oDeviceValueId varchar(32);
     oPush char(1);
@@ -56,6 +56,9 @@ DECLARE
     oLastUpdate timestamp without time zone;
     oDeviceId varchar(32);
     oDescription varchar(32);
+    oLocationName varchar(64);
+    oLatitude decimal;
+    oLongitude decimal;
 
 BEGIN
     -- ID is needed if not return
@@ -75,6 +78,9 @@ BEGIN
           , dv.last_update
           , dv.device_id
 	  , dv.description
+	  , dv.location_name
+	  , dv.latitude
+	  , dv.longitude
         INTO STRICT
           oPush
           , oSms
@@ -87,6 +93,9 @@ BEGIN
           , oLastUpdate
           , oDeviceId
 	  , oDescription
+	  , oLocationName
+	  , oLatitude
+	  , oLongitude
         FROM device_value dv WHERE
             dv.device_value_id = pDeviceValueId or dv.device_id = pDeviceId;
 
@@ -186,6 +195,30 @@ BEGIN
             nDescription := pDescription;
         END IF;
 
+        IF pLatitude IS NULL THEN 
+            nLatitude := oLatitude;
+        ELSEIF pLatitude = '' THEN
+            nLatitude := NULL;
+        ELSE
+            nLatitude := pLatitude;
+        END IF;
+
+        IF pLocationName IS NULL THEN 
+            nLocationName := oLocationName;
+        ELSEIF pLocationName = '' THEN
+            nLocationName := NULL;
+        ELSE
+            nLocationName := pLocationName;
+        END IF;
+
+        IF pLongitude IS NULL THEN 
+            nLongitude := oLongitude;
+        ELSEIF pLongitude = '' THEN
+            nLongitude := NULL;
+        ELSE
+            nLongitude := pLongitude;
+        END IF;
+
 
         -- start the update
         UPDATE 
@@ -201,6 +234,9 @@ BEGIN
           , salt = nSalt
           , last_update = nLastUpdate
 	  , description = nDescription
+	  , location_name = nLocationName
+	  , latitude = nLatitude
+	  , longitude = nLongitude
          WHERE (
           ((pDeviceId IS NULL) OR (device_id = pDeviceId)) AND
           ((device_value_id = pDeviceValueId)) -- device value ID is required

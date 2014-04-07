@@ -1,13 +1,12 @@
--- Always copy the function name and the parameters below to this section before changing the stored procedure
-DROP FUNCTION IF EXISTS update_log(
-    pLogId varchar(32) 
-    , pMessage text
-    , pTitle varchar(32)
-    , pType varchar(32)
-    , pLogUrl text 
-    , pStatus char(1)
-    , pOwnerId varchar(32)
-);
+-- Drop function
+DO $$
+DECLARE fname text;
+BEGIN
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'update_log' LOOP
+  EXECUTE 'DROP FUNCTION ' || fname;
+END loop;
+RAISE INFO 'FUNCTION % DROPPED', fname;
+END$$;
 -- Start function
 CREATE FUNCTION update_log(
     pLogId varchar(32) 
@@ -17,6 +16,8 @@ CREATE FUNCTION update_log(
     , pLogUrl text 
     , pStatus char(1)
     , pOwnerId varchar(32)
+    , pSnapshotValue1 varchar(16)
+    , pSnapshotValue2 varchar(16)
 )
 RETURNS BOOL AS 
 $BODY$
@@ -27,6 +28,8 @@ DECLARE
     oLogUrl text;
     oStatus char(1);
     oOwnerId varchar(32);
+    oSnapshotValue1 varchar(16);
+    oSnapshotValue2 varchar(16);
 
     nMessage text;
     nTitle varchar(32);
@@ -34,6 +37,8 @@ DECLARE
     nLogUrl text ;
     nStatus char(1);
     nOwnerId varchar(32);
+    nSnapshotValue1 varchar(16);
+    nSnapshotValue2 varchar(16);
 BEGIN
     -- ID is needed if not return
     IF pLogId IS NULL THEN  
@@ -47,6 +52,8 @@ BEGIN
             , l.log_url 
             , l.status 
             , l.owner_id
+            , l.snapshot_value1
+            , l.snapshot_value2
         INTO STRICT
             oMessage
             , oTitle
@@ -54,6 +61,8 @@ BEGIN
             , oLogUrl
             , oStatus
             , oOwnerId
+            , oSnapshotValue1
+            , oSnapshotValue2
         FROM log l WHERE 
             l.log_id = pLogId;
 
@@ -106,6 +115,22 @@ BEGIN
             nOwnerId := pOwnerId;
         END IF;
 
+        IF pSnapshotValue1 IS NULL THEN 
+            nSnapshotValue1 := oSnapshotValue1;
+        ELSEIF pSnapshotValue1 = '' THEN  
+            nSnapshotValue1 := NULL;
+        ELSE
+            nSnapshotValue1 := pSnapshotValue1;
+        END IF;
+
+        IF pSnapshotValue2 IS NULL THEN 
+            nSnapshotValue2 := oSnapshotValue2;
+        ELSEIF pSnapshotValue2 = '' THEN  
+            nSnapshotValue2 := NULL;
+        ELSE
+            nSnapshotValue2 := pSnapshotValue2;
+        END IF;
+
 
         -- start the update
         UPDATE 
@@ -117,6 +142,8 @@ BEGIN
             , log_url  = nLogUrl
             , status  = nStatus
             , owner_id = nOwnerId
+            , snapshot_value1 = nSnapshotValue1
+            , snapshot_value2 = nSnapshotValue2
         WHERE 
             log_id = pLogId;
 
