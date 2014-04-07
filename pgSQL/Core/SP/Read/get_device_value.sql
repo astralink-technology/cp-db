@@ -21,6 +21,10 @@ CREATE FUNCTION get_device_value(
 	, pResolution varchar(16)
 	, pQuality varchar(16)
 	, pDeviceId varchar(32)
+	, pDeviceId varchar(32)
+	, pLocationName varchar(64)
+	, pLatitude decimal
+	, pLongitude decimal
 	, pPageSize integer
 	, pSkipSize integer
 )
@@ -38,6 +42,9 @@ RETURNS TABLE(
 	last_update timestamp without time zone,
 	device_id varchar(32),
 	description text,
+	location_name,
+	latitude,
+	longitude,
 	total_rows integer
 ) AS
 $BODY$
@@ -70,6 +77,9 @@ BEGIN
         , dv.last_update
         , dv.device_id
         , dv.description
+	, dv.location_name
+	, dv.latitude
+	, dv.longitude
       FROM device_value dv WHERE (
         ((pDeviceValueId IS NULL) OR (dv.device_value_id = pDeviceValueId)) AND
         ((pDeviceId IS NULL) OR (dv.device_id = pDeviceId))

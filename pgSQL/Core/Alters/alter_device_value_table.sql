@@ -19,3 +19,13 @@ ALTER TABLE device_value
 -- Alters to device value table 20131231
 ALTER TABLE device_value
     ALTER COLUMN token SET DATA TYPE varchar(256);
+
+-- Alters to device value table 20140407
+ALTER TABLE device_value
+    ADD COLUMN location_name varchar(64);
+
+ALTER TABLE device_value
+    ADD COLUMN latitide decimal;
+
+ALTER TABLE device_value
+    ADD COLUMN longitude decimal;

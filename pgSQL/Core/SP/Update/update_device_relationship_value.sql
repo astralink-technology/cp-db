@@ -28,6 +28,8 @@ CREATE FUNCTION update_device_relationship_value(
 	, pLastUpdate timestamp without time zone
 	, pDeviceRelationshipId varchar(32)
 	, pDescription text
+	, pAppVersion varchar(16)
+	, pFirmwareVersion varchar(16)
 )
 RETURNS BOOL AS 
 $BODY$
@@ -44,6 +46,8 @@ DECLARE
     nLastUpdate timestamp without time zone;
     nDeviceRelationshipId varchar(32);
     nDescription text;
+    nAppVersion varchar(16);
+    nFirmwareVersion varchar(16);
 
     oName varchar(64);
     oPush char(1);
@@ -57,6 +61,8 @@ DECLARE
     oLastUpdate timestamp without time zone;
     oDeviceRelationshipId varchar(32);
     oDescription text;
+    oAppVersion varchar(16);
+    oFirmwareVersion varchar(16);
 
 BEGIN
     -- ID is needed if not return
@@ -77,6 +83,8 @@ BEGIN
           , drv.last_update
           , drv.device_relationship_id
 	        , drv.description
+	        , drv.app_version
+	        , drv.firmware_version
         INTO STRICT
           oPush
           , oName
@@ -90,6 +98,8 @@ BEGIN
           , oLastUpdate
           , oDeviceRelationshipId
 	        , oDescription
+	        , oAppVersion
+	        , oFirmwareVersion
         FROM device_relationship_value drv WHERE
             drv.device_relationship_value_id = pDeviceRelationshipValueId;
 
@@ -189,6 +199,22 @@ BEGIN
             nDescription := pDescription;
         END IF;
 
+        IF pAppVersion IS NULL THEN 
+            nAppVersion := oAppVersion;
+        ELSEIF pAppVersion = '' THEN
+            nAppVersion := NULL;
+        ELSE
+            nAppVersion := pAppVersion;
+        END IF;
+
+        IF pFirmwareVersion IS NULL THEN 
+            nFirmwareVersion := oFirmwareVersion;
+        ELSEIF pFirmwareVersion = '' THEN
+            nFirmwareVersion := NULL;
+        ELSE
+            nFirmwareVersion := pFirmwareVersion;
+        END IF;
+
 
         -- start the update
         UPDATE 
@@ -206,6 +232,8 @@ BEGIN
           , last_update = nLastUpdate
 	        , description = nDescription
 	        , device_relationship_id = nDeviceRelationshipId
+	        , app_version= nAppVersion
+	        , firmware_version = nFirmwareVersion
          WHERE (
           device_relationship_value_id = pDeviceRelationshipValueId
         );

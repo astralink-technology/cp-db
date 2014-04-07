@@ -11,6 +11,7 @@ CREATE FUNCTION get_device_relationship(
 	pDeviceRelationshipId varchar(32)
 	, pDeviceId varchar(32)
 	, pOwnerId varchar(32)
+	, pAppName varchar(64)
 	, pPageSize integer
 	, pSkipSize integer
 )
@@ -18,6 +19,7 @@ RETURNS TABLE(
 	device_relationship_id varchar(32)
 	, device_id varchar(32)
 	, owner_id varchar(32)
+	, app_name varchar(64)
 	, last_update timestamp without time zone
 	, create_date timestamp without time zone
 	, total_rows integer
@@ -43,6 +45,7 @@ BEGIN
         dr.device_relationship_id
         , dr.device_id
         , dr.owner_id
+	, dr.app_name
         , dr.last_update
         , dr.create_date
       FROM device_relationship dr WHERE (

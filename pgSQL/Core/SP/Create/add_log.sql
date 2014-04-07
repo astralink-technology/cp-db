@@ -19,6 +19,8 @@ CREATE FUNCTION add_log(
 	, pStatus char(1)
 	, pCreateDate timestamp without time zone
 	, pOwnerId varchar(32)
+	, pSnapshotValue1 varchar(16)
+	, pSnapshotValue2 varchar(16)
 )
 RETURNS varchar(32) AS 
 $BODY$
@@ -32,6 +34,8 @@ BEGIN
 	, status
 	, create_date
 	, owner_id
+	, snapshot_value1
+	, snapshot_value2
     ) VALUES(
 	pLogId
 	, pMessage
@@ -41,6 +45,8 @@ BEGIN
 	, pStatus 
 	, pCreateDate
 	, pOwnerId
+	, pSnapshotValue1
+	, pSnapshotValue2
     );
     RETURN pLogId;
 END;

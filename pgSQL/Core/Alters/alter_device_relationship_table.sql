@@ -16,3 +16,7 @@ ALTER TABLE device_relationship
     RENAME COLUMN entity_id to owner_id;
 ALTER TABLE device_relationship
     DROP COLUMN relationship_name;
+
+-- Alters to device relationship table 20140407
+ALTER TABLE device_relationship
+    ADD COLUMN app_name varchar(64);

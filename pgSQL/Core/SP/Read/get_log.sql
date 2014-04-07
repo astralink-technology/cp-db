@@ -19,6 +19,8 @@ CREATE FUNCTION get_log(
 	, pLogUrl text 
 	, pStatus char(1)
 	, pOwnerId varchar(32)
+	, pSnapshotValue1 varchar(16)
+	, pSnapshotValue2 varchar(16)
 	, pPageSize integer
 	, pSkipSize integer
 )
@@ -31,6 +33,8 @@ RETURNS TABLE(
 	, status char(1)
 	, create_date timestamp without time zone
 	, owner_id varchar(32)
+	, snapshot_value1 varchar(16)
+	, snapshot_value2 varchar(16)
 	, total_rows integer
 ) AS
 $BODY$
@@ -49,7 +53,9 @@ BEGIN
       ((pType IS NULL) OR (l.type = pType))AND
       ((pLogUrl IS NULL) OR (l.log_url = pLogUrl))AND
       ((pStatus IS NULL) OR (l.status = pStatus)) AND
-      ((pOwnerId IS NULL) OR (l.owner_id = pOwnerId))
+      ((pOwnerId IS NULL) OR (l.owner_id = pOwnerId))AND
+      ((pSnapshotValue1 IS NULL) OR (l.snapshot_value1 = pSnapshotValue1)) AND
+      ((pSnapshotValue2 IS NULL) OR (l.snapshot_value2 = pSnapshotValue2)) 
     );
 
     -- create a temp table to get the data
@@ -63,6 +69,8 @@ BEGIN
         , l.status
         , l.create_date
         , l.owner_id
+	, l.snapshot_value1
+	, l.snapshot_value2
       FROM log l WHERE (
         ((pLogId IS NULL) OR (l.log_id = pLogId)) AND
         ((pMessage IS NULL) OR (l.message = pMessage)) AND
@@ -70,7 +78,9 @@ BEGIN
         ((pType IS NULL) OR (l.type = pType))AND
         ((pLogUrl IS NULL) OR (l.log_url = pLogUrl))AND
         ((pStatus IS NULL) OR (l.status = pStatus)) AND
-        ((pOwnerId IS NULL) OR (l.owner_id = pOwnerId))
+        ((pOwnerId IS NULL) OR (l.owner_id = pOwnerId))AND
+      ((pSnapshotValue1 IS NULL) OR (l.snapshot_value1 = pSnapshotValue1)) AND
+      ((pSnapshotValue2 IS NULL) OR (l.snapshot_value2 = pSnapshotValue2)) 
       )
       ORDER BY l.create_date
       LIMIT pPageSize OFFSET pSkipSize;

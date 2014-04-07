@@ -29,6 +29,9 @@ CREATE FUNCTION add_device_value(
 	, pLastUpdate timestamp without time zone
 	, pDeviceId varchar(32)
 	, pDescription text
+	, pLocationName varchar(64)
+	, pLatitude decimal
+	, pLongitude decimal
 )
 RETURNS varchar(32) AS 
 $BODY$
@@ -47,6 +50,9 @@ BEGIN
         , last_update
         , device_id
 	, description
+	, location_name
+	, latitude
+	, longitude
     ) VALUES(
         pDeviceValueId
         , pPush
@@ -61,6 +67,9 @@ BEGIN
         , pLastUpdate
         , pDeviceId
 	      , pDescription
+	, pLocationName
+	, pLatitude
+	, pLongitude
     );
     RETURN pDeviceId;
 END;
