@@ -44,7 +44,7 @@ BEGIN
         -- Start the updating process
         IF pEmailAddress IS NULL THEN 
             nEmailAddress := oEmailAddress;
-        ELSEIF pFirstName = '' THEN  
+        ELSEIF pEmailAddress = '' THEN
             nEmailAddress := NULL;
         ELSE
             nEmailAddress := pEmailAddress;
