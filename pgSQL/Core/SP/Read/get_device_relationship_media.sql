@@ -90,7 +90,7 @@ BEGIN
         ((pDeviceId IS NULL) OR (dr.device_id = pDeviceId))AND
         ((pDeviceRelationshipId IS NULL) OR (dr.device_relationship_id = pDeviceRelationshipId))
       )
-      ORDER BY m.create_date
+      ORDER BY m.create_date desc
       LIMIT pPageSize OFFSET pSkipSize;
 
     RETURN QUERY
