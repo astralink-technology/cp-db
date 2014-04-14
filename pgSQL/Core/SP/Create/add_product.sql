@@ -1,14 +1,12 @@
--- Always copy the function name and the parameters below to this section before changing the stored procedure
-DROP FUNCTION IF EXISTS add_product(
-	pProductId varchar(32)
-	, pName varchar(32) 
-	, pDescription text
-	, pStatus char(1)
-	, pType char(1)
-	, pCode varchar(60)
-	, pCreateDate timestamp without time zone
-	, pLastUpdate timestamp without time zone
-);
+-- Drop function
+DO $$
+DECLARE fname text;
+BEGIN
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'add_product' LOOP
+  EXECUTE 'DROP FUNCTION ' || fname;
+END loop;
+RAISE INFO 'FUNCTION % DROPPED', fname;
+END$$;
 -- Start function
 CREATE FUNCTION add_product(
 	pProductId varchar(32)

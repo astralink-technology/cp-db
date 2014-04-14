@@ -1,10 +1,12 @@
--- Always copy the function name and the parameters below to this section before changing the stored procedure
-DROP FUNCTION IF EXISTS update_email(
-    pEmailId varchar(32)
-    , pEmailAddress varchar(64)
-    , pLastUpdate timestamp without time zone
-    , pEntityId varchar(32)
-);
+-- Drop function
+DO $$
+DECLARE fname text;
+BEGIN
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'update_email' LOOP
+  EXECUTE 'DROP FUNCTION ' || fname;
+END loop;
+RAISE INFO 'FUNCTION % DROPPED', fname;
+END$$;
 -- Start function
 CREATE FUNCTION update_email(
     pEmailId varchar(32)
@@ -42,7 +44,7 @@ BEGIN
         -- Start the updating process
         IF pEmailAddress IS NULL THEN 
             nEmailAddress := oEmailAddress;
-        ELSEIF pFirstName = '' THEN  
+        ELSEIF pEmailAddress = '' THEN
             nEmailAddress := NULL;
         ELSE
             nEmailAddress := pEmailAddress;

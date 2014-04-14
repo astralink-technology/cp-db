@@ -1,21 +1,12 @@
--- Always copy the function name and the parameters below to this section before changing the stored procedure
-DROP FUNCTION IF EXISTS get_device_details(
-	pDeviceId varchar(32)
-	, pName varchar(32)
-	, pCode varchar(32)
-	, pStatus char(1)
-	, pType char(1)
-	, pType2 char(1)
-	, pPush char(1)
-	, pToken varchar(128)
-	, pSms char(1)
-	, pQuality char(16)
-	, pResolution varchar(16)
-	, pDeviceValueType varchar(32)
-	, pOwnerId varchar(32)
-	, pPageSize integer
-	, pSkipSize integer
-);
+-- Drop function
+DO $$
+DECLARE fname text;
+BEGIN
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_device_details' LOOP
+  EXECUTE 'DROP FUNCTION ' || fname;
+END loop;
+RAISE INFO 'FUNCTION % DROPPED', fname;
+END$$;
 -- Start function
 CREATE FUNCTION get_device_details(
 	pDeviceId varchar(32)

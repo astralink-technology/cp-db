@@ -1,17 +1,12 @@
--- Always copy the function name and the parameters below to this section before changing the stored procedure
-DROP FUNCTION IF EXISTS get_device_relationship_value(
-	pDeviceRelationshipValueId varchar(32)
-	, pName varchar(64)
-	, pPush char(1)
-	, pSms char(1)
-	, pToken varchar(256)
-	, pType char(1)
-	, pResolution varchar(16)
-	, pQuality varchar(16)
-	, pDeviceRelationshipId varchar(32)
-	, pPageSize integer
-	, pSkipSize integer
-);
+-- Drop function
+DO $$
+DECLARE fname text;
+BEGIN
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_device_relationship_value' LOOP
+  EXECUTE 'DROP FUNCTION ' || fname;
+END loop;
+RAISE INFO 'FUNCTION % DROPPED', fname;
+END$$;
 -- Start function
 CREATE FUNCTION get_device_relationship_value(
 	pDeviceRelationshipValueId varchar(32)
@@ -23,8 +18,6 @@ CREATE FUNCTION get_device_relationship_value(
 	, pResolution varchar(16)
 	, pQuality varchar(16)
 	, pDeviceRelationshipId varchar(32)
-	, pAppVersion varchar(16)
-	, pFirmwareVersion varchar(16)
 	, pPageSize integer
 	, pSkipSize integer
 )
@@ -43,8 +36,6 @@ RETURNS TABLE(
 	last_update timestamp without time zone,
 	device_relationship_id varchar(32),
 	description text,
-	app_version varchar(16),
-	firmware_version varchar(16),
 	total_rows integer
 ) AS
 $BODY$
@@ -65,8 +56,6 @@ BEGIN
         ((pType IS NULL) OR (drv.type = pType)) AND
         ((pResolution IS NULL) OR (drv.resolution = pResolution)) AND
         ((pQuality IS NULL) OR (drv.quality = pQuality)) AND
-        ((pAppVersion IS NULL) OR (drv.app_version = pAppVersion)) AND
-        ((pFirmwareVersion IS NULL) OR (drv.firmware_version = pFirmwareVersion)) AND
         ((pDeviceRelationshipId IS NULL) OR (drv.device_relationship_id = pDeviceRelationshipId))
     );
 
@@ -87,8 +76,6 @@ BEGIN
         , drv.last_update
         , drv.device_relationship_id
         , drv.description
-        , drv.app_version
-        , drv.firmware_version
       FROM device_relationship_value drv WHERE (
         ((pDeviceRelationshipValueId IS NULL) OR (drv.device_relationship_value_id = pDeviceRelationshipValueId)) AND
         ((pName IS NULL) OR (drv.name = pName)) AND
@@ -98,8 +85,6 @@ BEGIN
         ((pType IS NULL) OR (drv.type = pType)) AND
         ((pResolution IS NULL) OR (drv.resolution = pResolution)) AND
         ((pQuality IS NULL) OR (drv.quality = pQuality)) AND
-        ((pAppVersion IS NULL) OR (drv.app_version = pAppVersion)) AND
-        ((pFirmwareVersion IS NULL) OR (drv.firmware_version = pFirmwareVersion)) AND
         ((pDeviceRelationshipId IS NULL) OR (drv.device_relationship_id = pDeviceRelationshipId))
     )
     ORDER BY drv.create_date

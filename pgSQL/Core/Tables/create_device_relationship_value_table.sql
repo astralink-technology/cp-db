@@ -12,7 +12,5 @@ create table device_relationship_value (
 	type char(1),
 	create_date timestamp without time zone,
 	last_update timestamp without time zone,
-	device_relationship_id varchar(32),
-	app_version varchar(16),
-	firmware_version varchar(16)
+	device_relationship_id varchar(32)
 );

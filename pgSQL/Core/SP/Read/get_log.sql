@@ -1,15 +1,12 @@
--- Always copy the function name and the parameters below to this section before changing the stored procedure
-DROP FUNCTION IF EXISTS get_log(
-	pLogId varchar(32)
-	, pMessage text
-	, pTitle varchar(32)
-	, pType char(1)
-	, pLogUrl text
-	, pStatus char(1)
-	, pOwnerId varchar(32)
-	, pPageSize integer
-	, pSkipSize integer
-);
+-- Drop function
+DO $$
+DECLARE fname text;
+BEGIN
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_log' LOOP
+  EXECUTE 'DROP FUNCTION ' || fname;
+END loop;
+RAISE INFO 'FUNCTION % DROPPED', fname;
+END$$;
 -- Start function
 CREATE FUNCTION get_log(
 	pLogId varchar(32)

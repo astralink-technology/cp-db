@@ -1,18 +1,12 @@
--- Always copy the function name and the parameters below to this section before changing the stored procedure
-DROP FUNCTION IF EXISTS update_authentication(
-        pAuthenticationId varchar(32)
-        , pAuthenticationString varchar(32)
-        , pAuthenticationStringLower varchar(32)
-        , pHash varchar(60)
-        , pSalt varchar(16)
-        , pLastLogin timestamp without time zone
-        , pLastLogout timestamp without time zone
-        , pLastChangePassword timestamp without time zone
-        , pRequestAuthenticationStart timestamp without time zone
-        , pRequestAuthenticationEnd timestamp without time zone
-        , pAuthorizationLevel integer
-        , pLastUpdate timestamp without time zone
-);
+-- Drop function
+DO $$
+DECLARE fname text;
+BEGIN
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'update_authentication' LOOP
+  EXECUTE 'DROP FUNCTION ' || fname;
+END loop;
+RAISE INFO 'FUNCTION % DROPPED', fname;
+END$$;
 -- Start function
 CREATE FUNCTION update_authentication(
         pAuthenticationId varchar(32)

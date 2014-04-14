@@ -29,3 +29,9 @@ ALTER TABLE device_value
 
 ALTER TABLE device_value
     ADD COLUMN longitude decimal;
+
+ALTER TABLE device_value
+    ADD COLUMN app_version varchar(16);
+
+ALTER TABLE device_value
+    ADD COLUMN firmware_version varchar(16);

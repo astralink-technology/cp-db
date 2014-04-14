@@ -1,28 +1,12 @@
--- Always copy the function name and the parameters below to this section before changing the stored procedure
-DROP FUNCTION IF EXISTS add_device_with_values(
-	pDeviceId varchar(32)
-	, pName varchar(32) 
-	, pCode varchar(32)
-	, pStatus char(1)
-	, pType char(1)
-	, pType2 char(1)
-	, pDescription text
-	, pCreateDate timestamp without time zone
-	, pLastUpdate timestamp without time zone
-	, pEntityId varchar(32)
-	, pDeviceValueId varchar(32)
-	, pPush char(1)
-	, pSms char(1)
-	, pToken varchar(128)
-	, pDeviceValueType varchar(32)
-	, pResolution varchar(16)
-	, pQuality varchar(16)
-	, pHash varchar(60)
-	, pSalt varchar(16)
-	, pDeviceValueCreateDate timestamp without time zone
-	, pDeviceValueLastUpdate timestamp without time zone
-	, pDeviceValueDescription text
-);
+-- Drop function
+DO $$
+DECLARE fname text;
+BEGIN
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'add_device_with_values' LOOP
+  EXECUTE 'DROP FUNCTION ' || fname;
+END loop;
+RAISE INFO 'FUNCTION % DROPPED', fname;
+END$$;
 -- Start function
 CREATE FUNCTION add_device_with_values(
 	pDeviceId varchar(32)
