@@ -17,19 +17,17 @@ CREATE FUNCTION get_analytics(
         , pEndDateTime timestamp without time zone
     )
 RETURNS TABLE(
-    entity_id varchar(32)
-    , first_name varchar(32)
-    , last_name varchar(32)
-    , nick_name varchar(32)
-    , name varchar(64)
-    , status char(1)
-    , approved boolean
-    , type char(1)
+    eyecare_id varchar(32)
+    , event_type_name varchar(64)
+    , event_type_id varchar(64)
+    , node_id varchar(64)
+    , node_name varchar(64)
+    , zone varchar(64)
     , create_date timestamp without time zone
-    , last_update timestamp without time zone
-    , authentication_id varchar(32)
-    , primary_email_id varchar(32)
-    , primary_phone_id varchar(32)
+    , device_id varchar(32)
+    , home_id varchar(32)
+    , extra_data varchar(64)
+    , entity_id varchar(32)
     , total_rows integer
   )
 AS
@@ -42,27 +40,29 @@ BEGIN
       COUNT(*)
     INTO STRICT
       totalRows
-    FROM entity;
+    FROM eyecare;
 
     -- create a temp table to get the data
-    CREATE TEMP TABLE entity_init AS
+    CREATE TEMP TABLE eyecare_init AS
       SELECT
-        e.entity_id
-        , e.first_name
-        , e.last_name
-        , e.nick_name
-        , e.name
-        , e.status
-        , e.approved
-        , e.type
+        e.eyecare_id
+        , e.event_type_name
+        , e.event_type_id
+        , e.node_id
+        , e.node_name
+        , e.zone
         , e.create_date
-        , e.last_update
-        , e.authentication_id
-        , e.primary_email_id
-        , e.primary_phone_id
-          FROM entity e WHERE (
+        , e.device_id
+        , e.home_id
+        , e.extra_data
+        , e.entity_id
+          FROM eyecare e WHERE (
           ((pEntityId IS NULL) OR (e.entity_id = pEntityId)) AND
-          ((pAuthenticationId IS NULL) OR (e.authentication_id = pAuthenticationId))
+          ((pZone IS NULL) OR (e.zone = pZone)) AND
+          ((pDeviceId IS NULL) OR (e.device_id = pDeviceId)) AND
+          ((pEventTypeId IS NULL) OR (e.event_type_id = pEventTypeId)) AND
+          ((pZone IS NULL) OR (e.zone = pZone)) AND 
+	  create_date between pStartDateTime AND pEndDateTime
         )
       ORDER BY e.create_date
       LIMIT pPageSize OFFSET pSkipSize;
@@ -72,7 +72,7 @@ BEGIN
     SELECT
       *
       , totalRows
-    FROM entity_init;
+    FROM eyecare_init;
 
 END;
 $BODY$
