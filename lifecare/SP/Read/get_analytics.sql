@@ -61,11 +61,10 @@ BEGIN
           ((pZone IS NULL) OR (e.zone = pZone)) AND
           ((pDeviceId IS NULL) OR (e.device_id = pDeviceId)) AND
           ((pEventTypeId IS NULL) OR (e.event_type_id = pEventTypeId)) AND
-          ((pZone IS NULL) OR (e.zone = pZone)) AND 
-	  create_date between pStartDateTime AND pEndDateTime
+          ((pZone IS NULL) OR (e.zone = pZone)) AND
+          ((pStartDateTime IS NULL OR pEndDateTime IS NULL) OR (create_date BETWEEN pStartDateTime AND pEndDateTime)) -- might have syntax error
         )
-      ORDER BY e.create_date
-      LIMIT pPageSize OFFSET pSkipSize;
+      ORDER BY e.create_date;
 
     RETURN QUERY
 
