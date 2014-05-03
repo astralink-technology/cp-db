@@ -8,7 +8,7 @@ END loop;
 RAISE INFO 'FUNCTION % DROPPED', fname;
 END$$;
 -- Start function
-CREATE FUNCTION add_entity(
+CREATE FUNCTION add_entity_relationship(
 	pEntityRelationshipId varchar(32), 
 	pEntityId varchar(32), 
 	pRelatedId varchar(32), 

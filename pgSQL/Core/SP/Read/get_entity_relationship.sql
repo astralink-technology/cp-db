@@ -11,6 +11,8 @@ END$$;
 CREATE FUNCTION get_entity_relationship(
         pEntityRelationshipId varchar(32)
         , pEntityId varchar(32)
+        , pRelatedId varchar(32)
+        , pStatus char(1)
         , pPageSize integer
         , pSkipSize integer
     )
@@ -44,6 +46,8 @@ BEGIN
         , er.create_date
           FROM entity_relationship er WHERE (
           ((pEntityId IS NULL) OR (er.entity_id = pEntityId)) AND
+          ((pRelatedId IS NULL) OR (er.related_id = pRelatedId)) AND
+          ((pStatus IS NULL) OR (er.status = pStatus)) AND
           ((pEntityRelationshipId IS NULL) OR (er.entity_relationship_id = pEntityRelationshipId))
         )
       ORDER BY er.create_date

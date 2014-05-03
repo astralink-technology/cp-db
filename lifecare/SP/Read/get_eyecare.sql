@@ -2,13 +2,13 @@
 DO $$
 DECLARE fname text;
 BEGIN
-FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_analytics' LOOP
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_eyecare' LOOP
   EXECUTE 'DROP FUNCTION ' || fname;
 END loop;
 RAISE INFO 'FUNCTION % DROPPED', fname;
 END$$;
 -- Start function
-CREATE FUNCTION get_analytics(
+CREATE FUNCTION get_eyecare(
        pEntityId varchar(32)
         , pZone varchar(64)
         , pDeviceId varchar(32)

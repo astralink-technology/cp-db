@@ -2,13 +2,13 @@
 DO $$
 DECLARE fname text;
 BEGIN
-FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_analytics' LOOP
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_wakeup_analytics' LOOP
   EXECUTE 'DROP FUNCTION ' || fname;
 END loop;
 RAISE INFO 'FUNCTION % DROPPED', fname;
 END$$;
 -- Start function
-CREATE FUNCTION get_analytics(
+CREATE FUNCTION get_wakeup_analytics(
        pEntityId varchar(32)
         , pZone varchar(64)
         , pDeviceId varchar(32)
@@ -63,7 +63,7 @@ BEGIN
           ((pDeviceId IS NULL) OR (e.device_id = pDeviceId)) AND
           ((pEventTypeId IS NULL) OR (e.event_type_id = pEventTypeId)) AND
           ((pZone IS NULL) OR (e.zone = pZone)) AND
-          ((pStartDateTime IS NULL OR pEndDateTime IS NULL) OR (e.create_date BETWEEN pStartDateTime AND pEndDateTime)) -- might have syntax error
+          ((pStartDateTime IS NULL OR pEndDateTime IS NULL) OR (e.create_date BETWEEN pStartDateTime AND pEndDateTime))
         )
       ORDER BY e.create_date ASC;
 

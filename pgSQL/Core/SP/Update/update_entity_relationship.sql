@@ -66,12 +66,6 @@ BEGIN
             nStatus := pStatus;
         END IF;
 
-        IF pApproved IS NULL THEN 
-            nApproved := oApproved;
-        ELSE
-            nApproved := pApproved;
-        END IF;
-
 
         -- start the update
         UPDATE 
