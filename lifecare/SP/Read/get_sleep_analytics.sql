@@ -1,37 +1,36 @@
---wake up algorithm
-select create_date from eyecare where create_date between '2014-05-05T05:00' AND '2014-05-05T23:00:00'
-and event_type_id NOT IN ('20010', '20004') and
--- device_id = 'z0a783989897' --tee
--- device_id = 'z0a78300b00b' --goh
--- device_id = 'z0a783118008' --suraya
-order by create_date asc limit 1
+-- Drop function
+DO $$
+DECLARE fname text;
+BEGIN
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_sleep_analytics' LOOP
+  EXECUTE 'DROP FUNCTION ' || fname;
+END loop;
+RAISE INFO 'FUNCTION % DROPPED', fname;
+END$$;
+-- Start function
+CREATE FUNCTION get_sleep_analytics(
+        pDeviceId varchar(32)
+        , pDay date
+    )
+RETURNS TABLE(
+    create_date timestamp without time zone
+  )
+AS
+$BODY$
+BEGIN
+    RETURN QUERY
 
---sleeping algorithm
-select create_date from eyecare where create_date between '2014-05-05T23:00' AND '2014-05-05T5:00:00'
-create
+    SELECT e.create_date
+    FROM (
+      SELECT create_date, lead(create_date) over (ORDER BY create_date) as next_create_date
+      FROM eyecare e
+      WHERE create_date BETWEEN (pDay - INTERVAL '1 day' || 'T' || '23:00') AND (pDay || 'T' || '05:00') AND
+      event_type_id NOT IN  ('20010', '20004')
+      ORDER BY create_date ASC
+    ) e
+    WHERE next_create_date > create_date + 2 * INTERvAL '1 hour'
+    LIMIT 1;
 
-order by create_date asc limit 1
-
-select e.*
-from (select e.*,
-             lag(create_date) over (order by create_date asc) as prev_create_date
-      from eyecare e
-     ) e
-where prev_create_date < create_date - 2 * interval '1 hour'
-and e.device_id = 'z0a783989897' --tee
-and create_date between '2014-05-04T23:00' AND '2014-05-05T5:00:00';
-
-select e.*
-from (select e.*,
-             lag(create_date) over (order by create_date) as prev_create_date,
-             lead(create_date) over (order by create_date) as next_create_date
-      from eyecare e
-     ) e
-where prev_create_date < create_date - 2 * interval '1 hour' or
-      next_create_date > create_date + 2 * interval '1 hour'
-and e.device_id = 'z0a783989897' --tee
-and e.create_date between '2014-05-04T23:00' AND '2014-05-05T5:00:00'
-order by create_date;
-
-
-select e.name, dr.device_id from entity e inner join device_relationship dr on dr.owner_id = e.entity_id
+END;
+$BODY$
+LANGUAGE plpgsql;
