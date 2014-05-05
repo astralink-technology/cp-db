@@ -2,17 +2,15 @@
 DO $$
 DECLARE fname text;
 BEGIN
-FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_analytics' LOOP
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_diagnostics' LOOP
   EXECUTE 'DROP FUNCTION ' || fname;
 END loop;
 RAISE INFO 'FUNCTION % DROPPED', fname;
 END$$;
 -- Start function
-CREATE FUNCTION get_analytics(
+CREATE FUNCTION get_diagnostics(
        pEntityId varchar(32)
-        , pZone varchar(64)
         , pDeviceId varchar(32)
-        , pEventTypeId varchar(32)
         , pStartDateTime timestamp without time zone
         , pEndDateTime timestamp without time zone
     )
@@ -57,12 +55,9 @@ BEGIN
         , e.extra_data
         , e.entity_id
           FROM eyecare e WHERE (
-           e.event_type_id NOT IN ('20010', '20004') AND
+           e.event_type_id IN ('20010', '20004') AND
           ((pEntityId IS NULL) OR (e.entity_id = pEntityId)) AND
-          ((pZone IS NULL) OR (e.zone = pZone)) AND
           ((pDeviceId IS NULL) OR (e.device_id = pDeviceId)) AND
-          ((pEventTypeId IS NULL) OR (e.event_type_id = pEventTypeId)) AND
-          ((pZone IS NULL) OR (e.zone = pZone)) AND
           ((pStartDateTime IS NULL OR pEndDateTime IS NULL) OR (e.create_date BETWEEN pStartDateTime AND pEndDateTime)) -- might have syntax error
         )
       ORDER BY e.create_date ASC;
