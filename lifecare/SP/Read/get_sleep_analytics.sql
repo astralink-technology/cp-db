@@ -22,13 +22,14 @@ BEGIN
 
     SELECT e.create_date
     FROM (
-      SELECT create_date, lead(create_date) over (ORDER BY create_date) as next_create_date
+      SELECT e.create_date, lead(e.create_date) over (ORDER BY e.create_date) AS next_create_date
       FROM eyecare e
-      WHERE create_date BETWEEN (pDay - INTERVAL '1 day' || 'T' || '23:00') AND (pDay || 'T' || '05:00') AND
-      event_type_id NOT IN  ('20010', '20004')
-      ORDER BY create_date ASC
+      WHERE e.create_date BETWEEN (pDay  || 'T' || '23:00')::timestamp AND ((pDay || 'T' || '05:00')::timestamp + INTERVAL '1 day') AND
+     ((pDeviceId IS NULL) OR (e.device_id = pDeviceId)) AND
+      e.event_type_id NOT IN  ('20010', '20004')
+      ORDER BY e.create_date ASC
     ) e
-    WHERE next_create_date > create_date + 2 * INTERvAL '1 hour'
+    WHERE e.next_create_date > e.create_date + 2 * INTERVAL '1 hour'
     LIMIT 1;
 
 END;

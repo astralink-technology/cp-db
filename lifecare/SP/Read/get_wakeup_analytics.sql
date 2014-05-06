@@ -20,11 +20,11 @@ $BODY$
 BEGIN
     RETURN QUERY
 
-    SELECT create_date from eyecare WHERE
-    ((pDay IS NULL) OR (create_date BETWEEN (pDay || 'T' || '05:00')::timestamp AND (pDay || 'T' || '23:00:00')::timestamp)) AND
+    SELECT e.create_date FROM eyecare e WHERE
+    ((pDay IS NULL) OR (e.create_date BETWEEN (pDay || 'T' || '05:00')::timestamp AND (pDay || 'T' || '23:00:00')::timestamp)) AND
     ((pDeviceId IS NULL) OR (e.device_id = pDeviceId)) AND
-    event_type_id NOT IN  ('20010', '20004')
-    ORDER BY create_date ASC
+    e.event_type_id NOT IN  ('20010', '20004')
+    ORDER BY e.create_date ASC
     LIMIT 1;
 
 END;
