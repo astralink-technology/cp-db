@@ -57,7 +57,12 @@ BEGIN
         , e.extra_data
         , e.entity_id
           FROM eyecare e WHERE (
-           e.event_type_id NOT IN ('20010', '20004') AND
+           (
+           (e.node_name = 'Door sensor' AND e.event_type_id = '20001' AND e.extra_data = 'Alarm On') OR -- door sensor alarm report on door open "Alarm On"
+           (e.event_type_id = '20004' AND e.node_name = 'Motion sensor') OR -- Bedroom motion sensor alarm on
+           (e.event_type_id = '20004' AND e.node_name = 'kitchen sensor') OR -- Kitchen  motion sensor alarm on
+           (e.event_type_id = '20004' AND e.node_name = 'Bathroom')
+           ) AND -- Bathroom motion sensor alarm on
           ((pEntityId IS NULL) OR (e.entity_id = pEntityId)) AND
           ((pZone IS NULL) OR (e.zone = pZone)) AND
           ((pDeviceId IS NULL) OR (e.device_id = pDeviceId)) AND
