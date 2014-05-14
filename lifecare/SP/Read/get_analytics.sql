@@ -62,7 +62,7 @@ BEGIN
                  (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
                  (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
                  (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Bathroom') AND
-                 (e.eyecare_id NOT IN
+                 (e.eyecare_id NOT IN -- filter off sensor updates for bathroom sensor
                   (
                         SELECT ee.eyecare_id
                         FROM (
