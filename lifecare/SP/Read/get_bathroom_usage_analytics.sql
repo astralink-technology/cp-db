@@ -13,11 +13,6 @@ CREATE FUNCTION get_bathroom_usage_analytics(
         , pDay date
     )
 RETURNS TABLE(
---         create_date timestamp without time zone,
---         next_create_date timestamp without time zone,
---         next_zone varchar(64),
---         prev_zone varchar(64)
---         duration integer
         bathroom_usage_start timestamp without time zone,
         bathroom_usage_end timestamp without time zone,
         bathroom_usage_interval integer
