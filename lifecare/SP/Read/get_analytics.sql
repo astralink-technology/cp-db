@@ -58,28 +58,26 @@ BEGIN
         , e.entity_id
           FROM eyecare e WHERE (
            (
-             (e.node_name = 'Door sensor' AND e.event_type_id = '20001' AND e.extra_data = 'Alarm On') OR -- door sensor alarm report on door open "Alarm On"
-             (e.event_type_id = '20004' AND e.node_name = 'Motion sensor') OR -- Bedroom motion sensor alarm on
-             (e.event_type_id = '20004' AND e.node_name = 'kitchen sensor') OR -- Kitchen  motion sensor alarm on
-             (e.event_type_id = '20004' AND e.node_name = 'Bathroom')
---              (
---                 e.eyecare_id NOT IN (
---                   SELECT ee.eyecare_id
---                   FROM (
---                         SELECT ee.*,
---                                lead(ee.event_type_id) over (ORDER BY ee.eyecare_id) AS prev_event_type_id,
---                                lead(ee.create_date) over (ORDER BY ee.eyecare_id) AS prev_create_date
---                         FROM eyecare ee WHERE
---                         ee.create_date BETWEEN pStartDateTime AND pEndDateTime AND
---                         ee.device_id = pDeviceId AND
---                        ) ee WHERE
---                   ee.event_type_id = '20004' AND
---                   ee.node_name = 'Bathroom'
---                   AND prev_event_type_id = '20010'
---                   AND prev_create_date >  ee.create_date - 1.5 * interval '1 minute'
---                )
---              )
-           ) AND -- Bathroom motion sensor alarm on
+                 (e.node_name = 'Door sensor' AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
+                 (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
+                 (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
+                 (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Bathroom') AND
+                 (e.eyecare_id NOT IN
+                  (
+                        SELECT ee.eyecare_id
+                        FROM (
+                          SELECT ee.*,
+                                 lead(ee.event_type_id) over (ORDER BY ee.eyecare_id) AS next_event_type_id,
+                                 lead(ee.create_date) over (ORDER BY ee.eyecare_id) AS next_create_date
+                          FROM eyecare ee WHERE
+                          ((pStartDateTime IS NULL OR pEndDateTime IS NULL) OR (ee.create_date BETWEEN pStartDateTime AND pEndDateTime)) AND
+                          ee.device_id = pDeviceId
+                         ) ee WHERE
+                        ee.zone = 'Bathroom' AND
+                       (ee.event_type_id IN ('20010') OR (ee.event_type_id = '20004' and next_event_type_id = '20010'))
+                       )
+                 )
+           ) AND
           ((pEntityId IS NULL) OR (e.entity_id = pEntityId)) AND
           ((pZone IS NULL) OR (e.zone = pZone)) AND
           ((pDeviceId IS NULL) OR (e.device_id = pDeviceId)) AND
