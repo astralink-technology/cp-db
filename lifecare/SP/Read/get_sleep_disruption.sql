@@ -2,27 +2,27 @@
 DO $$
 DECLARE fname text;
 BEGIN
-FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_sleep_quality_analytics' LOOP
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_sleep_disruption' LOOP
   EXECUTE 'DROP FUNCTION ' || fname;
 END loop;
 RAISE INFO 'FUNCTION % DROPPED', fname;
 END$$;
 -- Start function
-CREATE FUNCTION get_sleep_quality_analytics(
+CREATE FUNCTION get_sleep_disruption(
         pDeviceId varchar(32)
         , pDay date
     )
-RETURNS integer
+RETURNS TABLE(
+        disruption_start timestamp without time zone,
+        disruption_end timestamp without time zone,
+        disruption_zone varchar(64),
+        disruption_interval integer
+  )
 AS
 $BODY$
 DECLARE
   pSleepTime timestamp without time zone default null;
   pWakeupTime timestamp without time zone default null;
-  pTotalDisruption integer;
-  pSleepingTime integer;
-  pTimeToFallAsleep integer;
-  pTotalTimeAsleep integer;
-  pDisruptionRow record;
 BEGIN
     -- get the sleeping and the wake up time of the particular day.
     -- get sleep time
@@ -87,29 +87,10 @@ BEGIN
            )) e WHERE
            EXTRACT(epoch FROM((e.next_create_date - e.create_date)))::integer < 600 -- interval less than 10 minutes
            ORDER BY eyecare_id;
-
-          -- get the total sleeping time
-          pSleepingTime = EXTRACT(epoch FROM((pWakeupTime - pSleepTime)))::integer;
-
-          -- time taken to fall asleep is 15 mins
-          pTimeToFallAsleep = 15 * 60;
-
-          -- get the total disruption time
-          pTotalDisruption = 0;
-          FOR pDisruptionRow IN SELECT * from sleep_disruption_events LOOP
-            --loop through all the record
-            pTotalDisruption = pTotalDisruption + pDisruptionRow.disruption_interval;
-          END LOOP;
-
-          -- get the total time asleep
-          pTotalTimeAsleep = pSleepingTime - pTimeToFallAsleep - pTotalDisruption;
-
-          -- get the sleep quality
-          RETURN  round((pTotalTimeAsleep * 100) / pSleepingTime);
-      ELSE
-          RETURN NULL;
       END IF;
 
+    RETURN QUERY
+      SELECT * FROM sleep_disruption_events;
 
 END;
 $BODY$
