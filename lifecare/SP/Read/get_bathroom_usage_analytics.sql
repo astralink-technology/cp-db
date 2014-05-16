@@ -38,22 +38,22 @@ BEGIN
             (e.node_name = 'Door sensor' AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
             (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
             (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-            (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Bathroom')) AND
-            (e.eyecare_id NOT IN
-              (
-                SELECT ee.eyecare_id
-                                  FROM (
-                                    SELECT ee.*,
-                                           lead(ee.event_type_id) over (ORDER BY ee.eyecare_id) AS next_event_type_id,
-                                           lead(ee.create_date) over (ORDER BY ee.eyecare_id) AS next_create_date
-                                    FROM eyecare ee WHERE
-                                    ee.create_date BETWEEN (pDay  || 'T' || '00:00')::timestamp AND ((pDay || 'T' || '23:59')::timestamp) AND
-                                    ((pDeviceId = NULL) OR (ee.device_id = pDeviceId))
-                                   ) ee WHERE
-                                  ee.zone = 'Bathroom' AND
-                                 (ee.event_type_id IN ('20010') OR (ee.event_type_id = '20004' AND next_event_type_id = '20010'))
-              )
-            )
+            (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom'))
+--             (e.eyecare_id NOT IN
+--               (
+--                 SELECT ee.eyecare_id
+--                                   FROM (
+--                                     SELECT ee.*,
+--                                            lead(ee.event_type_id) over (ORDER BY ee.eyecare_id) AS next_event_type_id,
+--                                            lead(ee.create_date) over (ORDER BY ee.eyecare_id) AS next_create_date
+--                                     FROM eyecare ee WHERE
+--                                     ee.create_date BETWEEN (pDay  || 'T' || '00:00')::timestamp AND ((pDay || 'T' || '23:59')::timestamp) AND
+--                                     ((pDeviceId = NULL) OR (ee.device_id = pDeviceId))
+--                                    ) ee WHERE
+--                                   ee.zone = 'Bathroom' AND
+--                                  (ee.event_type_id IN ('20010') OR (ee.event_type_id = '20004' AND next_event_type_id = '20010'))
+--               )
+--             )
        )) e
        WHERE e.zone = 'Bathroom'
        ORDER BY eyecare_id;
