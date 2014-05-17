@@ -57,7 +57,6 @@ BEGIN
         , e.extra_data
         , e.entity_id
           FROM eyecare e WHERE (
---           e.event_type_id NOT IN ('20010') AND
           ((pEntityId IS NULL) OR (e.entity_id = pEntityId)) AND
           ((pZone IS NULL) OR (e.zone = pZone)) AND
           ((pDeviceId IS NULL) OR (e.device_id = pDeviceId)) AND
