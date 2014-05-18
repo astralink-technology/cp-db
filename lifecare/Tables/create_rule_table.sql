@@ -8,6 +8,7 @@ create table rule (
 	activity_name varchar(32),
 	alert_trigger_time time without time zone,
 	alert_trigger_interval interval,
+	create_date timestamp without time zone,
 	zone varchar(32),
 	owner_id varchar(32)
 );
