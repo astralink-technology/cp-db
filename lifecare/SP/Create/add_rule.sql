@@ -10,14 +10,15 @@ END$$;
 -- Start function
 CREATE FUNCTION add_rule(
       pRuleId varchar(32)
+      , pRuleName varchar(64)
       , pIdentification varchar(32)
       , pType char(1)
-      , pStartTime time without time zone
-      , pEndTime time without time zone
+      , pStartTime integer
+      , pEndTime integer
       , pActivityType varchar(32)
       , pActivityName varchar(32)
-      , pAlertTriggerTime time without time zone
-      , pAlertTriggerInterval interval
+      , pAlertDuration integer
+      , pAlertTriggerInterval integer
       , pCreateDate timestamp without time zone
       , pZone varchar(32)
       , pOwnerId varchar(32)
@@ -27,26 +28,28 @@ $BODY$
 BEGIN
     INSERT INTO analytics_value (
         rule_id
+        , rule_name
         , identification
         , type
         , start_time
         , end_time
         , activity_type
         , activity_name
-        , alert_trigger_time
+        , alert_duration
         , alert_trigger_interval
         , create_date
         , zone
         , owner_id
     ) VALUES(
         pRuleId
+        , pRuleName
         , pIdentification
         , pType
         , pStartTime
         , pEndTime
         , pActivityType
         , pActivityName
-        , pAlertTriggerTime
+        , pAlertDuration
         , pAlertTriggerInterval
         , pCreateDate
         , pZone

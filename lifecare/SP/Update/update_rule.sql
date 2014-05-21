@@ -10,37 +10,40 @@ END$$;
 -- Start function
 CREATE FUNCTION update_rule(
       pRuleId varchar(32)
+      , pRuleName varchar(64)
       , pOwnerId varchar(32)
       , pIdentification varchar(32)
       , pType char(1)
-      , pStartTime time without time zone
-      , pEndTime time without time zone
+      , pStartTime integer
+      , pEndTime integer
       , pActivityType varchar(32)
       , pActivityName varchar(32)
-      , pAlertTriggerTime time without time zone
-      , pAlertTriggerInterval interval
+      , pAlertDuration integer
+      , pAlertTriggerInterval integer
       , pZone varchar(32)
 )
 RETURNS BOOL AS 
 $BODY$
 DECLARE
     oIdentification varchar(32);
+    oRuleName varchar(64);
     oType char(1);
-    oStartTime time without time zone;
-    oEndTime time without time zone;
+    oStartTime integer;
+    oEndTime integer;
     oActivityType varchar(32);
     oActivityName varchar(32);
-    oAlertTriggerTime time without time zone;
-    oAlertTriggerInterval interval;
+    oAlertDuration integer;
+    oAlertTriggerInterval integer;
 
     nIdentification varchar(32);
+    nRuleName varchar(64);
     nType char(1);
-    nStartTime time without time zone;
-    nEndTime time without time zone;
+    nStartTime integer;
+    nEndTime integer;
     nActivityType varchar(32);
     nActivityName varchar(32);
-    nAlertTriggerTime time without time zone;
-    nAlertTriggerInterval interval;
+    nAlertDuration integer;
+    nAlertTriggerInterval integer;
 
 BEGIN
     -- Rule ID is needed if not return
@@ -50,21 +53,23 @@ BEGIN
         -- select the variables into the old variables
         SELECT
             r.identification
+            , r.rule_name
             , r.type
             , r.start_time
             , r.end_time
             , r.activity_type
             , r.activity_name
-            , r.alert_trigger_time
+            , r.alert_duration
             , r.alert_trigger_interval
         INTO STRICT
             oIdentification
+            , oRuleName
             , oType
             , oStartTime
             , oEndTime
             , oActivityType
             , oActivityName
-            , oAlertTriggerTime
+            , oAlertDuration
             , oAlertTriggerInterval
         FROM rule r WHERE
             r.rule_id = pRuleId;
@@ -77,6 +82,15 @@ BEGIN
             nIdentification := NULL;
         ELSE
             nIdentification := pIdentification;
+        END IF;
+
+        IF pRuleName IS NULL THEN 
+            nRuleName := oRuleName;
+        ELSEIF pRuleName = '' THEN   
+            -- defaulted null
+            nRuleName := NULL;
+        ELSE
+            nRuleName := pRuleName;
         END IF;
 
         IF pType IS NULL THEN 
@@ -132,10 +146,10 @@ BEGIN
             nEndTime := pEndTime;
         END IF;
 
-        IF pAlertTriggerTime IS NULL THEN 
-            nAlertTriggerTime := oAlertTriggerTime;
+        IF pAlertDuration IS NULL THEN 
+            nAlertDuration := oAlertDuration;
         ELSE
-            nAlertTriggerTime := pAlertTriggerTime;
+            nAlertDuration := pAlertDuration;
         END IF;
 
         -- start the update
@@ -148,9 +162,9 @@ BEGIN
             , end_time = nEndTime
             , activity_type = nActivityType
             , activity_name = nActivityName
-            , alert_trigger_time = nAlertTriggerTime
+            , alert_duration = nAlertDuration
             , alert_trigger_interval = nAlertTriggerInterval
-        WHERE 
+        WHERE
             rule_id = pRule;
         
         RETURN TRUE;
