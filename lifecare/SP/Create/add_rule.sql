@@ -10,7 +10,7 @@ END$$;
 -- Start function
 CREATE FUNCTION add_rule(
       pRuleId varchar(32)
-      , pRuleName varchar(64)
+      , pRuleName varchar(10)
       , pIdentification varchar(32)
       , pType char(1)
       , pStartTime integer
@@ -21,12 +21,13 @@ CREATE FUNCTION add_rule(
       , pAlertTriggerInterval integer
       , pCreateDate timestamp without time zone
       , pZone varchar(32)
+      , pArmState varchar(16)
       , pOwnerId varchar(32)
 )
 RETURNS varchar(32) AS 
 $BODY$
 BEGIN
-    INSERT INTO analytics_value (
+    INSERT INTO rule(
         rule_id
         , rule_name
         , identification
@@ -39,6 +40,7 @@ BEGIN
         , alert_trigger_interval
         , create_date
         , zone
+        , arm_state
         , owner_id
     ) VALUES(
         pRuleId
@@ -53,9 +55,10 @@ BEGIN
         , pAlertTriggerInterval
         , pCreateDate
         , pZone
+        , pArmState
         , pOwnerId
     );
-    RETURN pAnalyticsValueId;
+    RETURN pRuleId;
 END;
 $BODY$
 LANGUAGE plpgsql;

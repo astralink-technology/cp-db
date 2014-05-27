@@ -33,7 +33,7 @@
 
       WHILE (pSampleEndDateTime < pSampleThresholdEndDateTime)
         LOOP
-            IF pSamplingSize >= 20 THEN
+            IF pSamplingSize >= 10 THEN
             ELSE
               SELECT
                 COUNT(*)
@@ -49,7 +49,7 @@
               ((pDeviceId IS NULL) OR (e.device_id = pDeviceId));
             END IF;
 
-            EXIT WHEN pSamplingSize >= 20;
+            EXIT WHEN pSamplingSize >= 10;
 
             --increment
             pSampleStartDateTime = pSampleStartDateTime + INTERVAL '1 hour';
@@ -57,7 +57,7 @@
 
         END LOOP;
 
-      IF pSamplingSize >= 20 THEN
+      IF pSamplingSize >= 10 THEN
         SELECT
           e.create_date
         INTO

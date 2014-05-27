@@ -10,7 +10,7 @@ END$$;
 -- Start function
 CREATE FUNCTION update_rule(
       pRuleId varchar(32)
-      , pRuleName varchar(64)
+      , pRuleName varchar(10)
       , pOwnerId varchar(32)
       , pIdentification varchar(32)
       , pType char(1)
@@ -21,12 +21,13 @@ CREATE FUNCTION update_rule(
       , pAlertDuration integer
       , pAlertTriggerInterval integer
       , pZone varchar(32)
+      , pArmState varchar(16)
 )
 RETURNS BOOL AS 
 $BODY$
 DECLARE
     oIdentification varchar(32);
-    oRuleName varchar(64);
+    oRuleName varchar(10);
     oType char(1);
     oStartTime integer;
     oEndTime integer;
@@ -34,9 +35,11 @@ DECLARE
     oActivityName varchar(32);
     oAlertDuration integer;
     oAlertTriggerInterval integer;
+    oZone varchar(32);
+    oArmState varchar(16);
 
     nIdentification varchar(32);
-    nRuleName varchar(64);
+    nRuleName varchar(10);
     nType char(1);
     nStartTime integer;
     nEndTime integer;
@@ -44,6 +47,8 @@ DECLARE
     nActivityName varchar(32);
     nAlertDuration integer;
     nAlertTriggerInterval integer;
+    nZone varchar(32);
+    nArmState varchar(16);
 
 BEGIN
     -- Rule ID is needed if not return
@@ -61,6 +66,8 @@ BEGIN
             , r.activity_name
             , r.alert_duration
             , r.alert_trigger_interval
+            , r.zone
+            , r.arm_state
         INTO STRICT
             oIdentification
             , oRuleName
@@ -71,6 +78,8 @@ BEGIN
             , oActivityName
             , oAlertDuration
             , oAlertTriggerInterval
+            , oZone
+            , oArmState
         FROM rule r WHERE
             r.rule_id = pRuleId;
 
@@ -120,28 +129,38 @@ BEGIN
             nActivityName := pActivityName;
         END IF;
         
+        IF pZone IS NULL THEN
+            nZone := oZone;
+        ELSEIF pZone = '' THEN
+            -- defaulted null
+            nZone := NULL;
+        ELSE
+            nZone := pZone;
+        END IF;
+        
+        IF pArmState IS NULL THEN
+            nArmState := oArmState;
+        ELSEIF pArmState = '' THEN
+            -- defaulted null
+            nArmState := NULL;
+        ELSE
+            nArmState := pArmState;
+        END IF;
+        
         IF pAlertTriggerInterval IS NULL THEN 
             nAlertTriggerInterval := oAlertTriggerInterval;
-        ELSEIF pAlertTriggerInterval = '' THEN   
-            -- defaulted null
-            nAlertTriggerInterval := NULL;
         ELSE
             nAlertTriggerInterval := pAlertTriggerInterval;
         END IF;
 
         IF pStartTime IS NULL THEN 
             nStartTime := oStartTime;
-        ELSEIF pStartTime = '' THEN   
-            -- defaulted null
-            nStartTime := NULL;
         ELSE
             nStartTime := pStartTime;
         END IF;
 
         IF pEndTime IS NULL THEN 
             nEndTime := oEndTime;
-        ELSEIF pEndTime  = '' THEN   
-            -- defaulted null
         ELSE
             nEndTime := pEndTime;
         END IF;
@@ -152,11 +171,13 @@ BEGIN
             nAlertDuration := pAlertDuration;
         END IF;
 
+
         -- start the update
         UPDATE 
             rule
         SET
             identification = nIdentification
+            , rule_name = nRuleName
             , type = nType
             , start_time = nStartTime
             , end_time = nEndTime
@@ -164,8 +185,10 @@ BEGIN
             , activity_name = nActivityName
             , alert_duration = nAlertDuration
             , alert_trigger_interval = nAlertTriggerInterval
+            , arm_state = nArmState
+            , zone = nZone
         WHERE
-            rule_id = pRule;
+            rule_id = pRuleId;
         
         RETURN TRUE;
     

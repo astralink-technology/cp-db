@@ -10,23 +10,25 @@ END$$;
 -- Start function
 CREATE FUNCTION get_rule(
         pRuleId varchar(32)
-        , pRuleName varchar(64)
+        , pRuleName varchar(10)
         , pIdentification varchar(32)
         , pType char(1)
         , pActivityType varchar(32)
         , pActivityName varchar(32)
         , pZone varchar(32)
         , pOwnerId varchar(32)
+        , pArmState varchar(16)
     )
 RETURNS TABLE(
     rule_id varchar(32)
-    , rule_name varchar(64)
+    , rule_name varchar(10)
     , identification varchar(32)
     , type char(1)
     , start_time integer
     , end_time integer
     , activity_type varchar(32)
     , activity_name varchar(32)
+    , arm_state varchar(16)
     , alert_duration integer
     , alert_trigger_interval integer
     , create_date timestamp without time zone
@@ -57,6 +59,7 @@ BEGIN
           , r.end_time
           , r.activity_type
           , r.activity_name
+          , r.arm_state
           , r.alert_duration
           , r.alert_trigger_interval
           , r.create_date
@@ -70,6 +73,7 @@ BEGIN
           ((pActivityType IS NULL) OR (r.activity_type = pActivityType)) AND
           ((pActivityName IS NULL) OR (r.activity_name = pActivityName)) AND
           ((pZone IS NULL) OR (r.zone = pZone)) AND
+          ((pArmState IS NULL) OR (r.arm_state = pArmState)) AND
           ((pOwnerId IS NULL) OR (r.owner_id = pOwnerId))
       ORDER BY r.create_date ASC;
 

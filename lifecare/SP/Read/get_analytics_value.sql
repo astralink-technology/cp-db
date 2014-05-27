@@ -77,7 +77,8 @@ BEGIN
            ((pIntValue2 IS NULL) OR (av.int_value2 = pIntValue2)) AND
            ((pType IS NULL) OR (av.type = pType)) AND
            ((pOwnerId IS NULL) OR (av.owner_id = pOwnerId))
-          );
+          )
+          ORDER BY date_value DESC;
 
     RETURN QUERY
 
