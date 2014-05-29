@@ -13,10 +13,13 @@ CREATE FUNCTION get_analytics_value(
         , pAnalyticsValueName varchar(32)
         , pDateValue timestamp without time zone
         , pDateValue2 timestamp without time zone
+        , pDateValue3 timestamp without time zone
         , pDateValueStart timestamp without time zone
         , pDateValueEnd timestamp without time zone
         , pDateValue2Start timestamp without time zone
         , pDateValue2End timestamp without time zone
+        , pDateValue3Start timestamp without time zone
+        , pDateValue3End timestamp without time zone
         , pValue varchar(32)
         , pValue2 varchar(32)
         , pIntValue integer
@@ -29,6 +32,7 @@ RETURNS TABLE(
   , analytics_value_name varchar(32)
   , date_value timestamp without time zone
   , date_value2 timestamp without time zone
+  , date_value3 timestamp without time zone
   , value varchar(32)
   , value2 varchar(32)
   , int_value integer
@@ -57,6 +61,7 @@ BEGIN
         , av.analytics_value_name
         , av.date_value
         , av.date_value2
+        , av.date_value3
         , av.value
         , av.value2
         , av.int_value
@@ -69,8 +74,10 @@ BEGIN
            ((pAnalyticsValueName IS NULL) OR (av.analytics_value_name = pAnalyticsValueName)) AND
            ((pDateValue IS NULL) OR (av.date_value = pDateValue)) AND
            ((pDateValue2 IS NULL) OR (av.date_value2 = pDateValue2)) AND
+           ((pDateValue3 IS NULL) OR (av.date_value3 = pDateValue3)) AND
            ((pDateValueStart IS NULL OR pDateValueEnd IS NULL) OR (av.date_value BETWEEN pDateValueStart AND pDateValueEnd)) AND
            ((pDateValue2Start IS NULL OR pDateValue2End IS NULL) OR (av.date_value2 BETWEEN pDateValue2Start AND pDateValue2End)) AND
+           ((pDateValue3Start IS NULL OR pDateValue3End IS NULL) OR (av.date_value3 BETWEEN pDateValue3Start AND pDateValue3End)) AND
            ((pValue IS NULL) OR (av.value = pValue)) AND
            ((pValue2 IS NULL) OR (av.value2 = pValue2)) AND
            ((pIntValue IS NULL) OR (av.int_value = pIntValue)) AND

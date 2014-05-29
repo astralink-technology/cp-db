@@ -2,7 +2,7 @@
 DO $$
 DECLARE fname text;
 BEGIN
-FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = ''get_away_analytics'' LOOP
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_away_analytics' LOOP
   EXECUTE ''DROP FUNCTION '' || fname;
 END loop;
 RAISE INFO ''FUNCTION % DROPPED'', fname;

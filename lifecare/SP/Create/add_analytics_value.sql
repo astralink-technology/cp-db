@@ -13,6 +13,7 @@ CREATE FUNCTION add_analytics_value(
         , pAnalyticsValueName varchar(32)
         , pDateValue timestamp without time zone
         , pDateValue2 timestamp without time zone
+        , pDateValue3 timestamp without time zone
         , pValue varchar(32)
         , pValue2 varchar(32)
         , pIntValue integer
@@ -29,6 +30,7 @@ BEGIN
         , analytics_value_name
         , date_value
         , date_value2
+        , date_value3
         , value
         , value2
         , int_value
@@ -41,6 +43,7 @@ BEGIN
         , pAnalyticsValueName
         , pDateValue
         , pDateValue2
+        , pDateValue3
         , pValue
         , pValue2
         , pIntValue
