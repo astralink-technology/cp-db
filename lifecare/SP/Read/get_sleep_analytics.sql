@@ -13,14 +13,23 @@ CREATE FUNCTION get_sleep_analytics(
         , pDay date
     )
 RETURNS TABLE(
-    create_date timestamp without time zone
+    sleeping_time timestamp without time zone
+    , analytics_date date
+    , device_id varchar(32)
   )
 AS
 $BODY$
+DECLARE
+    pSleepingTime timestamp without time zone DEFAULT NULL;
 BEGIN
-    RETURN QUERY
 
-    SELECT e.create_date
+    -- create a temp table to get the data
+    CREATE TEMP TABLE sleep_analytics_temp(
+        sleeping_time timestamp without time zone
+    );
+
+    SELECT e.create_date INTO
+      pSleepingTime
     FROM (
       SELECT e.create_date, lead(e.create_date) over (ORDER BY e.create_date) AS next_create_date
       FROM eyecare e
@@ -38,6 +47,22 @@ BEGIN
     WHERE e.next_create_date > e.create_date + 2 * INTERVAL '1 hour'
     LIMIT 1;
 
+    IF pSleepingTime IS NULL THEN
+          INSERT INTO sleep_analytics_temp (sleeping_time)
+            SELECT
+              NULL AS sleeping_time;
+    ELSE
+          INSERT INTO sleep_analytics_temp (sleeping_time)
+            SELECT
+              pSleepingTime;
+    END IF;
+
+    RETURN QUERY
+      SELECT
+        *
+        , pDay
+        , pDeviceId
+      FROM sleep_analytics_temp;
 END;
 $BODY$
 LANGUAGE plpgsql;
