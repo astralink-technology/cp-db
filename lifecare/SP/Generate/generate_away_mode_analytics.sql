@@ -11,13 +11,8 @@ END$$;
 CREATE FUNCTION generate_away_mode_analytics(
         pDeviceId varchar(32)
         , pDay date
-        , pOwnerId varchar(32)
     )
-RETURNS TABLE(
-    eyecare_id varchar(32),
-    away_start timestamp without time zone,
-    away_end timestamp without time zone
-  )
+RETURNS varchar(32)
 AS
 $BODY$
 DECLARE
@@ -29,6 +24,9 @@ DECLARE
     oZone varchar(64);
     oCreateDate timestamp without time zone;
     oExtraData varchar(64);
+    oNewAnalyticsValueId varchar(32);
+    oAwayCount integer;
+    oDowForAwayStart integer;
 BEGIN
 
     SELECT
@@ -110,12 +108,23 @@ BEGIN
       INSERT INTO away_analytics_temp (eyecare_id, away_start, away_end) VALUES (oEyeCareId, null, oCreateDate);
     END IF;
 
+    oAwayCount := 0;
     FOR amRow IN SELECT * from away_analytics_temp LOOP
+        oAwayCount := oAwayCount + 1;
+        SELECT generate_id INTO STRICT oNewAnalyticsValueId FROM generate_id();
+
+        IF amRow.away_start IS NOT NULL THEN
+          SELECT EXTRACT(DOW FROM amRow.away_start) INTO STRICT oDowForAwayStart;
+        ELSE
+          oDowForAwayStart := null;
+        END IF;
+        
          INSERT INTO analytics_value (
           analytics_value_id
           , analytics_value_name
           , date_value
           , date_value2
+          , date_value3
           , value
           , value2
           , int_value
@@ -124,22 +133,23 @@ BEGIN
           , create_date
           , owner_id
       ) VALUES(
-          pAnalyticsValueId
-          , pAnalyticsValueName
-          , pDateValue
-          , pDateValue2
-          , pValue
-          , pValue2
-          , pIntValue
-          , pIntValue2
-          , pType
-          , pCreateDate
-          , pOwnerId
+          oNewAnalyticsValueId
+          , 'Away Mode'
+          , (pDay  || 'T' || '00:00')::timestamp
+          , amRow.away_start
+          , amRow.away_end
+          , null
+          , null
+          , oAwayCount
+          , oDowForAwayStart
+          , 'A'
+          , (NOW()  at time zone 'utc')::timestamp
+          , pDeviceId
       );
     END LOOP;
 
-    RETURN QUERY
-      SELECT * FROM away_analytics_temp ORDER BY eyecare_id;
+    RETURN
+      oNewAnalyticsValueId;
 
 END;
 $BODY$
