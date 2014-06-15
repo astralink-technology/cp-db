@@ -17,6 +17,9 @@ AS
 $BODY$
 DECLARE
     amRow record;
+
+    recordChecker varchar(32);
+
     oEyeCareId varchar(32);
     oEventTypeId varchar(64);
     oEventTypeName varchar(64);
@@ -37,7 +40,7 @@ BEGIN
       , e.zone
       , e.create_date
       , e.extra_data
-    INTO STRICT
+    INTO
       oEyeCareId
       , oEventTypeId
       , oEventTypeName
@@ -108,18 +111,13 @@ BEGIN
       INSERT INTO away_analytics_temp (eyecare_id, away_start, away_end) VALUES (oEyeCareId, null, oCreateDate);
     END IF;
 
-    oAwayCount := 0;
-    FOR amRow IN SELECT * from away_analytics_temp LOOP
-        oAwayCount := oAwayCount + 1;
+    -- do a record check
+    SELECT eyecare_id INTO recordChecker FROM away_analytics_temp;
+
+    IF recordChecker IS NULL THEN
         SELECT generate_id INTO STRICT oNewAnalyticsValueId FROM generate_id();
 
-        IF amRow.away_start IS NOT NULL THEN
-          SELECT EXTRACT(DOW FROM amRow.away_start) INTO STRICT oDowForAwayStart;
-        ELSE
-          oDowForAwayStart := null;
-        END IF;
-        
-         INSERT INTO analytics_value (
+        INSERT INTO analytics_value (
           analytics_value_id
           , analytics_value_name
           , date_value
@@ -136,17 +134,57 @@ BEGIN
           oNewAnalyticsValueId
           , 'Away Mode'
           , (pDay  || 'T' || '00:00')::timestamp
-          , amRow.away_start
-          , amRow.away_end
           , null
           , null
-          , oAwayCount
-          , oDowForAwayStart
+          , null
+          , null
+          , 1
+          , null
           , 'A'
           , (NOW()  at time zone 'utc')::timestamp
           , pDeviceId
       );
-    END LOOP;
+    ELSE
+      oAwayCount := 0;
+      FOR amRow IN SELECT * from away_analytics_temp LOOP
+          oAwayCount := oAwayCount + 1;
+          SELECT generate_id INTO STRICT oNewAnalyticsValueId FROM generate_id();
+
+          IF amRow.away_start IS NOT NULL THEN
+            SELECT EXTRACT(DOW FROM amRow.away_start) INTO STRICT oDowForAwayStart;
+          ELSE
+            oDowForAwayStart := null;
+          END IF;
+
+           INSERT INTO analytics_value (
+            analytics_value_id
+            , analytics_value_name
+            , date_value
+            , date_value2
+            , date_value3
+            , value
+            , value2
+            , int_value
+            , int_value2
+            , type
+            , create_date
+            , owner_id
+        ) VALUES(
+            oNewAnalyticsValueId
+            , 'Away Mode'
+            , (pDay  || 'T' || '00:00')::timestamp
+            , amRow.away_start
+            , amRow.away_end
+            , null
+            , null
+            , oAwayCount
+            , oDowForAwayStart
+            , 'A'
+            , (NOW()  at time zone 'utc')::timestamp
+            , pDeviceId
+        );
+      END LOOP;
+    END IF;
 
     RETURN
       oNewAnalyticsValueId;

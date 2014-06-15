@@ -10,8 +10,8 @@ END$$;
 -- Start function
 CREATE FUNCTION update_authentication(
         pAuthenticationId varchar(32)
-        , pAuthenticationString varchar(32)
-        , pAuthenticationStringLower varchar(32)
+        , pAuthenticationString varchar(64)
+        , pAuthenticationStringLower varchar(64)
         , pHash varchar(60)
         , pSalt varchar(16)
         , pLastLogin timestamp without time zone
@@ -25,8 +25,8 @@ CREATE FUNCTION update_authentication(
 RETURNS BOOL AS 
 $BODY$
 DECLARE
-    oAuthenticationString varchar(32);
-    oAuthenticationStringLower varchar(32);
+    oAuthenticationString varchar(64);
+    oAuthenticationStringLower varchar(64);
     oHash varchar(60);
     oSalt varchar(16);
     oLastLogin timestamp without time zone;
@@ -37,8 +37,8 @@ DECLARE
     oAuthorizationLevel integer;
     oLastUpdate timestamp without time zone;
 
-    nAuthenticationString varchar(32);
-    nAuthenticationStringLower varchar(32);
+    nAuthenticationString varchar(64);
+    nAuthenticationStringLower varchar(64);
     nHash varchar(60);
     nSalt varchar(16);
     nLastLogin timestamp without time zone;

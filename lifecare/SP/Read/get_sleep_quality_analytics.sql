@@ -20,7 +20,6 @@ DECLARE
   pWakeupTime timestamp without time zone default null;
   pTotalDisruption integer;
   pSleepingTime integer;
-  pTimeToFallAsleep integer;
   pTotalTimeAsleep integer;
   pDisruptionRow record;
 BEGIN
@@ -65,34 +64,16 @@ BEGIN
            FROM eyecare e WHERE
             ((pDeviceId = NULL) OR (e.device_id = pDeviceId))  AND
             e.create_date BETWEEN pSleepTime AND pWakeupTime AND((
-                (e.node_name = 'Door sensor' AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
+                (e.node_name IN ('Door sensor', 'door sensor') AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
                 (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
                 (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
                 (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom'))
---                 (e.eyecare_id NOT IN
---                   (
---                     SELECT ee.eyecare_id
---                         FROM (
---                           SELECT ee.*,
---                                  lead(ee.event_type_id) over (ORDER BY ee.eyecare_id) AS next_event_type_id,
---                                  lead(ee.create_date) over (ORDER BY ee.eyecare_id) AS next_create_date
---                           FROM eyecare ee WHERE
---                           ee.create_date BETWEEN pSleepTime AND pWakeupTime AND
---                           ((pDeviceId = NULL) OR (ee.device_id = pDeviceId))
---                          ) ee WHERE
---                         ee.zone = 'Bathroom' AND
---                        (ee.event_type_id IN ('20010') OR (ee.event_type_id = '20004' AND next_event_type_id = '20010'))
---                   )
---                 )
            )) e WHERE
            EXTRACT(epoch FROM((e.next_create_date - e.create_date)))::integer < 600 -- interval less than 10 minutes
            ORDER BY eyecare_id;
 
           -- get the total sleeping time
           pSleepingTime = EXTRACT(epoch FROM((pWakeupTime - pSleepTime)))::integer;
-
-          -- time taken to fall asleep is 15 mins
-          pTimeToFallAsleep = 15 * 60;
 
           -- get the total disruption time
           pTotalDisruption = 0;
@@ -102,7 +83,7 @@ BEGIN
           END LOOP;
 
           -- get the total time asleep
-          pTotalTimeAsleep = pSleepingTime - pTimeToFallAsleep - pTotalDisruption;
+          pTotalTimeAsleep = pSleepingTime - pTotalDisruption;
 
           -- get the sleep quality
           RETURN  round((pTotalTimeAsleep * 100) / pSleepingTime);
