@@ -11,6 +11,7 @@ END$$;
 CREATE FUNCTION get_admin_entity_detail(
         pEntityId varchar(32)
         , pAuthenticationId varchar(32)
+        , pAuthorizationLevels integer
         , pPageSize integer
         , pSkipSize integer
     )
@@ -25,6 +26,7 @@ RETURNS TABLE(
 	, type char(1)
 	, create_date timestamp without time zone
 	, last_update timestamp without time zone
+	, date_established timestamp without time zone
 	, authentication_id varchar(32)
 	, primary_email_id varchar(32)
 	, primary_phone_id varchar(32)
@@ -32,6 +34,25 @@ RETURNS TABLE(
 	, last_login timestamp without time zone
 	, last_logout timestamp without time zone
 	, authentication_string varchar(64)
+	, phone_id varchar(32)
+	, digits varchar(32)
+	, phone_digits varchar(32)
+	, country_code varchar(4)
+	, code varchar(8)
+	, address_id varchar(32)
+	, apartment varchar(64)
+	, road_name text
+	, road_name2 text
+	, suite varchar(32)
+	, zip varchar(16)
+	, country varchar(128)
+	, province varchar(128)
+	, state varchar(128)
+	, city varchar(128)
+	, address_type char(1)
+	, address_status char(1)
+	, longitude decimal
+	, latitude decimal
 	, total_rows integer
 ) AS
 $BODY$
@@ -62,6 +83,7 @@ BEGIN
         , e.type
         , a.create_date -- user create date
         , e.last_update
+        , e.date_established
         , e.authentication_id
         , e.primary_email_id
         , e.primary_phone_id
@@ -69,9 +91,31 @@ BEGIN
         , a.last_login
         , a.last_logout
         , a.authentication_string
+        , p.phone_id
+        , p.digits
+        , p.phone_digits
+        , p.country_code
+        , p.code
+        , ad.address_id
+        , ad.apartment
+        , ad.road_name
+        , ad.road_name2
+        , ad.suite
+        , ad.zip
+        , ad.country
+        , ad.province
+        , ad.state
+        , ad.city
+        , ad.type as address_type
+        , ad.status as address_status
+        , ad.longitude
+        , ad.latitude
       FROM entity e INNER JOIN
-      authentication a ON a.authentication_id = e.authentication_id WHERE (
+      authentication a ON a.authentication_id = e.authentication_id LEFT JOIN
+      address ad ON ad.owner_id = e.entity_id LEFT JOIN
+      phone p ON p.owner_id = e.entity_id WHERE (
       ((pEntityId IS NULL) OR (e.entity_id = pEntityId)) AND
+      ((pAuthorizationLevels IS NULL) OR (a.authorization_level = pAuthorizationLevels)) AND
       ((pAuthenticationId IS NULL) OR (e.authentication_id = pAuthenticationId))
       )
       LIMIT pPageSize OFFSET pSkipSize;

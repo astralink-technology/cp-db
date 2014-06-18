@@ -26,37 +26,48 @@ DECLARE
 BEGIN
 
     CREATE TEMP TABLE bathroom_usage_intervals_raw AS
-      SELECT e.create_date, e.next_create_date, e.next_zone, e.prev_zone, EXTRACT(epoch FROM((e.next_create_date - e.create_date)))::integer AS duration
-      FROM (SELECT e.*,
-               lead(e.create_date) over (ORDER BY eyecare_id) AS next_create_date,
-               lead(e.event_type_id) over (ORDER BY eyecare_id) AS next_event_type,
-               lead(e.zone) over (ORDER BY eyecare_id) AS next_zone,
-               lag(e.zone) over (ORDER BY eyecare_id) AS prev_zone
-        FROM eyecare e WHERE
-        ((pDeviceId = NULL) OR (e.device_id = pDeviceId))  AND
-        e.create_date BETWEEN (pDay  || 'T' || '00:00')::timestamp AND ((pDay || 'T' || '23:59')::timestamp) AND((
-            (e.node_name IN ('Door sensor', 'door sensor')  AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
-            (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
-            (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-            (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom'))
---             (e.eyecare_id NOT IN
---               (
---                 SELECT ee.eyecare_id
---                                   FROM (
---                                     SELECT ee.*,
---                                            lead(ee.event_type_id) over (ORDER BY ee.eyecare_id) AS next_event_type_id,
---                                            lead(ee.create_date) over (ORDER BY ee.eyecare_id) AS next_create_date
---                                     FROM eyecare ee WHERE
---                                     ee.create_date BETWEEN (pDay  || 'T' || '00:00')::timestamp AND ((pDay || 'T' || '23:59')::timestamp) AND
---                                     ((pDeviceId = NULL) OR (ee.device_id = pDeviceId))
---                                    ) ee WHERE
---                                   ee.zone = 'Bathroom' AND
---                                  (ee.event_type_id IN ('20010') OR (ee.event_type_id = '20004' AND next_event_type_id = '20010'))
---               )
---             )
-       )) e
-       WHERE e.zone = 'Bathroom'
-       ORDER BY eyecare_id;
+--       SELECT e.create_date, e.next_create_date, e.next_zone, e.prev_zone, EXTRACT(epoch FROM((e.next_create_date - e.create_date)))::integer AS duration
+--       FROM (SELECT e.*,
+--                lead(e.create_date) over (ORDER BY eyecare_id) AS next_create_date,
+--                lead(e.event_type_id) over (ORDER BY eyecare_id) AS next_event_type,
+--                lead(e.zone) over (ORDER BY eyecare_id) AS next_zone,
+--                lag(e.zone) over (ORDER BY eyecare_id) AS prev_zone
+--         FROM eyecare e WHERE
+--         ((pDeviceId = NULL) OR (e.device_id = pDeviceId))  AND
+--         e.create_date BETWEEN (pDay  || 'T' || '00:00')::timestamp AND ((pDay || 'T' || '23:59')::timestamp) AND((
+--             (e.node_name IN ('Door sensor', 'door sensor')  AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
+--             (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
+--             (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
+--             (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom'))
+--        )) e
+--        WHERE e.zone = 'Bathroom'
+--        ORDER BY eyecare_id;
+          SELECT er.* FROM (
+            SELECT e.eyecare_id
+              , lag(e.create_date)  over (ORDER BY eyecare_id) AS prev_row_create_date
+              , lead(e.next_create_date)  over (ORDER BY eyecare_id) AS next_row_next_create_date
+              , e.create_date
+              , e.next_create_date
+              , e.current_zone
+              , e.next_zone
+              , EXTRACT(epoch FROM((e.next_create_date - e.create_date)))::integer + 24 AS duration
+                  FROM (SELECT e.*,
+                     lead(e.create_date) over (ORDER BY eyecare_id) AS next_create_date,
+                     lead(e.event_type_id) over (ORDER BY eyecare_id) AS next_event_type,
+                     lag(e.zone) over (ORDER BY eyecare_id) AS prev_zone,
+                     e.zone as current_zone,
+                     lead(e.zone) over (ORDER BY eyecare_id) AS next_zone
+                FROM eyecare e WHERE
+                 ((pDeviceId = NULL) OR (e.device_id = pDeviceId))  AND
+                  e.create_date BETWEEN (pDay  || 'T' || '00:00')::timestamp AND ((pDay || 'T' || '23:59')::timestamp) AND((
+                    (e.node_name IN ('Door sensor', 'door sensor')  AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
+                    (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
+                    (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
+                    (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom'))
+                     )) e
+                 WHERE e.current_zone = 'Bathroom'
+                 AND (EXTRACT(epoch FROM((e.next_create_date - e.create_date)))::integer < 600) -- filter out values greater than 10 minutes as thats not possible
+                 )er;
 
 
     CREATE TEMP TABLE bathroom_usage_intervals(
@@ -67,16 +78,22 @@ BEGIN
 
     bTempDuration := 0;
     FOR bRow IN SELECT * from bathroom_usage_intervals_raw LOOP
+
       --loop through all the record
       IF bRow.next_zone = 'Bathroom' THEN
-          bTempDuration := bTempDuration + bRow.duration;
+          bTempDuration = bTempDuration + bRow.duration;
+      ELSEIF bRow.prev_row_create_date IS NOT NULL AND EXTRACT(epoch FROM((bRow.create_date - bRow.prev_row_create_date)))::integer < 300 THEN
+
       ELSE
-        bTempDuration := bTempDuration + bRow.duration;
+        bTempDuration = bTempDuration + bRow.duration;
         bTempBathroomUsageStart = bRow.create_date - bTempDuration * INTERVAL '1 sec';
-        INSERT INTO bathroom_usage_intervals(bathroom_usage_start, bathroom_usage_end, bathroom_usage_interval) VALUES (bTempBathroomUsageStart, bRow.create_date, bTempDuration);
+        IF bTempDuration > 30 THEN
+          INSERT INTO bathroom_usage_intervals(bathroom_usage_start, bathroom_usage_end, bathroom_usage_interval) VALUES (bTempBathroomUsageStart, bRow.create_date, bTempDuration);
+        END IF;
         --refresh the duration
         bTempDuration := 0;
       END IF;
+
     END LOOP;
 
     RETURN QUERY

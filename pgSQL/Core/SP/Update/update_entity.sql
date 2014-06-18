@@ -20,7 +20,8 @@ CREATE FUNCTION update_entity(
 	pLastUpdate timestamp without time zone,
 	pAuthenticationId varchar(32),
 	pPrimaryEmailId varchar(32),
-	pPrimaryPhoneId varchar(32)
+	pPrimaryPhoneId varchar(32),
+	pDateEstablished timestamp without time zone
 )
 RETURNS BOOL AS 
 $BODY$
@@ -36,6 +37,7 @@ DECLARE
     oAuthenticationId varchar(32);
     oPrimaryEmailId varchar(32);
     oPrimaryPhoneId varchar(32);
+    oDateEstablished timestamp without time zone;
 
     nFirstName varchar(32); 
     nLastName varchar(32);
@@ -48,6 +50,7 @@ DECLARE
     nAuthenticationId varchar(32);
     nPrimaryEmailId varchar(32);
     nPrimaryPhoneId varchar(32);
+    nDateEstablished timestamp without time zone;
 BEGIN
     -- Authentication ID is needed if not return
     IF pEntityId IS NULL THEN  
@@ -141,6 +144,12 @@ BEGIN
         ELSE
             nLastUpdate := pLastUpdate;
         END IF;
+        
+        IF pDateEstablished IS NULL THEN
+            nDateEstablished := oDateEstablished;
+        ELSE
+            nDateEstablished := pDateEstablished;
+        END IF;
 
         IF pAuthenticationId IS NULL THEN 
             nAuthenticationId := oAuthenticationId;
@@ -181,7 +190,7 @@ BEGIN
             , authentication_id = nAuthenticationId
             , primary_email_id = nPrimaryEmailId
             , primary_phone_id = nPrimaryPhoneId
-
+            , date_established = nDateEstablished
         WHERE 
             entity_id = pEntityId;
         

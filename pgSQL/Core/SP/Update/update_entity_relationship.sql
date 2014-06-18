@@ -9,76 +9,90 @@ RAISE INFO 'FUNCTION % DROPPED', fname;
 END$$;
 -- Start function
 CREATE FUNCTION update_entity_relationship(
-	pEntityRelationshipId varchar(32), 
-	pEntityId varchar(32), 
-	pRelatedId varchar(32), 
-	pStatus char(1)
+	pEntityRelationshipId varchar(32),
+	pEntityId varchar(32),
+	pRelatedId varchar(32),
+	pStatus char(1),
+	pType char(1)
 )
-RETURNS BOOL AS 
+RETURNS BOOL AS
 $BODY$
 DECLARE
     oEntityId varchar(32);
     oRelatedId varchar(32);
     oStatus char(1);
+    oType char(1);
 
     nEntityId varchar(32);
     nRelatedId varchar(32);
     nStatus char(1);
+    nType char(1);
 BEGIN
     -- Authentication ID is needed if not return
-    IF pEntityRelationshipId IS NULL THEN  
+    IF pEntityRelationshipId IS NULL THEN
         RETURN FALSE;
     ELSE
         -- select the variables into the old variables
         SELECT
-            er.entity_id 
+            er.entity_id
             , er.related_id
             , er.status
+            , er.type
         INTO STRICT
             oEntityId
-            , oRelatedId  
+            , oRelatedId
             , oStatus
-        FROM entity_relationship er WHERE 
+            , oType
+        FROM entity_relationship er WHERE
             er.entity_relationship_id = pEntityRelationshipId;
 
         -- Start the updating process
-        IF pEntityId IS NULL THEN 
+        IF pEntityId IS NULL THEN
             nEntityId := oEntityId;
-        ELSEIF pEntityId = '' THEN  
+        ELSEIF pEntityId = '' THEN
             nEntityId := NULL;
         ELSE
             nEntityId := pEntityId;
         END IF;
 
-        IF pRelatedId IS NULL THEN 
+        IF pRelatedId IS NULL THEN
             nRelatedId := oRelatedId;
-        ELSEIF pRelatedId = '' THEN   
+        ELSEIF pRelatedId = '' THEN
             nRelatedId := NULL;
         ELSE
             nRelatedId := pRelatedId;
         END IF;
 
-        IF pStatus IS NULL THEN 
+        IF pStatus IS NULL THEN
             nStatus := oStatus;
-        ELSEIF pStatus  = '' THEN   
+        ELSEIF pStatus  = '' THEN
             nStatus := NULL;
         ELSE
             nStatus := pStatus;
         END IF;
 
+        IF pType IS NULL THEN
+            nType := oType;
+        ELSEIF pType  = '' THEN
+            nType := NULL;
+        ELSE
+            nType := pType;
+        END IF;
+
 
         -- start the update
-        UPDATE 
+        UPDATE
             entity_relationship
-        SET 
+        SET
             entity_id = nEntityId
             , related_id = nRelatedId
             , status = nStatus
-        WHERE 
+            , type = nType
+        WHERE
             entity_relationship_id = pEntityRelationshipId;
-        
+
         RETURN TRUE;
-    
+
     END IF;
 END;
 $BODY$

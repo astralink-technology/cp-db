@@ -9,8 +9,8 @@ RAISE INFO 'FUNCTION % DROPPED', fname;
 END$$;
 -- Start function
 CREATE FUNCTION add_entity(
-	pEntityId varchar(32), 
-	pFirstName varchar(32), 
+	pEntityId varchar(32),
+	pFirstName varchar(32),
 	pLastName varchar(32),
 	pNickName varchar(32),
 	pName varchar(64),
@@ -21,14 +21,15 @@ CREATE FUNCTION add_entity(
 	pLastUpdate timestamp without time zone,
 	pAuthenticationId varchar(32),
 	pPrimaryEmailId varchar(32),
-	pPrimaryPhoneId varchar(32)
+	pPrimaryPhoneId varchar(32),
+	pDateEstablished timestamp without time zone
 )
-RETURNS varchar(32) AS 
+RETURNS varchar(32) AS
 $BODY$
 BEGIN
     INSERT INTO entity (
-	entity_id 
-	, first_name 
+	entity_id
+	, first_name
 	, last_name
 	, nick_name
 	, name
@@ -40,8 +41,9 @@ BEGIN
 	, authentication_id
 	, primary_email_id
 	, primary_phone_id
+	, date_established
     ) VALUES(
-	pEntityId 
+	pEntityId
 	, pFirstName
 	, pLastName
 	, pNickName
@@ -54,6 +56,7 @@ BEGIN
 	, pAuthenticationId
 	, pPrimaryEmailId
 	, pPrimaryPhoneId
+	, pDateEstablished
     );
     RETURN pEntityId;
 END;

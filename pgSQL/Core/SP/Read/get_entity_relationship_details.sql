@@ -13,12 +13,14 @@ CREATE FUNCTION get_entity_relationship_details(
         , pEntityId varchar(32)
         , pRelatedId varchar(32)
         , pStatus char(1)
+        , pType char(1)
         , pPageSize integer
         , pSkipSize integer
     )
 RETURNS TABLE(
     entity_relationship_id varchar(32)
     , status char(1)
+    , type char(1)
     , create_date timestamp without time zone
     , entity_id varchar(32)
     , related_id varchar(32)
@@ -56,13 +58,24 @@ BEGIN
       COUNT(*)
     INTO STRICT
       totalRows
-    FROM entity;
+    FROM entity_relationship er INNER JOIN
+          entity e ON e.entity_id = er.entity_id INNER JOIN
+          authentication ea ON ea.authentication_id = e.authentication_id INNER JOIN
+          entity ee ON er.related_id = ee.entity_id INNER JOIN
+          authentication eea ON eea.authentication_id = ee.authentication_id WHERE (
+            ((pEntityId IS NULL) OR (er.entity_id = pEntityId)) AND
+            ((pRelatedId IS NULL) OR (er.related_id = pRelatedId)) AND
+            ((pStatus IS NULL) OR (er.status = pStatus)) AND
+            ((pType IS NULL) OR (er.type = pType)) AND
+            ((pEntityRelationshipId IS NULL) OR (er.entity_relationship_id = pEntityRelationshipId))
+        );
 
     -- create a temp table to get the data
     CREATE TEMP TABLE entity_relationship_init AS
        SELECT
         er.entity_relationship_id
         , er.status
+        , er.type
         , er.create_date
         , e.entity_id as entity_id
         , ee.entity_id as related_id
@@ -93,10 +106,11 @@ BEGIN
           authentication ea ON ea.authentication_id = e.authentication_id INNER JOIN
           entity ee ON er.related_id = ee.entity_id INNER JOIN
           authentication eea ON eea.authentication_id = ee.authentication_id WHERE (
-          ((pEntityId IS NULL) OR (er.entity_id = pEntityId)) AND
-          ((pRelatedId IS NULL) OR (er.related_id = pRelatedId)) AND
-          ((pStatus IS NULL) OR (er.status = pStatus)) AND
-          ((pEntityRelationshipId IS NULL) OR (er.entity_relationship_id = pEntityRelationshipId))
+            ((pEntityId IS NULL) OR (er.entity_id = pEntityId)) AND
+            ((pRelatedId IS NULL) OR (er.related_id = pRelatedId)) AND
+            ((pStatus IS NULL) OR (er.status = pStatus)) AND
+            ((pType IS NULL) OR (er.type = pType)) AND
+            ((pEntityRelationshipId IS NULL) OR (er.entity_relationship_id = pEntityRelationshipId))
         )
       ORDER BY er.create_date
       LIMIT pPageSize OFFSET pSkipSize;

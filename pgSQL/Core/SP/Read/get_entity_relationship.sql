@@ -13,6 +13,7 @@ CREATE FUNCTION get_entity_relationship(
         , pEntityId varchar(32)
         , pRelatedId varchar(32)
         , pStatus char(1)
+        , pType char(1)
         , pPageSize integer
         , pSkipSize integer
     )
@@ -21,6 +22,7 @@ RETURNS TABLE(
     , entity_id varchar(32)
     , related_id varchar(32)
     , status char(1)
+    , type char(1)
     , create_date timestamp without time zone
     , total_rows integer
   )
@@ -34,7 +36,13 @@ BEGIN
       COUNT(*)
     INTO STRICT
       totalRows
-    FROM entity;
+    FROM entity_relationship er WHERE (
+          ((pEntityId IS NULL) OR (er.entity_id = pEntityId)) AND
+          ((pRelatedId IS NULL) OR (er.related_id = pRelatedId)) AND
+          ((pStatus IS NULL) OR (er.status = pStatus)) AND
+          ((pType IS NULL) OR (er.type = pType)) AND
+          ((pEntityRelationshipId IS NULL) OR (er.entity_relationship_id = pEntityRelationshipId))
+        );
 
     -- create a temp table to get the data
     CREATE TEMP TABLE entity_relationship_init AS
@@ -43,11 +51,13 @@ BEGIN
         , er.entity_id
         , er.related_id
         , er.status
+        , er.type
         , er.create_date
-          FROM entity_relationship er WHERE (
+        FROM entity_relationship er WHERE (
           ((pEntityId IS NULL) OR (er.entity_id = pEntityId)) AND
           ((pRelatedId IS NULL) OR (er.related_id = pRelatedId)) AND
           ((pStatus IS NULL) OR (er.status = pStatus)) AND
+          ((pType IS NULL) OR (er.type = pType)) AND
           ((pEntityRelationshipId IS NULL) OR (er.entity_relationship_id = pEntityRelationshipId))
         )
       ORDER BY er.create_date

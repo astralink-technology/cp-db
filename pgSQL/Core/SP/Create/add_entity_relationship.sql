@@ -13,7 +13,8 @@ CREATE FUNCTION add_entity_relationship(
 	pEntityId varchar(32), 
 	pRelatedId varchar(32), 
 	pStatus char(1),
-	pCreateDate timestamp without time zone
+	pCreateDate timestamp without time zone,
+	pType char(1)
 )
 RETURNS varchar(32) AS 
 $BODY$
@@ -24,12 +25,14 @@ BEGIN
 	, related_id
 	, status
 	, create_date
+	, type
     ) VALUES(
 	pEntityRelationshipId 
 	, pEntityId
 	, pRelatedId
 	, pStatus
 	, pCreateDate
+	, pType
     );
     RETURN pEntityRelationshipId;
 END;
