@@ -13,7 +13,7 @@ CREATE FUNCTION get_device_value(
 	, pPush char(1)
 	, pSms char(1)
 	, pToken varchar(256)
-	, pType varchar(32)
+	, pType char(1)
 	, pResolution varchar(16)
 	, pQuality varchar(16)
 	, pDeviceId varchar(32)
@@ -30,7 +30,7 @@ RETURNS TABLE(
 	push char(1),
 	sms char(1),
 	token varchar(256),
-	type varchar(32),
+	type char(1),
 	resolution varchar(16),
 	quality varchar(16),
 	hash varchar(60),

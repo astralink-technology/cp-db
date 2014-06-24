@@ -19,6 +19,7 @@ CREATE FUNCTION add_device(
 	, pCreateDate timestamp without time zone
 	, pLastUpdate timestamp without time zone
 	, pOwnerId varchar(32)
+	, pDeploymentDateTime date
 )
 RETURNS varchar(32) AS
 $BODY$
@@ -34,6 +35,7 @@ BEGIN
 	, create_date
 	, last_update
 	, owner_id
+	, deployment_date
     ) VALUES(
 	pDeviceId
 	, pName
@@ -45,6 +47,7 @@ BEGIN
 	, pCreateDate
 	, pLastUpdate
 	, pOwnerId
+	, pDeploymentDateTime
     );
     RETURN pDeviceId;
 END;

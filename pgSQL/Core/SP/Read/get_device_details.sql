@@ -20,7 +20,7 @@ CREATE FUNCTION get_device_details(
 	, pSms char(1)
 	, pQuality char(16)
 	, pResolution varchar(16)
-	, pDeviceValueType varchar(32)
+	, pDeviceValueType char(1)
 	, pOwnerId varchar(32)
 	, pPageSize integer
 	, pSkipSize integer
@@ -39,7 +39,7 @@ RETURNS TABLE(
 	, sms char(1)
 	, quality varchar(16)
 	, resolution varchar(16)
-	, device_value_type varchar(32)
+	, device_value_type char(1)
 	, last_update timestamp without time zone
 	, device_last_update timestamp without time zone
 	, owner_id varchar(32)

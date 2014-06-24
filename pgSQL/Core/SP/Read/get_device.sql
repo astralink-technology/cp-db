@@ -30,6 +30,7 @@ RETURNS TABLE(
 	, create_date timestamp without time zone
 	, last_update timestamp without time zone
 	, owner_id varchar(32)
+	, deployment_date date
 	, total_rows integer
 ) AS
 $BODY$
@@ -63,6 +64,7 @@ BEGIN
         , d.create_date
         , d.last_update
         , d.owner_id
+        , d.deployment_date
       FROM device d WHERE (
         ((pOwnerId IS NULL) OR (d.owner_id = pOwnerId)) AND
         ((pName IS NULL) OR (d.name = pName)) AND

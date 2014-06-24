@@ -18,6 +18,7 @@ CREATE FUNCTION update_device(
     , pDescription text
     , pLastUpdate timestamp without time zone
     , pOwnerId varchar(32)
+    , pDeploymentDate date
 )
 RETURNS BOOL AS 
 $BODY$
@@ -30,6 +31,7 @@ DECLARE
     nDescription text;
     nLastUpdate timestamp without time zone;
     nOwnerId varchar(32);
+    nDeploymentDate date;
 
     oName varchar(32);
     oCode varchar(32);
@@ -39,6 +41,7 @@ DECLARE
     oDescription text;
     oLastUpdate timestamp without time zone;
     oOwnerId varchar(32);
+    oDeploymentDate date;
 BEGIN
     -- ID is needed if not return
     IF pDeviceId IS NULL THEN  
@@ -120,6 +123,12 @@ BEGIN
         ELSE
             nLastUpdate := pLastUpdate;
         END IF;
+        
+        IF pDeploymentDate IS NULL THEN
+            nDeploymentDate := oDeploymentDate;
+        ELSE
+            nDeploymentDate := pDeploymentDate;
+        END IF;
 
         IF pOwnerId IS NULL THEN 
             nOwnerId := oOwnerId;
@@ -141,6 +150,7 @@ BEGIN
             , type2 = nType2
             , description = nDescription
             , last_update = nLastUpdate
+            , deployment_date = nDeploymentDate
             , owner_id = nOwnerId
         WHERE 
             device_id = pDeviceId;

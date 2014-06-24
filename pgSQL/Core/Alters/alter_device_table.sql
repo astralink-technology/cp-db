@@ -14,3 +14,7 @@ ALTER TABLE device
 -- Alters to device table 20140123
 ALTER TABLE device
     RENAME COLUMN entity_id TO owner_id
+
+-- Alters to device table 20140621
+ALTER TABLE device
+    ADD COLUMN deployment_date date
