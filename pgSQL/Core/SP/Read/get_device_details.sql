@@ -54,7 +54,7 @@ BEGIN
       COUNT(*)
     INTO STRICT
       totalRows
-    FROM device d INNER JOIN
+    FROM device d LEFT JOIN
     device_value dv ON d.device_id = dv.device_id WHERE
     (
       ((pDeviceId IS NULL) OR (d.device_id = pDeviceId)) AND
@@ -92,7 +92,7 @@ BEGIN
         , d.last_update
         , dv.last_update as device_value_last_update
         , d.owner_id
-      FROM device d INNER JOIN
+      FROM device d LEFT JOIN
       device_value dv ON d.device_id = dv.device_id WHERE
       (
         ((pDeviceId IS NULL) OR (d.device_id = pDeviceId)) AND

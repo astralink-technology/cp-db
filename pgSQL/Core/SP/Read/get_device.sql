@@ -66,6 +66,7 @@ BEGIN
         , d.owner_id
         , d.deployment_date
       FROM device d WHERE (
+        ((pDeviceId IS NULL) OR (d.device_id = pDeviceId)) AND
         ((pOwnerId IS NULL) OR (d.owner_id = pOwnerId)) AND
         ((pName IS NULL) OR (d.name = pName)) AND
         ((pCode IS NULL) OR (d.code = pCode))AND
