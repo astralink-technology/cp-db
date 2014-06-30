@@ -10,7 +10,7 @@ END$$;
 -- Start function
 CREATE FUNCTION update_rule(
       pRuleId varchar(32)
-      , pRuleName varchar(10)
+      , pRuleName varchar(20)
       , pOwnerId varchar(32)
       , pIdentification varchar(32)
       , pType char(1)
@@ -27,7 +27,7 @@ RETURNS BOOL AS
 $BODY$
 DECLARE
     oIdentification varchar(32);
-    oRuleName varchar(10);
+    oRuleName varchar(20);
     oType char(1);
     oStartTime integer;
     oEndTime integer;
@@ -39,7 +39,7 @@ DECLARE
     oArmState varchar(16);
 
     nIdentification varchar(32);
-    nRuleName varchar(10);
+    nRuleName varchar(20);
     nType char(1);
     nStartTime integer;
     nEndTime integer;

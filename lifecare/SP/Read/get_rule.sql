@@ -10,7 +10,7 @@ END$$;
 -- Start function
 CREATE FUNCTION get_rule(
         pRuleId varchar(32)
-        , pRuleName varchar(10)
+        , pRuleName varchar(20)
         , pIdentification varchar(32)
         , pType char(1)
         , pActivityType varchar(32)
@@ -21,7 +21,7 @@ CREATE FUNCTION get_rule(
     )
 RETURNS TABLE(
     rule_id varchar(32)
-    , rule_name varchar(10)
+    , rule_name varchar(20)
     , identification varchar(32)
     , type char(1)
     , start_time integer

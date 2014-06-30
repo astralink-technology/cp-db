@@ -10,7 +10,7 @@ END$$;
 -- Start function
 CREATE FUNCTION add_rule(
       pRuleId varchar(32)
-      , pRuleName varchar(10)
+      , pRuleName varchar(20)
       , pIdentification varchar(32)
       , pType char(1)
       , pStartTime integer

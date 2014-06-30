@@ -3,6 +3,7 @@ create table message (
 	subject varchar(128),
 	message text,
   type char (1),
+  status char(1),
 	create_date timestamp without time zone,
 	last_update timestamp without time zone,
 	owner_id varchar(32),

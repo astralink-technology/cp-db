@@ -17,28 +17,31 @@ CREATE FUNCTION add_message(
     , pOwnerId varchar(32)
     , pTriggerEvent char(2)
     , pSubject varchar(128)
+    , pStatus char(1)
 )
-RETURNS varchar(32) AS 
+RETURNS varchar(32) AS
 $BODY$
 BEGIN
     INSERT INTO message (
-	message_id 
-	, message
-	, type
-	, create_date
-	, last_update
-	, owner_id
-	, trigger_event
-	, subject
+        message_id
+        , message
+        , type
+        , create_date
+        , last_update
+        , owner_id
+        , trigger_event
+        , subject
+        , status
     ) VALUES(
         pMessageId
         , pMessage
         , pType
         , pCreateDate
         , pLastUpdate
-        , pOwnerId 
+        , pOwnerId
         , pTriggerEvent
         , pSubject
+        , pStatus
     );
     RETURN pMessageId;
 END;

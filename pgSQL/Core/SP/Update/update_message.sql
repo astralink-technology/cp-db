@@ -16,6 +16,7 @@ CREATE FUNCTION update_message(
     , pOwnerId varchar(32)
     , pTriggerEvent char(2)
     , pSubject varchar(128)
+    , pStatus char(1)
 )
 RETURNS BOOL AS 
 $BODY$
@@ -26,6 +27,7 @@ DECLARE
     nOwnerId varchar(32);
     nTriggerEvent char(2);
     nSubject varchar(128);
+    nStatus char(1);
 
     oMessage text;
     oType char(1);
@@ -33,6 +35,7 @@ DECLARE
     oOwnerId varchar(32);
     oTriggerEvent char(2);
     oSubject varchar(128);
+    oStatus char(1);
 BEGIN
     -- Message ID is needed if not return
     IF pMessageId IS NULL THEN  
@@ -102,6 +105,14 @@ BEGIN
         ELSE
             nSubject := pSubject;
         END IF;
+        
+        IF pStatus IS NULL THEN
+            nStatus := oStatus;
+        ELSEIF pStatus = '' THEN
+            nStatus := NULL;
+        ELSE
+            nStatus := pStatus;
+        END IF;
 
         -- start the update
         UPDATE 
@@ -113,6 +124,7 @@ BEGIN
             , owner_id = nOwnerId
             , trigger_event = nTriggerEvent
             , subject = nSubject
+            , status = nStatus
         WHERE
             message_id = pMessageId;
 
