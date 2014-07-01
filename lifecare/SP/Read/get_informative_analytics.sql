@@ -108,7 +108,7 @@ BEGIN
            ((pType IS NULL) OR (ia.type = pType)) AND
            ((pOwnerId IS NULL) OR (ia.owner_id = pOwnerId))
           )
-          ORDER BY ia.date_value DESC;
+          ORDER BY ia.create_date DESC;
 
     RETURN QUERY
 

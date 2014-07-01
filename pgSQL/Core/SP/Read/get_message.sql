@@ -15,6 +15,8 @@ CREATE FUNCTION get_message(
     , pOwnerId varchar(32)  
     , pTriggerEvent char(2)
     , pStatus char(1)
+    , pMessageStart timestamp without time zone
+    , pMessageEnd timestamp without time zone
     , pPageSize integer
     , pSkipSize integer
 )
@@ -45,6 +47,7 @@ BEGIN
       ((pType IS NULL) OR (m.type = pType)) AND
       ((pOwnerId IS NULL) OR (m.owner_id = pOwnerId)) AND
       ((pStatus IS NULL) OR (m.status = pStatus)) AND
+      ((pMessageStart IS NULL OR pMessageEnd IS NULL) OR (m.create_date BETWEEN pMessageStart AND pMessageEnd)) AND
       ((pTriggerEvent IS NULL) OR (m.trigger_event = pTriggerEvent))
     );
 
@@ -66,9 +69,10 @@ BEGIN
         ((pType IS NULL) OR (m.type = pType)) AND
         ((pOwnerId IS NULL) OR (m.owner_id = pOwnerId)) AND
         ((pStatus IS NULL) OR (m.status = pStatus)) AND
+        ((pMessageStart IS NULL OR pMessageEnd IS NULL) OR (m.create_date BETWEEN pMessageStart AND pMessageEnd)) AND
         ((pTriggerEvent IS NULL) OR (m.trigger_event = pTriggerEvent))
         )
-      ORDER BY m.create_date
+      ORDER BY m.create_date desc
       LIMIT pPageSize OFFSET pSkipSize;
 
     RETURN QUERY
