@@ -23,7 +23,7 @@ CREATE FUNCTION add_informative_analytics(
     , pIntValue2 integer
     , pIntValue3 integer
     , pIntValue4 integer
-    , pType char(2)
+    , pType varchar(4)
     , pCreateDate timestamp without time zone
     , pOwnerId varchar(32)
 )

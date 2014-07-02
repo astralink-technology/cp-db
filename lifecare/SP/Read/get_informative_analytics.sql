@@ -31,7 +31,7 @@ CREATE FUNCTION get_informative_analytics(
       , pIntValue2 integer
       , pIntValue3 integer
       , pIntValue4 integer
-      , pType char(2)
+      , pType varchar(4)
       , pOwnerId varchar(32)
     )
 RETURNS TABLE(
@@ -49,7 +49,7 @@ RETURNS TABLE(
       , int_value2 integer
       , int_value3 integer
       , int_value4 integer
-      , type char(2)
+      , type varchar(4)
       , create_date timestamp without time zone
       , owner_id varchar(32)
       , total_rows integer

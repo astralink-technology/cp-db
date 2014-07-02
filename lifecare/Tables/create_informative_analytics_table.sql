@@ -13,7 +13,7 @@ create table informative_analytics (
   int_value2 integer,
   int_value3 integer,
   int_value4 integer,
-  type char(2),
+  type varchar(4),
 	create_date timestamp without time zone,
 	owner_id varchar(32)
 );
