@@ -20,19 +20,19 @@ RETURNS varchar(32) AS
 $BODY$
 BEGIN
     INSERT INTO entity_relationship (
-	entity_relationship_id 
-	, entity_id 
-	, related_id
-	, status
-	, create_date
-	, type
+      entity_relationship_id
+      , entity_id
+      , related_id
+      , status
+      , create_date
+      , type
     ) VALUES(
-	pEntityRelationshipId 
-	, pEntityId
-	, pRelatedId
-	, pStatus
-	, pCreateDate
-	, pType
+      pEntityRelationshipId
+      , pEntityId
+      , pRelatedId
+      , pStatus
+      , pCreateDate
+      , pType
     );
     RETURN pEntityRelationshipId;
 END;
