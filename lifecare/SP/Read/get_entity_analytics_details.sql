@@ -73,6 +73,11 @@ RETURNS TABLE(
 	, max_night_bathroom_usage_dur integer
 	, median_night_bathroom_usage_dur integer
 	, min_night_bathroom_usage_dur integer
+  , day_active_wellness integer
+  , day_max_inactivity integer
+  , night_active_wellness integer
+  , night_max_inactivity integer
+  , nights_away integer
 	, total_rows integer
 ) AS
 $BODY$
@@ -148,6 +153,11 @@ BEGIN
         , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NBD' ORDER BY ia.date_value desc LIMIT 1) as max_night_bathroom_usage_dur
         , (SELECT ia.int_value2 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NBD' ORDER BY ia.date_value desc LIMIT 1) as median_night_bathroom_usage_dur
         , (SELECT ia.int_value3 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NBD' ORDER BY ia.date_value desc LIMIT 1) as min_night_bathroom_usage_dur
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'DA' ORDER BY ia.date_value desc LIMIT 1) as day_active_wellness
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'DI' ORDER BY ia.date_value desc LIMIT 1) as day_max_inactivity
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NA' ORDER BY ia.date_value desc LIMIT 1) as night_active_wellness
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NI' ORDER BY ia.date_value desc LIMIT 1) as night_max_inactivity
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NGA' ORDER BY ia.date_value desc LIMIT 1) as nights_away
       FROM entity e INNER JOIN
       authentication a ON a.authentication_id = e.authentication_id LEFT JOIN
       device_relationship dr ON dr.owner_id = e.entity_id LEFT JOIN
