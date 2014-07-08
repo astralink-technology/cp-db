@@ -23,7 +23,7 @@ CREATE FUNCTION update_core_analytics(
         , pIntValue2 integer
         , pIntValue3 integer
         , pIntValue4 integer
-        , pType char(1)
+        , pType varchar(8)
         , pDescription text
         , pLastUpdate timestamp without time zone
 )
@@ -43,7 +43,7 @@ DECLARE
     oIntValue2 integer;
     oIntValue3 integer;
     oIntValue4 integer;
-    oType char(1);
+    oType varchar(8);
     oDescription text;
     oLastUpdate timestamp without time zone;
 
@@ -60,7 +60,7 @@ DECLARE
     nIntValue2 integer;
     nIntValue3 integer;
     nIntValue4 integer;
-    nType char(1);
+    nType varchar(8);
     nDescription text;
     nLastUpdate timestamp without time zone;
 

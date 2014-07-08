@@ -23,12 +23,12 @@ CREATE FUNCTION add_core_analytics(
     , pIntValue2 integer
     , pIntValue3 integer
     , pIntValue4 integer
-    , pType char(1)
+    , pType varchar(8)
     , pDescription text
     , pCreateDate timestamp without time zone
     , pLastUpdate timestamp without time zone
 )
-RETURNS varchar(32) AS 
+RETURNS varchar(32) AS
 $BODY$
 BEGIN
     INSERT INTO core_analytics(

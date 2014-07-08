@@ -13,7 +13,7 @@ create table core_analytics (
   int_value2 integer,
   int_value3 integer,
   int_value4 integer,
-  type char(1),
+  type varchar(8),
   description text,
 	create_date timestamp without time zone,
 	last_update timestamp without time zone
