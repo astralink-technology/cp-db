@@ -83,6 +83,9 @@ BEGIN
     RETURN QUERY
       SELECT * FROM bathroom_usage_intervals;
 
+    DROP TABLE bathroom_usage_intervals_raw;
+    DROP TABLE bathroom_usage_intervals;
+
 END;
 $BODY$
 LANGUAGE plpgsql;

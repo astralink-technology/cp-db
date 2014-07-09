@@ -328,6 +328,8 @@ BEGIN
         , pAwayForTheNightId as user_away_eyecare_id
       FROM sleep_analytics_temp;
 
+
+    DROP TABLE sleep_analytics_temp;
 END;
 $BODY$
 LANGUAGE plpgsql;

@@ -291,6 +291,8 @@
         , pSleptDateTime as slept_date_time
       FROM wakeup_analytics_temp;
 
+
+    DROP TABLE wakeup_analytics_temp;
   END;
   $BODY$
   LANGUAGE plpgsql;
