@@ -23,6 +23,7 @@ RETURNS TABLE(
 	, nick_name varchar(32)
 	, name varchar(64)
 	, status char(1)
+	, location_name varchar(128)
 	, approved boolean
 	, type char(1)
 	, create_date timestamp without time zone
@@ -103,6 +104,7 @@ BEGIN
         , e.nick_name
         , e.name
         , e.status
+        , e.location_name
         , e.approved
         , e.type
         , a.create_date -- user create date
