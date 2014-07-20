@@ -59,6 +59,7 @@ RETURNS TABLE(
 	, median_wakeup_time timestamp without time zone
 	, median_sleeping_time timestamp without time zone
 	, sleep_efficiency integer
+	, sleep_efficiency_null_reason varchar(32)
 	, away_probability integer
 	, going_out_stats_cluster integer
 	, going_out_stats_start integer
@@ -137,29 +138,30 @@ BEGIN
         , ad.status as address_status
         , ad.longitude
         , ad.latitude
-        , (SELECT ia.date_value2 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'MW' ORDER BY ia.date_value desc LIMIT 1) as median_wakeup_time
-        , (SELECT ia.date_value2 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'MS' ORDER BY ia.date_value desc LIMIT 1) as median_sleeping_time
-        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'SE' ORDER BY ia.date_value desc LIMIT 1) as sleep_efficiency
-        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'AP' ORDER BY ia.date_value desc LIMIT 1) as away_probability
-        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'GO' ORDER BY ia.date_value desc LIMIT 1) as going_out_stats_cluster
-        , (SELECT ia.int_value2 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'GO' ORDER BY ia.date_value desc LIMIT 1) as going_out_stats_start
-        , (SELECT ia.int_value3 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'GO' ORDER BY ia.date_value desc LIMIT 1) as going_out_stats_end
-        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'RH' ORDER BY ia.date_value desc LIMIT 1) as return_home_stats_cluster
-        , (SELECT ia.int_value2 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'RH' ORDER BY ia.date_value desc LIMIT 1) as return_home_stats_start
-        , (SELECT ia.int_value3 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'RH' ORDER BY ia.date_value desc LIMIT 1) as return_home_stats_end
-        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'DBF' ORDER BY ia.date_value desc LIMIT 1) as day_bathroom_usage_freq
-        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NBF' ORDER BY ia.date_value desc LIMIT 1) as night_bathroom_usage_freq
-        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'DBD' ORDER BY ia.date_value desc LIMIT 1) as max_day_bathroom_usage_dur
-        , (SELECT ia.int_value2 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'DBD' ORDER BY ia.date_value desc LIMIT 1) as median_day_bathroom_usage_dur
-        , (SELECT ia.int_value3 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'DBD' ORDER BY ia.date_value desc LIMIT 1) as min_day_bathroom_usage_dur
-        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NBD' ORDER BY ia.date_value desc LIMIT 1) as max_night_bathroom_usage_dur
-        , (SELECT ia.int_value2 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NBD' ORDER BY ia.date_value desc LIMIT 1) as median_night_bathroom_usage_dur
-        , (SELECT ia.int_value3 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NBD' ORDER BY ia.date_value desc LIMIT 1) as min_night_bathroom_usage_dur
-        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'DA' ORDER BY ia.date_value desc LIMIT 1) as day_active_wellness
-        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'DI' ORDER BY ia.date_value desc LIMIT 1) as day_max_inactivity
-        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NA' ORDER BY ia.date_value desc LIMIT 1) as night_active_wellness
-        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NI' ORDER BY ia.date_value desc LIMIT 1) as night_max_inactivity
-        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NGA' ORDER BY ia.date_value desc LIMIT 1) as nights_away
+        , (SELECT ia.date_value2 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'MW' ORDER BY ia.date_value DESC LIMIT 1) as median_wakeup_time
+        , (SELECT ia.date_value2 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'MS' ORDER BY ia.date_value DESC LIMIT 1) as median_sleeping_time
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'SE' ORDER BY ia.date_value DESC LIMIT 1) as sleep_efficiency
+        , (SELECT ia.value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'SE' ORDER By ia.date_value DESC LIMIT 1) as sleep_efficiency_null_reason
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'AP' ORDER BY ia.date_value DESC LIMIT 1) as away_probability
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'GO' ORDER BY ia.date_value DESC LIMIT 1) as going_out_stats_cluster
+        , (SELECT ia.int_value2 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'GO' ORDER BY ia.date_value DESC LIMIT 1) as going_out_stats_start
+        , (SELECT ia.int_value3 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'GO' ORDER BY ia.date_value DESC LIMIT 1) as going_out_stats_end
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'RH' ORDER BY ia.date_value DESC LIMIT 1) as return_home_stats_cluster
+        , (SELECT ia.int_value2 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'RH' ORDER BY ia.date_value DESC LIMIT 1) as return_home_stats_start
+        , (SELECT ia.int_value3 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'RH' ORDER BY ia.date_value DESC LIMIT 1) as return_home_stats_end
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'DBF' ORDER BY ia.date_value DESC LIMIT 1) as day_bathroom_usage_freq
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NBF' ORDER BY ia.date_value DESC LIMIT 1) as night_bathroom_usage_freq
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'DBD' ORDER BY ia.date_value DESC LIMIT 1) as max_day_bathroom_usage_dur
+        , (SELECT ia.int_value2 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'DBD' ORDER BY ia.date_value DESC LIMIT 1) as median_day_bathroom_usage_dur
+        , (SELECT ia.int_value3 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'DBD' ORDER BY ia.date_value DESC LIMIT 1) as min_day_bathroom_usage_dur
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NBD' ORDER BY ia.date_value DESC LIMIT 1) as max_night_bathroom_usage_dur
+        , (SELECT ia.int_value2 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NBD' ORDER BY ia.date_value DESC LIMIT 1) as median_night_bathroom_usage_dur
+        , (SELECT ia.int_value3 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NBD' ORDER BY ia.date_value DESC LIMIT 1) as min_night_bathroom_usage_dur
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'DA' ORDER BY ia.date_value DESC LIMIT 1) as day_active_wellness
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'DI' ORDER BY ia.date_value DESC LIMIT 1) as day_max_inactivity
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NA' ORDER BY ia.date_value DESC LIMIT 1) as night_active_wellness
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NI' ORDER BY ia.date_value DESC LIMIT 1) as night_max_inactivity
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NGA' ORDER BY ia.date_value DESC LIMIT 1) as nights_away
       FROM entity e INNER JOIN
       authentication a ON a.authentication_id = e.authentication_id LEFT JOIN
       device_relationship dr ON dr.owner_id = e.entity_id LEFT JOIN

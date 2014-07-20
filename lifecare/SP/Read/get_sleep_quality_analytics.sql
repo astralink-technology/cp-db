@@ -12,7 +12,10 @@ CREATE FUNCTION get_sleep_quality_analytics(
         pDeviceId varchar(32)
         , pDay date
     )
-RETURNS integer
+RETURNS TABLE(
+    sleep_quality integer
+    , sleep_quality_null_reason varchar(32)
+  )
 AS
 $BODY$
 DECLARE
@@ -22,6 +25,8 @@ DECLARE
   pSleepingTime integer;
   pTotalTimeAsleep integer;
   pDisruptionRow record;
+
+  pSleepQuality integer;
 BEGIN
     -- get the sleeping and the wake up time of the particular day.
     -- get sleep time
@@ -49,6 +54,11 @@ BEGIN
         disruption_end timestamp without time zone,
         disruption_zone varchar(64),
         disruption_interval integer
+    );
+
+    CREATE TEMP TABLE sleep_quality_value_init(
+        sleep_quality integer,
+        sleep_quality_null_reason varchar(32)
     );
 
     IF (pSleepTime IS NOT NULL AND pWakeupTime IS NOT NULL) THEN
@@ -86,10 +96,19 @@ BEGIN
           pTotalTimeAsleep = pSleepingTime - pTotalDisruption;
 
           -- get the sleep quality
-          RETURN  round((pTotalTimeAsleep * 100) / pSleepingTime);
+          pSleepQuality = round((pTotalTimeAsleep * 100) / pSleepingTime);
+
+          INSERT INTO sleep_quality_value_init VALUES (pSleepQuality, null);
       ELSE
-          RETURN NULL;
+          IF pSleepTime IS NULL THEN
+            INSERT INTO sleep_quality_value_init VALUES (null, 'away');
+          ELSE
+            INSERT INTO sleep_quality_value_init VALUES (null, null);
+          END IF;
       END IF;
+
+      RETURN QUERY
+        SELECT * FROM sleep_quality_value_init;
 
 
 END;

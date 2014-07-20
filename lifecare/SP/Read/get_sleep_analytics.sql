@@ -27,7 +27,22 @@ DECLARE
     pDynamicActivityCount integer;
     pDynamicActivityCountTimeStart timestamp without time zone;
     pDynamicActivityCountTimeEnd timestamp without time zone;
+
+    pDeploymentDate date;
+
+    pLastEventTypeId varchar(64);
+    pLastExtraData varchar(64);
+    pLastEyeCareId varchar(32);
 BEGIN
+    -- Get the deployment date of the device
+    SELECT
+      d.deployment_date
+    INTO
+      pDeploymentDate
+    FROM
+      device d
+    WHERE d.device_id = pDeviceId;
+
     -- check if user is away on that day
     SELECT
       e.eyecare_id
@@ -39,11 +54,11 @@ BEGIN
           from eyecare e
           WHERE e.create_date BETWEEN (pDay  || 'T' || '00:00')::timestamp AND ((pDay || 'T' || '23:59')::timestamp) AND
           ((pDeviceId = NULL) OR (e.device_id = pDeviceId)) AND (
-      (e.node_name IN ('Door sensor', 'door sensor')  AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
-      (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
-      (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-      (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') -- Get only the sensor off in the bathroom
-      )
+            (e.node_name IN ('Door sensor', 'door sensor')  AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
+            (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
+            (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
+            (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') -- Get only the sensor off in the bathroom
+            )
          ) e WHERE
     e.event_type_id = '20001'
     AND e.zone IN ('Living room', 'Living room')
@@ -52,6 +67,28 @@ BEGIN
     AND (next_event_type_id IS NULL OR next_event_type_id IN ('20001'))
     AND (next_create_date > create_date + 0.5 * INTERVAL '1 hour' OR next_create_date IS NULL);
 
+    -- If use is not away on that day, check is user is away since that day
+    SELECT
+      e.event_type_id
+      , e.extra_data
+      , e.eyecare_id
+    INTO
+      pLastEventTypeId
+      , pLastExtraData
+      , pLastEyeCareId
+    FROM eyecare e WHERE e.create_date BETWEEN (pDeploymentDate || 'T' || '00:00')::timestamp AND ((pDay || 'T' || '23:59')::timestamp) AND
+          ((e.device_id = pDeviceId)) AND (
+            (e.node_name IN ('Door sensor', 'door sensor')  AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
+            (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
+            (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
+            (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') -- Get only the sensor off in the bathroom
+            ) ORDER BY e.create_date DESC LIMIT 1;
+
+    -- If the last event is door close, the user is away for more than a day
+    IF pLastEventTypeId = '20001' AND pLastExtraData = 'Alarm Off' THEN
+       pAwayForTheNightId  = pLastEyeCareId;
+    END IF;
+    
     -- create a temp table to get the data
     CREATE TEMP TABLE sleep_analytics_temp(
         sleeping_time timestamp without time zone

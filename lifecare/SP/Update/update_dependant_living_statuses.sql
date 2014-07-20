@@ -159,7 +159,7 @@ BEGIN
               pDurationSinceMotionDetect;
 
             -- Do the calculation
-            IF (pEventTypeId = '20004' OR pEventTypeId = '20003' OR pEventTypeId = '20002') THEN
+            IF (pEventTypeId = '20004' OR pEventTypeId = '20003' OR pEventTypeId = '20002' OR pEventTypeId = '20005') THEN
               -- Motion detected and the timing is less that 5 minutes, user is active else inactive
               IF (((pDurationSinceMotionDetect)::integer  / 60) < 5) THEN
                 pUserStatus = 'A';
