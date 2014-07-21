@@ -154,21 +154,21 @@ BEGIN
 
             -- get the motion detected datetime difference with now
             SELECT
-              EXTRACT(epoch FROM((NOW()::timestamp - pMotionDetectedDateTime)))::integer
+              EXTRACT ('epoch' FROM (NOW()::timestamp - pMotionDetectedDateTime)::interval)::integer
             INTO
               pDurationSinceMotionDetect;
 
             -- Do the calculation
-            IF (pEventTypeId = '20004' OR pEventTypeId = '20003' OR pEventTypeId = '20002' OR pEventTypeId = '20005') THEN
+            IF (pEventTypeId = '20004' OR pEventTypeId = '20003' OR pEventTypeId = '20002' OR pEventTypeId = '20005' OR (pEventTypeId = '20001' AND pExtraData = 'Alarm On')) THEN
               -- Motion detected and the timing is less that 5 minutes, user is active else inactive
-              IF (((pDurationSinceMotionDetect)::integer  / 60) < 5) THEN
+              IF (pDurationSinceMotionDetect < 540) THEN
                 pUserStatus = 'A';
               ELSE
                 pUserStatus = 'I';
               END IF;
             ELSEIF (pEventTypeId = '20001' AND pExtraData = 'Alarm Off') THEN
               -- Door close activity, user is likely to be away
-              IF (((pDurationSinceMotionDetect)::integer  / 60) < 30) THEN
+              IF (pDurationSinceMotionDetect  < 2040) THEN
                 IF (pUserCurrentStatus != 'W') THEN
                   pUserStatus = 'L';
                 ELSE

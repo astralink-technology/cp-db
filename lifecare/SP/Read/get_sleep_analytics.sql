@@ -57,7 +57,8 @@ BEGIN
             (e.node_name IN ('Door sensor', 'door sensor')  AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
             (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
             (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-            (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') -- Get only the sensor off in the bathroom
+            (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
+                (e.event_type_id IN ('20013')) -- Get BP HR Reading
             )
          ) e WHERE
     e.event_type_id = '20001'
@@ -81,7 +82,8 @@ BEGIN
             (e.node_name IN ('Door sensor', 'door sensor')  AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
             (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
             (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-            (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') -- Get only the sensor off in the bathroom
+            (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
+                (e.event_type_id IN ('20013')) -- Get BP HR Reading
             ) ORDER BY e.create_date DESC LIMIT 1;
 
     -- If the last event is door close, the user is away for more than a day
@@ -111,7 +113,8 @@ BEGIN
                    (e.node_name IN ('Door sensor', 'door sensor') AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
                    (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
                    (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-                   (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') -- Get only the sensor off in the bathroom
+                   (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
+                (e.event_type_id IN ('20013')) -- Get BP HR Reading
                    ) AND
                    e.create_date BETWEEN pDynamicSleepingStart AND ((pDay || 'T' || '05:00')::timestamp + INTERVAL '1 day') AND
                  ((pDeviceId IS NULL) OR (e.device_id = pDeviceId))
@@ -146,7 +149,8 @@ BEGIN
                      (e.node_name IN ('Door sensor', 'door sensor') AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
                      (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
                      (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-                     (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') -- Get only the sensor off in the bathroom
+                     (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
+                (e.event_type_id IN ('20013')) -- Get BP HR Reading
                      ) AND
                      e.create_date BETWEEN pDynamicSleepingStart AND ((pDay || 'T' || '05:00')::timestamp + INTERVAL '1 day') AND
                    ((pDeviceId IS NULL) OR (e.device_id = pDeviceId))
@@ -182,7 +186,8 @@ BEGIN
                      (e.node_name IN ('Door sensor', 'door sensor') AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
                      (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
                      (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-                     (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') -- Get only the sensor off in the bathroom
+                     (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
+                (e.event_type_id IN ('20013')) -- Get BP HR Reading
                      ) AND
                      e.create_date BETWEEN pDynamicSleepingStart AND ((pDay || 'T' || '05:00')::timestamp + INTERVAL '1 day') AND
                    ((pDeviceId IS NULL) OR (e.device_id = pDeviceId))
@@ -218,7 +223,8 @@ BEGIN
                      (e.node_name IN ('Door sensor', 'door sensor') AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
                      (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
                      (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-                     (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') -- Get only the sensor off in the bathroom
+                     (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
+                (e.event_type_id IN ('20013')) -- Get BP HR Reading
                      ) AND
                      e.create_date BETWEEN pDynamicSleepingStart AND ((pDay || 'T' || '05:00')::timestamp + INTERVAL '1 day') AND
                    ((pDeviceId IS NULL) OR (e.device_id = pDeviceId))
@@ -259,7 +265,8 @@ BEGIN
                      (e.node_name IN ('Door sensor', 'door sensor') AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
                      (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
                      (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-                     (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') -- Get only the sensor off in the bathroom
+                     (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
+                (e.event_type_id IN ('20013')) -- Get BP HR Reading
                      ) AND
                      e.create_date BETWEEN pDynamicActivityCountTimeStart AND pDynamicActivityCountTimeEnd AND
                    ((pDeviceId IS NULL) OR (e.device_id = pDeviceId))
@@ -277,7 +284,8 @@ BEGIN
                        (e.node_name IN ('Door sensor', 'door sensor') AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
                        (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
                        (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-                       (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') -- Get only the sensor off in the bathroom
+                       (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
+                (e.event_type_id IN ('20013')) -- Get BP HR Reading
                        ) AND
                      e.create_date BETWEEN pDynamicActivityCountTimeStart AND pDynamicActivityCountTimeEnd AND
                      ((pDeviceId IS NULL) OR (e.device_id = pDeviceId))
@@ -318,7 +326,8 @@ BEGIN
                      (e.node_name IN ('Door sensor', 'door sensor') AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
                      (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
                      (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-                     (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') -- Get only the sensor off in the bathroom
+                     (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
+                (e.event_type_id IN ('20013')) -- Get BP HR Reading
                      ) AND
                      e.create_date BETWEEN pDynamicSleepingStart AND ((pDay || 'T' || '05:00')::timestamp + INTERVAL '1 day') AND
                    ((pDeviceId IS NULL) OR (e.device_id = pDeviceId))
