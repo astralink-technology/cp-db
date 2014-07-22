@@ -22,7 +22,8 @@ CREATE FUNCTION add_entity(
 	pAuthenticationId varchar(32),
 	pPrimaryEmailId varchar(32),
 	pPrimaryPhoneId varchar(32),
-	pDateEstablished timestamp without time zone
+	pDateEstablished timestamp without time zone,
+	pDisabled boolean
 )
 RETURNS varchar(32) AS
 $BODY$
@@ -42,6 +43,7 @@ BEGIN
 	, primary_email_id
 	, primary_phone_id
 	, date_established
+	, disabled
     ) VALUES(
 	pEntityId
 	, pFirstName
@@ -57,6 +59,7 @@ BEGIN
 	, pPrimaryEmailId
 	, pPrimaryPhoneId
 	, pDateEstablished
+	, pDisabled
     );
     RETURN pEntityId;
 END;

@@ -21,7 +21,8 @@ CREATE FUNCTION update_entity(
 	pAuthenticationId varchar(32),
 	pPrimaryEmailId varchar(32),
 	pPrimaryPhoneId varchar(32),
-	pDateEstablished timestamp without time zone
+	pDateEstablished timestamp without time zone,
+	pDisabled boolean
 )
 RETURNS BOOL AS 
 $BODY$
@@ -38,6 +39,7 @@ DECLARE
     oPrimaryEmailId varchar(32);
     oPrimaryPhoneId varchar(32);
     oDateEstablished timestamp without time zone;
+    oDisabled boolean;
 
     nFirstName varchar(32); 
     nLastName varchar(32);
@@ -51,6 +53,7 @@ DECLARE
     nPrimaryEmailId varchar(32);
     nPrimaryPhoneId varchar(32);
     nDateEstablished timestamp without time zone;
+    nDisabled boolean;
 BEGIN
     -- Authentication ID is needed if not return
     IF pEntityId IS NULL THEN  
@@ -69,6 +72,7 @@ BEGIN
             , e.authentication_id
             , e.primary_email_id
             , e.primary_phone_id
+            , e.disabled
         INTO STRICT
             oFirstName
             , oLastName 
@@ -81,6 +85,7 @@ BEGIN
             , oAuthenticationId
             , oPrimaryEmailId
             , oPrimaryPhoneId
+            , oDisabled
         FROM entity e WHERE 
             e.entity_id = pEntityId;
 
@@ -129,6 +134,12 @@ BEGIN
             nApproved := oApproved;
         ELSE
             nApproved := pApproved;
+        END IF;
+        
+        IF pDisabled IS NULL THEN
+            nDisabled := oDisabled;
+        ELSE
+            nDisabled := pDisabled;
         END IF;
 
         IF pType IS NULL THEN 
@@ -191,7 +202,8 @@ BEGIN
             , primary_email_id = nPrimaryEmailId
             , primary_phone_id = nPrimaryPhoneId
             , date_established = nDateEstablished
-        WHERE 
+            , disabled = nDisabled
+        WHERE
             entity_id = pEntityId;
         
         RETURN TRUE;

@@ -6,6 +6,7 @@ create table entity (
 	name varchar(64),
 	status char(1),
 	approved boolean,
+	disabled boolean,
 	type char(1),
 	create_date timestamp without time zone,
 	last_update timestamp without time zone,

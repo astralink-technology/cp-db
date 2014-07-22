@@ -29,6 +29,7 @@ RETURNS TABLE(
     , primary_email_id varchar(32)
     , primary_phone_id varchar(32)
     , date_established timestamp without time zone
+    , disabled boolean
     , total_rows integer
   )
 AS
@@ -60,6 +61,7 @@ BEGIN
         , e.primary_email_id
         , e.primary_phone_id
         , e.date_established
+        , e.disabled
           FROM entity e WHERE (
           ((pEntityId IS NULL) OR (e.entity_id = pEntityId)) AND
           ((pAuthenticationId IS NULL) OR (e.authentication_id = pAuthenticationId))

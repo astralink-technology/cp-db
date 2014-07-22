@@ -23,6 +23,7 @@ RETURNS TABLE(
 	, name varchar(64)
 	, status char(1)
 	, approved boolean
+	, disabled boolean
 	, type char(1)
 	, create_date timestamp without time zone
 	, last_update timestamp without time zone
@@ -80,6 +81,7 @@ BEGIN
         , e.name
         , e.status
         , e.approved
+        , e.disabled
         , e.type
         , a.create_date -- user create date
         , e.last_update
