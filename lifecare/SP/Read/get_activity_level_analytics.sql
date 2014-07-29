@@ -33,6 +33,8 @@
       , night_away_duration integer
       , day_active integer
       , night_active integer
+      , day_activity_level float
+      , night_activity_level float
     )
   AS
   $BODY$
@@ -60,7 +62,8 @@
     pDay2Start timestamp without time zone;
     pDay2End timestamp without time zone;
 
-    pActivityLevel integer;
+    pDayActivityLevel float;
+    pNightActivityLevel float;
 
     nRow record;
     dRow record;
@@ -447,10 +450,24 @@
             END IF;
         END IF;
 
+        -- Calculate the activity level
+        IF (pNightDuration - pNightAwayDuration) > 0 THEN
+          pNightActivityLevel = nActive * 100 / (pNightDuration - pNightAwayDuration);
+        ELSE
+          pNightActivityLevel = null;
+        END IF;
+
+        IF (pDayDuration - pDayAwayDuration) > 0 THEN
+          pDayActivityLevel = dActive * 100 / (pDayDuration - pDayAwayDuration);
+        ELSE
+          pDayActivityLevel = null;
+        END IF;
       ELSE
         -- if there are still no sleep time or wake up time, i am going home
-        pActivityLevel = null;
+        pDayActivityLevel = null;
+        pNightActivityLevel = null;
       END IF;
+
 
       RETURN QUERY
         SELECT
@@ -464,6 +481,8 @@
            , pNightAwayDuration
            , dActive
            , nActive
+           , pDayActivityLevel
+           , pNightActivityLevel
         FROM day_activities_temp;
 
   END;
