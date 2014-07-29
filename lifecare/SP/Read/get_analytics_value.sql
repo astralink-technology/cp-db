@@ -26,6 +26,15 @@ CREATE FUNCTION get_analytics_value(
         , pIntValue2 integer
         , pType char(1)
         , pOwnerId varchar(32)
+        , pPageSize integer
+        , pSkipSize integer
+        , pDateValueIsNull bool
+        , pDateValue2IsNull bool
+        , pDateValue3IsNull bool
+        , pValueIsNull bool
+        , pValue2IsNull bool
+        , pIntValueIsNull bool
+        , pIntValue2IsNull bool
     )
 RETURNS TABLE(
 	analytics_value_id varchar(32)
@@ -83,9 +92,17 @@ BEGIN
            ((pIntValue IS NULL) OR (av.int_value = pIntValue)) AND
            ((pIntValue2 IS NULL) OR (av.int_value2 = pIntValue2)) AND
            ((pType IS NULL) OR (av.type = pType)) AND
-           ((pOwnerId IS NULL) OR (av.owner_id = pOwnerId))
+           ((pOwnerId IS NULL) OR (av.owner_id = pOwnerId)) AND
+           ((pDateValueIsNull IS NULL) OR ((pDateValueIsNull = false) AND (av.date_value IS NOT NULL))) AND
+           ((pDateValue2IsNull IS NULL) OR ((pDateValue2IsNull = false) AND (av.date_value2 IS NOT NULL))) AND
+           ((pDateValue3IsNull IS NULL) OR ((pDateValue3IsNull = false) AND (av.date_value3 IS NOT NULL))) AND
+           ((pValueIsNull IS NULL) OR ((pValueIsNull = false) AND (av.value IS NOT NULL))) AND
+           ((pValue2IsNull IS NULL) OR ((pValue2IsNull = false) AND (av.value2 IS NOT NULL))) AND
+           ((pIntValueIsNull IS NULL) OR ((pIntValueIsNull = false) AND (av.int_value IS NOT NULL))) AND
+           ((pIntValue2IsNull IS NULL) OR ((pIntValue2IsNull = false) AND (av.int_value2 IS NOT NULL)))
           )
-          ORDER BY date_value DESC;
+          ORDER BY date_value DESC
+          LIMIT pPageSize OFFSET pSkipSize;
 
     RETURN QUERY
 
