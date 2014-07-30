@@ -70,19 +70,21 @@
       nActive integer;
     BEGIN
 
-          CREATE TEMP TABLE activity_level_init(
-              wakeup_time timestamp without time zone
-              , sleeping_time timestamp without time zone
-              , sleeping_time_hour integer
-              , day_duration integer
-              , night_duration integer
-              , day_away_duration integer
-              , night_away_duration integer
-              , day_active integer
-              , night_active integer
-              , day_activity_level float
-              , night_activity_level float
-          );
+        CREATE TEMP TABLE IF NOT EXISTS activity_level_init(
+            wakeup_time timestamp without time zone
+            , sleeping_time timestamp without time zone
+            , sleeping_time_hour integer
+            , day_duration integer
+            , night_duration integer
+            , day_away_duration integer
+            , night_away_duration integer
+            , day_active integer
+            , night_active integer
+            , day_activity_level float
+            , night_activity_level float
+        ) ON COMMIT DROP;
+        -- clear the table
+        DELETE FROM activity_level_init;
 
         -- get the wake up time
         SELECT
@@ -161,33 +163,59 @@
 
         IF pWakeupTime IS NOT NULL AND pSleepingTime IS NOT NULL THEN
           -- get all the day activities
-          CREATE TEMP TABLE day_activities_temp AS
-            SELECT
-              e.eyecare_id
-              , lag(e.create_date)  over (ORDER BY e.eyecare_id) AS prev_row_create_date
-              , lead(e.create_date)  over (ORDER BY e.eyecare_id) AS next_row_create_date
-              , EXTRACT (EPOCH FROM ((lead(e.create_date) over (ORDER BY e.eyecare_id)) - e.create_date))::integer AS duration_apart
-              , e.event_type_id
-              , e.event_type_name
-              , e.node_name
-              , e.zone
-              , e.create_date
-              , e.extra_data
-            FROM eyecare e
-            WHERE
-              (
-                (pDayOverlaps = true AND e.create_date BETWEEN pWakeupTime AND (pDay || 'T' || '23:59')::timestamp) OR -- day activities which sleeping time that crosses the 12 am line
-                (pDayOverlaps = true AND e.create_date BETWEEN (pDay || 'T' || '00:00')::timestamp AND pSleepingTime) OR -- day activities which sleeping time that crosses the 12 am line
-                (pNightOverlaps = true AND e.create_date BETWEEN pWakeupTime AND pSleepingTime) -- normal day activities
-              )
-            AND ((pDeviceId = NULL) OR (e.device_id = pDeviceId))  AND (
-                  (e.node_name IN ('Door sensor', 'door sensor')  AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
-                  (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
-                  (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-                  (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
-                 (e.event_type_id IN ('20013')) -- Get BP HR Reading
-               )
-            ORDER BY eyecare_id;
+            CREATE TEMP TABLE IF NOT EXISTS day_activities_temp(
+              eyecare_id varchar(32)
+              , prev_row_create_date timestamp without time zone
+              , next_row_create_date timestamp without time zone
+              , duration_apart integer
+              , event_type_id varchar(64)
+              , event_type_name varchar(64)
+              , node_name varchar(64)
+              , zone varchar(64)
+              , create_date timestamp without time zone
+              , extra_data varchar(64)
+            ) ON COMMIT DROP;
+            -- clear the table
+            DELETE FROM day_activities_temp;
+
+            INSERT INTO day_activities_temp (
+              eyecare_id
+              , prev_row_create_date
+              , next_row_create_date
+              , duration_apart
+              , event_type_id
+              , event_type_name
+              , node_name
+              , zone
+              , create_date
+              , extra_data
+            )
+              SELECT
+                e.eyecare_id
+                , lag(e.create_date)  over (ORDER BY e.eyecare_id) AS prev_row_create_date
+                , lead(e.create_date)  over (ORDER BY e.eyecare_id) AS next_row_create_date
+                , EXTRACT (EPOCH FROM ((lead(e.create_date) over (ORDER BY e.eyecare_id)) - e.create_date))::integer AS duration_apart
+                , e.event_type_id
+                , e.event_type_name
+                , e.node_name
+                , e.zone
+                , e.create_date
+                , e.extra_data
+              FROM eyecare e
+              WHERE
+                (
+                  (pDayOverlaps = true AND e.create_date BETWEEN pWakeupTime AND (pDay || 'T' || '23:59')::timestamp) OR -- day activities which sleeping time that crosses the 12 am line
+                  (pDayOverlaps = true AND e.create_date BETWEEN (pDay || 'T' || '00:00')::timestamp AND pSleepingTime) OR -- day activities which sleeping time that crosses the 12 am line
+                  (pNightOverlaps = true AND e.create_date BETWEEN pWakeupTime AND pSleepingTime) -- normal day activities
+                )
+              AND ((pDeviceId = NULL) OR (e.device_id = pDeviceId))  AND (
+                    (e.node_name IN ('Door sensor', 'door sensor')  AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
+                    (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
+                    (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
+                    (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
+                   (e.event_type_id IN ('20013')) -- Get BP HR Reading
+                 )
+              ORDER BY eyecare_id;
 
             -- get the day length
             IF (pDayOverlaps = true) THEN
@@ -197,7 +225,33 @@
             END IF;
 
             -- get all the night activities
-            CREATE TEMP TABLE night_activities_temp AS
+            CREATE TEMP TABLE IF NOT EXISTS night_activities_temp(
+              eyecare_id varchar(32)
+              , prev_row_create_date timestamp without time zone
+              , next_row_create_date timestamp without time zone
+              , duration_apart integer
+              , event_type_id varchar(64)
+              , event_type_name varchar(64)
+              , node_name varchar(64)
+              , zone varchar(64)
+              , create_date timestamp without time zone
+              , extra_data varchar(64)
+            ) ON COMMIT DROP;
+            -- clear the table
+            DELETE FROM night_activities_temp;
+
+            INSERT INTO night_activities_temp (
+              eyecare_id
+              , prev_row_create_date
+              , next_row_create_date
+              , duration_apart
+              , event_type_id
+              , event_type_name
+              , node_name
+              , zone
+              , create_date
+              , extra_data
+            )
               SELECT
                 e.eyecare_id
                 , lag(e.create_date) over (ORDER BY e.eyecare_id) AS prev_row_create_date
@@ -263,8 +317,25 @@
             END LOOP;
 
             -- Get the total away duration
-            CREATE TEMP TABLE away_values_temp AS
-                SELECT * FROM get_away_analytics(pDeviceId, pDay);
+
+            CREATE TEMP TABLE IF NOT EXISTS away_values_temp(
+                eyecare_id varchar(32),
+                away_start timestamp without time zone,
+                away_end timestamp without time zone
+            ) ON COMMIT DROP;
+            -- clear the table
+            DELETE FROM away_values_temp;
+
+            INSERT INTO away_values_temp (
+              eyecare_id
+              , away_start
+              , away_end
+            )
+              SELECT
+                eyecare_id
+                , away_start
+                , away_end
+              FROM get_away_analytics(pDeviceId, pDay);
 
             SELECT COUNT(*) INTO awayRowCount FROM away_values_temp;
 
@@ -495,6 +566,7 @@
           SELECT
             *
           FROM activity_level_init;
+
 
     END;
     $BODY$

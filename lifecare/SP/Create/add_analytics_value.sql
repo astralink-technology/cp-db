@@ -16,9 +16,13 @@ CREATE FUNCTION add_analytics_value(
         , pDateValue3 timestamp without time zone
         , pValue varchar(32)
         , pValue2 varchar(32)
+        , pValue3 varchar(32)
+        , pValue4 varchar(32)
         , pIntValue integer
         , pIntValue2 integer
-        , pType char(1)
+        , pIntValue3 integer
+        , pIntValue4 integer
+        , pType varchar(8)
         , pCreateDate timestamp without time zone
         , pOwnerId varchar(32)
 )
@@ -33,8 +37,12 @@ BEGIN
         , date_value3
         , value
         , value2
+        , value3
+        , value4
         , int_value
         , int_value2
+        , int_value3
+        , int_value4
         , type
         , create_date
         , owner_id
@@ -46,8 +54,12 @@ BEGIN
         , pDateValue3
         , pValue
         , pValue2
+        , pValue3
+        , pValue4
         , pIntValue
         , pIntValue2
+        , pIntValue3
+        , pIntValue4
         , pType
         , pCreateDate
         , pOwnerId

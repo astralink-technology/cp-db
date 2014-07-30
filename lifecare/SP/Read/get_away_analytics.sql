@@ -56,7 +56,20 @@ BEGIN
            )
     ORDER BY eyecare_id LIMIT 1;
 
-    CREATE TEMP TABLE away_analytics_temp AS
+    CREATE TEMP TABLE IF NOT EXISTS away_analytics_temp (
+      eyecare_id varchar(32)
+      , away_start timestamp without time zone
+      , away_end timestamp without time zone
+    )ON COMMIT DROP;
+    -- clear the table
+    DELETE FROM away_analytics_temp;
+
+
+    INSERT INTO away_analytics_temp (
+      eyecare_id
+      , away_start
+      , away_end
+    )
       SELECT e.eyecare_id, e.create_date AS away_start, e.next_create_date AS away_end
       from (SELECT e.*,
                    lead(e.create_date) over (ORDER BY e.eyecare_id) AS next_create_date,
@@ -84,7 +97,6 @@ BEGIN
     RETURN QUERY
       SELECT * FROM away_analytics_temp ORDER BY eyecare_id;
 
-    DROP TABLE away_analytics_temp;
 
 END;
 $BODY$
