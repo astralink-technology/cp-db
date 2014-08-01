@@ -77,8 +77,10 @@ RETURNS TABLE(
 	, min_night_bathroom_usage_dur integer
   , day_active_wellness integer
   , day_max_inactivity integer
+  , day_median_inactivity integer
   , night_active_wellness integer
   , night_max_inactivity integer
+  , night_median_inactivity integer
   , nights_away integer
   , monthly_sleep_efficiency integer
 	, total_rows integer
@@ -159,9 +161,11 @@ BEGIN
         , (SELECT ia.int_value2 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NBD' ORDER BY ia.date_value DESC LIMIT 1) as median_night_bathroom_usage_dur
         , (SELECT ia.int_value3 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NBD' ORDER BY ia.date_value DESC LIMIT 1) as min_night_bathroom_usage_dur
         , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'AVGACT' ORDER BY ia.date_value DESC LIMIT 1) as day_active_wellness
-        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'DI' ORDER BY ia.date_value DESC LIMIT 1) as day_max_inactivity
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'MAXDIA' ORDER BY ia.date_value DESC LIMIT 1) as day_max_inactivity
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'MEDDIA' ORDER BY ia.date_value DESC LIMIT 1) as day_median_inactivity
         , (SELECT ia.int_value2 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'AVGACT' ORDER BY ia.date_value DESC LIMIT 1) as night_active_wellness
-        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NI' ORDER BY ia.date_value DESC LIMIT 1) as night_max_inactivity
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'MAXNIA' ORDER BY ia.date_value DESC LIMIT 1) as night_max_inactivity
+        , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'MEDNIA' ORDER BY ia.date_value DESC LIMIT 1) as night_median_inactivity
         , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NGA' ORDER BY ia.date_value DESC LIMIT 1) as nights_away
         , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'MSE' ORDER BY ia.date_value DESC LIMIT 1) as monthly_sleep_efficiency
       FROM entity e INNER JOIN
