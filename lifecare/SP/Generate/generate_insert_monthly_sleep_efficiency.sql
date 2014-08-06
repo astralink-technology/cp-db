@@ -15,6 +15,8 @@ CREATE FUNCTION generate_insert_monthly_sleep_efficiency(
 RETURNS TABLE (
     informative_analytics_id varchar(32)
     , device_id varchar(32)
+    , entity_id varchar(32)
+    , name varchar(64)
     , monthly_sleep_efficiency integer
 )
 AS
@@ -32,6 +34,8 @@ BEGIN
   CREATE TEMP TABLE IF NOT EXISTS monthly_sleep_efficiency_init(
     informative_analytics_id varchar(32)
     , device_id varchar(32)
+    , entity_id varchar(32)
+    , name varchar(64)
     , monthly_sleep_effiency integer
   ) ON COMMIT DROP;
 
@@ -41,6 +45,8 @@ BEGIN
   -- Get all users with valid
   CREATE TEMP TABLE IF NOT EXISTS user_init(
         owner_id varchar(32)
+        , name varchar(64)
+        , entity_id varchar(32)
         , device_id varchar(32)
         , deployment_date date
         , type char(1)
@@ -51,17 +57,21 @@ BEGIN
   INSERT INTO user_init
   (
       owner_id
+      , name
+      , entity_id
       , device_id
       , deployment_date
       , type
   )
     SELECT
       dr.owner_id
+      , e.name
+      , e.entity_Id
       , dr.device_id
       , d.deployment_date
       , d.type
-    FROM device_relationship dr INNER JOIN device d ON d.device_id = dr.device_id WHERE d.type = 'L';
-
+    FROM device_relationship dr INNER JOIN device d ON d.device_id = dr.device_id
+    INNER JOIN entity e ON e.entity_id = dr.owner_id WHERE d.type = 'L';
 
   pMonthlySleepEfficiency = 0;
   pSleepEfficiencyCount = 0;
@@ -149,6 +159,8 @@ BEGIN
           (
               nInformativeAnalyticsId
               , uRow.device_id
+              , uRow.entity_id
+              , uRow.name
               , pMonthlySleepEfficiency
           );
     END IF;

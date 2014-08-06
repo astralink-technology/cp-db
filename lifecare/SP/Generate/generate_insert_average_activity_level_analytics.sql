@@ -12,6 +12,8 @@ CREATE FUNCTION generate_insert_average_activity_level()
 RETURNS TABLE (
     informative_analytics_id varchar(32)
     , device_id varchar(32)
+    , entity_id varchar(32)
+    , name varchar(64)
     , average_day_activity_level integer
     , average_night_activity_level integer
 )
@@ -30,6 +32,8 @@ BEGIN
   CREATE TEMP TABLE IF NOT EXISTS average_activity_level_init(
     informative_analytics_id varchar(32)
     , device_id varchar(32)
+    , entity_id varchar(32)
+    , name varchar(64)
     , average_day_activity_level integer
     , average_night_activity_level integer
   ) ON COMMIT DROP;
@@ -46,6 +50,7 @@ BEGIN
   CREATE TEMP TABLE IF NOT EXISTS user_away_init(
         owner_id varchar(32)
         , device_id varchar(32)
+        , name varchar(64)
         , deployment_date date
         , type char(1)
   ) ON COMMIT DROP;
@@ -56,15 +61,19 @@ BEGIN
   (
       owner_id
       , device_id
+      , name
       , deployment_date
       , type
   )
     SELECT
       dr.owner_id
       , dr.device_id
+      , e.name
       , d.deployment_date
       , d.type
-    FROM device_relationship dr INNER JOIN device d ON d.device_id = dr.device_id WHERE d.type = 'L';
+    FROM device_relationship dr INNER JOIN device d ON d.device_id = dr.device_id
+    INNER JOIN entity e ON e.entity_id = dr.owner_id
+    WHERE d.type = 'L';
 
 
   pAverageDayActivityLevel = 0;
@@ -142,6 +151,8 @@ BEGIN
           (
               nInformativeAnalyticsId
               , uRow.device_id
+              , uRow.owner_id
+              , uRow.name
               , pAverageDayActivityLevel
               , pAverageNightActivityLevel
           );
