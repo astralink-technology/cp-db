@@ -29,6 +29,8 @@
     AS
     $BODY$
     DECLARE
+      pDeploymentDate date default '2014-04-01';
+
       pWakeupTime timestamp without time zone default null;
       pSleepingTime timestamp without time zone default null;
 
@@ -36,8 +38,6 @@
       pNightDuration integer;
       pDayAwayDuration integer;
       pNightAwayDuration integer;
-      pDayAwayDurationTemp integer;
-      pNightAwayDurationTemp integer;
 
       pNightStart timestamp without time zone;
       pNightEnd timestamp without time zone;
@@ -59,7 +59,7 @@
       dRow record;
       aRow record;
 
-      awayRowCount integer;
+      oEventCount integer;
       lastUserEventTypeId varchar(64);
       lastUserExtraData varchar(64);
 
@@ -69,6 +69,13 @@
       dActive integer;
       nActive integer;
     BEGIN
+
+        -- get the deployment date of the device
+        SELECT
+          deployment_date
+        INTO
+          pDeploymentDate
+        FROM device WHERE device_id = pDeviceId;
 
         CREATE TEMP TABLE IF NOT EXISTS activity_level_init(
             wakeup_time timestamp without time zone
@@ -337,203 +344,226 @@
                 , away_end
               FROM get_away_analytics(pDeviceId, pDay);
 
-            SELECT COUNT(*) INTO awayRowCount FROM away_values_temp;
 
-            pDayAwayDuration = 0;
-            pNightAwayDuration = 0;
+            -- get all the events of the day or the last event of the day and to check user is at home
+            SELECT
+              COUNT(*)
+            INTO
+              oEventCount
+            FROM eyecare e WHERE (
+               (
+                   (e.node_name IN ('Door sensor', 'door sensor') AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
+                   (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
+                   (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
+                   (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
+                   (e.event_type_id IN ('20013')) -- Get BP HR Reading
+               ) AND
+              (e.device_id = pDeviceId) AND
+              (e.create_date BETWEEN (pDay || ' ' || '00:00:00')::timestamp AND (pDay || ' ' || '23:59:59')::timestamp)
+            );
 
-            IF awayRowCount > 0 THEN
-              -- get the duration of each outing
+            -- get the last event of the day to check if user is at home on that day
+            SELECT
+              ey.event_type_id
+              , ey.extra_data
+            INTO
+              lastUserEventTypeId
+              , lastUserExtraData
+            FROM eyecare ey
+            WHERE
+               (
+                   (ey.node_name IN ('Door sensor', 'door sensor') AND ey.event_type_id = '20001' AND ey.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
+                   (ey.event_type_id IN ('20002', '20003', '20004') AND ey.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
+                   (ey.event_type_id IN ('20002', '20003', '20004') AND ey.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
+                   (ey.event_type_id IN ('20002', '20003', '20005') AND ey.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
+                   (ey.event_type_id IN ('20013')) -- Get BP HR Reading
+               ) AND
+              ey.create_date BETWEEN (pDeploymentDate  || 'T' || '00:00')::timestamp AND ((pDay || 'T' || '23:59')::timestamp) AND
+              ey.device_id = pDeviceId
+            ORDER BY ey.create_date DESC LIMIT 1;
+
+            IF oEventCount < 1 AND lastUserEventTypeId = '20001' AND lastUserExtraData = 'Alarm Off' THEN
+              -- user is away from home for the whole day.
+                -- user is away from home for the whole day. The day away is equivalent to the day window. The night away is equivalent to the night window
+                pDayAwayDuration = pDayDuration;
+                pNightAwayDuration = pNightDuration;
+            ELSE
+              -- Get the intervals for the night
+              IF (pNightOverlaps = true) THEN
+                pNightStart = pSleepingTime;
+                pNightEnd = (pDay || 'T' || '23:59')::timestamp;
+                pNight2Start = (pDay || 'T' || '00:00')::timestamp;
+                pNight2End = pWakeupTime;
+
+                pDayStart = pWakeupTime;
+                pDayEnd = pSleepingTime;
+
+              ELSEIF (pDayOverlaps = true) THEN
+
+                pDayStart = pWakeupTime;
+                pDayEnd = (pDay || 'T' || '23:59')::timestamp;
+                pDay2Start = (pDay || 'T' || '00:00')::timestamp;
+                pDay2End = pSleepingTime;
+
+                pNightStart = pSleepingTime;
+                pNightEnd = pWakeupTime;
+
+              ELSE
+                pDayStart = pWakeupTime;
+                pDayEnd = pSleepingTime;
+
+                pNightStart = pSleepingTime;
+                pNightEnd = pWakeupTime;
+              END IF;
+
+              -- Consolidate the duration of each outing
+              pDayAwayDuration = 0;
+              pNightAwayDuration = 0;
+
               FOR aRow IN SELECT * FROM away_values_temp LOOP
-
-                -- Get the intervals for the night
-                IF (pNightOverlaps = true) THEN
-                  pNightStart = pSleepingTime;
-                  pNightEnd = (pDay || 'T' || '23:59')::timestamp;
-                  pNight2Start = (pDay || 'T' || '00:00')::timestamp;
-                  pNight2End = pWakeupTime;
-
-                  pDayStart = pWakeupTime;
-                  pDayEnd = pSleepingTime;
-
-                ELSEIF (pDayOverlaps = true) THEN
-
-                  pDayStart = pWakeupTime;
-                  pDayEnd = (pDay || 'T' || '23:59')::timestamp;
-                  pDay2Start = (pDay || 'T' || '00:00')::timestamp;
-                  pDay2End = pSleepingTime;
-
-                  pNightStart = pSleepingTime;
-                  pNightEnd = pWakeupTime;
-
-                ELSE
-                  pDayStart = pWakeupTime;
-                  pDayEnd = pSleepingTime;
-
-                  pNightStart = pSleepingTime;
-                  pNightEnd = pWakeupTime;
-                END IF;
-
-                pDayAwayDurationTemp = 0; -- reset temp storage of away mode;
-                pNightAwayDurationTemp = 0; -- reset temp storage of away mode;
-
                 -- Get the away duration for the night and day
                 -- 3 scenarios for the time, day overlaps, night overlaps and normal
                   CASE
-                      -- SCENARIO 1 - Day Overlaps
-                      WHEN (pDayOverlaps = true) AND (aRow.away_start BETWEEN pDayStart AND pDayEnd) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
-                          -- day overlap, goes out and return home during the standard day time
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - aRow.away_start)))::integer;
-                      WHEN (pDayOverlaps = true) AND (aRow.away_start BETWEEN pDay2Start AND pDay2End) AND (aRow.away_end BETWEEN pDay2Start AND pDay2End) THEN
-                          -- day overlap, goes out and return home during the overlapped day time
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - aRow.away_start)))::integer;
-                      WHEN (pDayOverlaps = true) AND (aRow.away_start BETWEEN pNightStart AND pNightEnd) AND (aRow.away_end BETWEEN pNightStart AND pNightEnd) THEN
-                          -- day overlap, goes out and return home during the standard night time
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - aRow.away_start)))::integer;
-                      WHEN (pDayOverlaps = true) AND (aRow.away_start BETWEEN pDay2Start AND pDay2End) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
-                          -- day overlap, goes out on the overlapped day time (late night after 12) and return homes during the standard day time
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (pNightStart - aRow.away_start)))::integer + (EXTRACT (EPOCH FROM (aRow.away_end - pNightEnd)))::integer;
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - aRow.away_start)))::integer;
-                      WHEN (pDayOverlaps = true) AND (aRow.away_start BETWEEN pDay2Start AND pDay2End) AND (aRow.away_end BETWEEN pNightStart AND pNightEnd) THEN
-                          -- day overlap, goes out on the overlapped day time (late night after 12) and return homes during the standard night time
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (pNightStart - aRow.away_start)))::integer;
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - pNightStart)))::integer;
-                      WHEN (pDayOverlaps = true) AND (aRow.away_start BETWEEN pNightStart AND pNightEnd) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
-                          -- day overlap, goes out during the night time and return homes during the standard day time
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (pNightEnd - aRow.away_start)))::integer;
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - pNightEnd)))::integer;
-                      WHEN (pDayOverlaps = true) AND (aRow.away_start IS NULL) AND (aRow.away_end BETWEEN pDay2Start AND pDay2End) THEN
-                          -- day overlap, return home early in the morning after going out for the whole day
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - (pDay || 'T' || '00:00')::timestamp)))::integer;
-                      WHEN (pDayOverlaps = true) AND (aRow.away_start IS NULL) AND (aRow.away_end BETWEEN pNightStart AND pNightEnd) THEN
-                          -- day overlap, return home during the night time after going out for the whole day
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (pNightStart - (pDay || 'T' || '00:00')::timestamp)))::integer;
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - pNightStart)))::integer;
-                      WHEN (pDayOverlaps = true) AND (aRow.away_start IS NULL) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
-                          -- day overlap, return home during the standard day time after going out for the whole day
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (pNightStart - (pDay || 'T' || '00:00')::timestamp)))::integer + (EXTRACT (EPOCH FROM (aRow.away_end - pDayStart)))::integer;
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (pNightEnd - pNightStart)))::integer;
-                      WHEN (pDayOverlaps = true) AND (aRow.away_end IS NULL) AND (aRow.away_start BETWEEN pDay2Start AND pDay2End) THEN
-                          -- day overlap, goes out during the overlapped day time and never return
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (pDayEnd - pDayStart)))::integer;
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (pDayStart - aRow.away_start)))::integer + (EXTRACT (EPOCH FROM ((pDay || 'T' || '23:59')::timestamp - pDayEnd)))::integer;
-                      WHEN (pDayOverlaps = true) AND (aRow.away_end IS NULL) AND (aRow.away_start BETWEEN pDayStart AND pDayEnd) THEN
-                          -- day overlap, goes out during the day time and never return
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM ((pDay || 'T' || '23:59')::timestamp - aRow.away_start)))::integer;
-                      WHEN (pDayOverlaps = true) AND (aRow.away_end IS NULL) AND (aRow.away_end BETWEEN pNightStart AND pNightEnd) THEN
-                          -- day overlap, goes out during the night time and never return
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM ((pDay || 'T' || '23:59')::timestamp - pDayStart)))::integer;
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (pDayEnd - aRow.away_start)))::integer;
+                    -- SCENARIO 1 - Day Overlaps
+                    WHEN (pDayOverlaps = true) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NOT NULL) AND (aRow.away_start BETWEEN pDayStart AND pDayEnd) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
+                      -- day overlap, goes out and return home during the standard day time
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (aRow.away_end - aRow.away_start)))::integer;
+                    WHEN (pDayOverlaps = true) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NOT NULL) AND (aRow.away_start BETWEEN pDay2Start AND pDay2End) AND (aRow.away_end BETWEEN pDay2Start AND pDay2End) THEN
+                      -- day overlap, goes out and return home during the overlapped day time
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (aRow.away_end - aRow.away_start)))::integer;
+                    WHEN (pDayOverlaps = true) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NOT NULL) AND (aRow.away_start BETWEEN pNightStart AND pNightEnd) AND (aRow.away_end BETWEEN pNightStart AND pNightEnd) THEN
+                      -- day overlap, goes out and return home during the standard night time
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (aRow.away_end - aRow.away_start)))::integer;
+                    WHEN (pDayOverlaps = true) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NOT NULL) AND (aRow.away_start BETWEEN pDay2Start AND pDay2End) AND (aRow.away_end BETWEEN pNightStart AND pNightEnd) THEN
+                      -- day overlap, goes out on the overlapped day time (late night after 12) and return homes during the standard night time
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (pNightStart - aRow.away_start)))::integer;
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (aRow.away_end - pNightStart)))::integer;
+                    WHEN (pDayOverlaps = true) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NOT NULL) AND (aRow.away_start BETWEEN pDay2Start AND pDay2End) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
+                      -- day overlap, goes out on the overlapped day time (late night after 12) and return homes during the standard day time
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (pNightStart - aRow.away_start)))::integer + (EXTRACT (EPOCH FROM (aRow.away_end - pNightEnd)))::integer;
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (pNightEnd - pNightStart)))::integer;
+                    WHEN (pDayOverlaps = true) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NOT NULL) AND (aRow.away_start BETWEEN pNightStart AND pNightEnd) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
+                      -- day overlap, goes out during the standard night time and return home during the standard day time
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (aRow.away_end - pNightEnd)))::integer;
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (pNightEnd - aRow.away_start)))::integer;
+                    WHEN (pDayOverlaps = true) AND (aRow.away_start IS NULL and aRow.away_end IS NOT NULL) AND (aRow.away_end BETWEEN pDay2Start AND pDay2End) THEN
+                      -- day overlap, was away since yesterday, return home during the overlapped day time
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (aRow.away_end - (pDay || 'T' || '00:00')::timestamp)))::integer;
+                    WHEN (pDayOverlaps = true) AND (aRow.away_start IS NULL and aRow.away_end IS NOT NULL) AND (aRow.away_end BETWEEN pNightStart AND pNightEnd) THEN
+                      -- day overlap, was away since yesterday, return home during the standard night time
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (pNightStart - (pDay || 'T' || '00:00')::timestamp)))::integer;
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (aRow.away_end - pNightStart)))::integer;
+                    WHEN (pDayOverlaps = true) AND (aRow.away_start IS NULL and aRow.away_end IS NOT NULL) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
+                      -- day overlap, was away since yesterday, return home during the standard day time
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (pNightStart - (pDay || 'T' || '00:00')::timestamp)))::integer + (EXTRACT (EPOCH FROM (aRow.away_end - pNightEnd)))::integer;
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (pNightEnd - pNightStart)))::integer;
+                    WHEN (pDayOverlaps = true) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NULL) AND (aRow.away_start BETWEEN pDay2Start AND pDay2End) THEN
+                      -- day overlap, goes out during the overlapped day and does not return home
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (pNightStart - aRow.away_start)))::integer + (EXTRACT (EPOCH FROM ((pDay || 'T' || '23:59')::timestamp - pNightEnd)))::integer;
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (pNightEnd - pNightStart)))::integer;
+                    WHEN (pDayOverlaps = true) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NULL) AND (aRow.away_start BETWEEN pNightStart AND pNightEnd) THEN
+                      -- day overlap, goes out during the night time and does not return home
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM ((pDay || 'T' || '23:59')::timestamp - pNightEnd)))::integer;
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (pNightEnd - aRow.away_start)))::integer;
+                    WHEN (pDayOverlaps = true) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NULL) AND (aRow.away_start BETWEEN pDayStart AND pDayEnd) THEN
+                      -- day overlap, goes out during the day and does not return home
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM ((pDay || 'T' || '23:59')::timestamp - aRow.away_start)))::integer;
 
-                      -- SCENARIO 2 - Night Overlaps
-                      WHEN (pNightOverlaps = true) AND (aRow.away_start BETWEEN pDayStart AND pDayEnd) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
-                          -- night overlap, goes out and return home during the standard day time
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - aRow.away_start)))::integer;
-                      WHEN (pNightOverlaps = true) AND (aRow.away_start BETWEEN pNightStart AND pNightEnd) AND (aRow.away_end BETWEEN pNightStart AND pNightEnd) THEN
-                          -- night overlap, goes out and return home during the standard night time
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - aRow.away_start)))::integer;
-                      WHEN (pNightOverlaps = true) AND (aRow.away_start BETWEEN pNight2Start AND pNight2End) AND (aRow.away_end BETWEEN pNight2Start AND pNight2End) THEN
-                          -- night overlap, goes out and return home during the overlapped night time
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - aRow.away_start)))::integer;
-                      WHEN (pNightOverlaps = true) AND (aRow.away_start BETWEEN pNightStart AND pNightEnd) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
-                          -- night overlap, goes out during the night time and return home during the day time
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (pNightEnd - aRow.away_start)))::integer;
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - pNightEnd)))::integer;
-                      WHEN (pNightOverlaps = true) AND (aRow.away_start BETWEEN pNightStart AND pNightEnd) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
-                          -- night overlap, goes out during the night time and return home during the overlapped night time
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (pNightEnd - aRow.away_start)))::integer + (EXTRACT (EPOCH FROM (aRow.away_end - pNight2Start)))::integer;
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (pDayEnd - pDayStart)))::integer;
-                      WHEN (pNightOverlaps = true) AND (aRow.away_start BETWEEN pDayStart AND pDayEnd) AND (aRow.away_end BETWEEN pNight2Start AND pNight2End) THEN
-                          -- night overlap, goes out during the day time and return home during the overlapped night time
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - pDayEnd)))::integer;
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (pDayEnd - aRow.away_start)))::integer;
-                      WHEN (pNightOverlaps = true) AND (aRow.away_start IS NULL) AND (aRow.away_end BETWEEN pNightStart AND pNightEnd) THEN
-                          -- night overlap, return home during the standard night time after going out for the whole day
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - (pDay || 'T' || '00:00')::timestamp)))::integer;
-                      WHEN (pNightOverlaps = true) AND (aRow.away_start IS NULL) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
-                          -- night overlap, return home during the standard day time after going out for the whole day
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - pDayStart)))::integer;
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (pDayStart - (pDay || 'T' || '00:00')::timestamp)))::integer;
-                      WHEN (pNightOverlaps = true) AND (aRow.away_start IS NULL) AND (aRow.away_end BETWEEN pNight2Start AND pNight2End) THEN
-                          -- night overlap, return home during the overlapped night time after going out for the whole day
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (pDayEnd - pDayStart)))::integer;
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (pDayStart - (pDay || 'T' || '00:00')::timestamp)))::integer + (EXTRACT (EPOCH FROM (aRow.away_end - pDayEnd)))::integer;
-                      WHEN (pNightOverlaps = true) AND (aRow.away_end IS NULL) AND (aRow.away_start BETWEEN pNightStart AND pNightEnd) THEN
-                          -- night overlap, goes out during the night time and never return
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (pDayEnd - pDayStart)))::integer;
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (pDayStart - aRow.away_start)))::integer + (EXTRACT (EPOCH FROM ((pDay || 'T' || '23:59')::timestamp - pDayEnd)))::integer;
-                      WHEN (pNightOverlaps = true) AND (aRow.away_end IS NULL) AND (aRow.away_start BETWEEN pDayStart AND pDayEnd) THEN
-                          -- night overlap, goes out during the day time and never return
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (pDayEnd - aRow.away_start)))::integer;
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM ((pDay || 'T' || '23:59')::timestamp - pDayEnd)))::integer;
-                      WHEN (pNightOverlaps = true) AND (aRow.away_end IS NULL) AND (aRow.away_start BETWEEN pNight2Start AND pNight2End) THEN
-                          -- night overlap, goes out during the second night time and never return
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM ((pDay || 'T' || '23:59')::timestamp - aRow.away_start)))::integer;
+                    -- SCENARIO 2 - Night Overlaps
+                    WHEN (pNightOverlaps = true) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NOT NULL) AND (aRow.away_start BETWEEN pNight2Start AND pNight2End) AND (aRow.away_end BETWEEN pNight2Start AND pNight2End) THEN
+                      -- night overlap, goes out and return home during the standard night time
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (aRow.away_end - aRow.away_start)))::integer;
+                    WHEN (pNightOverlaps = true) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NOT NULL) AND (aRow.away_start BETWEEN pNightStart AND pNightEnd) AND (aRow.away_end BETWEEN pNight2Start AND pNightEnd) THEN
+                      -- night overlap, goes out and return home during the overlapped night time
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (aRow.away_end - aRow.away_start)))::integer;
+                    WHEN (pNightOverlaps = true) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NOT NULL) AND (aRow.away_start BETWEEN pDayStart AND pDayEnd) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
+                      -- night overlap, goes out and return home during the standard day time
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (aRow.away_end - aRow.away_start)))::integer;
+                    WHEN (pNightOverlaps = true) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NOT NULL) AND (aRow.away_start BETWEEN pNight2Start AND pNight2End) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
+                      -- night overlap, goes out during the standard night time and return home during the standard day time
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (pNight2End - aRow.away_start)))::integer;
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (aRow.away_end - pNight2End)))::integer;
+                    WHEN (pNightOverlaps = true) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NOT NULL) AND (aRow.away_start BETWEEN pNight2Start AND pNight2End) AND (aRow.away_end BETWEEN pNightStart AND pNightEnd) THEN
+                      -- night overlap, goes out during the standard night time and return home during the overlapped night time
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (pNight2End - aRow.away_start)))::integer + (EXTRACT (EPOCH FROM (aRow.away_end - pNightStart)))::integer;
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (pDayEnd - pDayStart)))::integer;
+                    WHEN (pNightOverlaps = true) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NOT NULL) AND (aRow.away_start BETWEEN pDayStart AND pDayEnd) AND (aRow.away_end BETWEEN pNightStart AND pNightEnd) THEN
+                      -- night overlap, goes out during the standard day time and return home during the overlapped night time
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (aRow.away_end - pNightStart)))::integer;
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (pDayEnd - aRow.away_start)))::integer;
+                    WHEN (pNightOverlaps = true) AND (aRow.away_start IS NULL and aRow.away_end IS NOT NULL) AND (aRow.away_end BETWEEN pNight2Start AND pNight2End) THEN
+                      -- night overlap, was away since yesterday and return home during the standard night time
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (aRow.away_end - (pDay || 'T' || '00:00')::timestamp)))::integer;
+                    WHEN (pNightOverlaps = true) AND (aRow.away_start IS NULL and aRow.away_end IS NOT NULL) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
+                      -- night overlap, was away since yesterday and return home during the standard day time
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (pDayStart - (pDay || 'T' || '00:00')::timestamp)))::integer;
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (aRow.away_end - pDayStart)))::integer;
+                    WHEN (pNightOverlaps = true) AND (aRow.away_start IS NULL and aRow.away_end IS NOT NULL) AND (aRow.away_end BETWEEN pNightStart AND pNightEnd) THEN
+                      -- night overlap, was away since yesterday and return home during the overlapped night time
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (pDayStart - (pDay || 'T' || '00:00')::timestamp)))::integer + (EXTRACT (EPOCH FROM (aRow.away_end - pNightStart)))::integer ;
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (pDayEnd - pDayStart)))::integer;
+                    WHEN (pNightOverlaps = true) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NULL) AND (aRow.away_start BETWEEN pNight2Start AND pNight2End) THEN
+                      -- night overlap, goes out during the standard night time and does not return home
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (pDayStart - aRow.away_start)))::integer + (EXTRACT (EPOCH FROM ((pDay || 'T' || '23:59')::timestamp - pNightStart)))::integer ;
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (pDayEnd - pDayStart)))::integer;
+                    WHEN (pNightOverlaps = true) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NULL) AND (aRow.away_start BETWEEN pDayStart AND pDayEnd) THEN
+                      -- night overlap, goes out during the standard day time and does not return home
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM ((pDay || 'T' || '23:59')::timestamp - pNightStart)))::integer ;
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (pDayEnd - aRow.away_start)))::integer;
+                    WHEN (pNightOverlaps = true) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NULL) AND (aRow.away_start BETWEEN pNightStart AND pNightEnd) THEN
+                      -- night overlap, goes out during the overlapped night time and does not return home
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM ((pDay || 'T' || '23:59')::timestamp - aRow.away_start)))::integer;
 
-                      -- SCENARIO 3 - No overlappings
-                      WHEN (pNightOverlaps = false AND pDayOverlaps = false) AND (aRow.away_start BETWEEN pDayStart AND pDayEnd) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
-                          -- does no overlap, goes out and return during the standard day time
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - aRow.away_start)))::integer;
-                      WHEN (pNightOverlaps = false AND pDayOverlaps = false) AND (aRow.away_start BETWEEN pNightStart AND pNightEnd) AND (aRow.away_end BETWEEN pNightStart AND pNightEnd) THEN
-                          -- does no overlap, goes out and return during the standard day time
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - aRow.away_start)))::integer;
-                      WHEN (pNightOverlaps = false AND pDayOverlaps = false) AND (aRow.away_start BETWEEN pNightStart AND pNightEnd) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
-                          -- does no overlap, goes out during the night time and return home during the day time
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (pDayStart - aRow.away_start)))::integer;
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - pDayStart)))::integer;
-                      WHEN (pNightOverlaps = false AND pDayOverlaps = false) AND (aRow.away_start IS NULL) AND (aRow.away_end BETWEEN pNightStart AND pNightEnd) THEN
-                          -- does no overlap, return home during the night time after going out for the whole day
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - (pDay || 'T' || '00:00')::timestamp)))::integer;
-                      WHEN (pNightOverlaps = false AND pDayOverlaps = false) AND (aRow.away_start IS NULL) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
-                          -- does no overlap, return home during the day time after going out for the whole day
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (pDayStart - (pDay || 'T' || '00:00')::timestamp)))::integer;
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM (aRow.away_end - pDayStart)))::integer;
-                      WHEN (pNightOverlaps = false AND pDayOverlaps = false) AND (aRow.away_end IS NULL) AND (aRow.away_start BETWEEN pNightStart AND pNightEnd) THEN
-                          -- does no overlap, goes out during the night time and never return
-                          pNightAwayDurationTemp = (EXTRACT (EPOCH FROM (pDayStart - aRow.away_start)))::integer;
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM ((pDay || 'T' || '23:59')::timestamp - pDayStart)))::integer;
-                      WHEN (pNightOverlaps = false AND pDayOverlaps = false) AND (aRow.away_end IS NULL) AND (aRow.away_start BETWEEN pDayStart AND pDayEnd) THEN
-                          -- does no overlap, goes out during the day time and never return
-                          pDayAwayDurationTemp = (EXTRACT (EPOCH FROM ((pDay || 'T' || '23:59')::timestamp - aRow.away_start)))::integer;
+                    -- SCENARIO 3 - No Overlaps
+                    WHEN (pNightOverlaps = false AND pDayOverlaps = false) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NOT NULL) AND (aRow.away_start BETWEEN pDayStart AND pDayEnd) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
+                      -- does not overlaps, goes out during the standard day time and return during the standard day time
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (aRow.away_end - aRow.away_start)))::integer;
+                    WHEN (pNightOverlaps = false AND pDayOverlaps = false) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NOT NULL) AND (aRow.away_start BETWEEN pNightStart AND pNightEnd) AND (aRow.away_end BETWEEN pNightStart AND pNightEnd) THEN
+                      -- does not overlaps, goes out during the standard day time and return during the standard night time
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (aRow.away_end - aRow.away_start)))::integer;
+                    WHEN (pNightOverlaps = false AND pDayOverlaps = false) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NOT NULL) AND (aRow.away_start BETWEEN pDayStart AND pDayEnd) AND (aRow.away_end BETWEEN pNightStart AND pNightEnd) THEN
+                      -- does not overlaps, goes out during the standard day time and return during the standard night time
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (aRow.away_end - pDayStart)))::integer;
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (pDayStart - aRow.away_start)))::integer;
+                    WHEN (pNightOverlaps = false AND pDayOverlaps = false) AND (aRow.away_start IS NULL and aRow.away_end IS NOT NULL) AND (aRow.away_end BETWEEN pNightStart AND pNightEnd) THEN
+                      -- does not overlaps, was away since yesterday and return home during the standard night time
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (aRow.away_end - (pDay || 'T' || '00:00')::timestamp)))::integer;
+                    WHEN (pNightOverlaps = false AND pDayOverlaps = false) AND (aRow.away_start IS NULL and aRow.away_end IS NOT NULL) AND (aRow.away_end BETWEEN pDayStart AND pDayEnd) THEN
+                      -- does not overlaps, was away since yesterday and return home during the standard day time
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (pNightEnd - (pDay || 'T' || '00:00')::timestamp)))::integer;
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM (aRow.away_end - pDayStart)))::integer;
+                    WHEN (pNightOverlaps = false AND pDayOverlaps = false) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NULL) AND (aRow.away_start BETWEEN pNightStart AND pNightEnd) THEN
+                      -- does not overlaps, goes out during the night time and does not return home
+                      pNightAwayDuration = pNightAwayDuration + (EXTRACT (EPOCH FROM (pNightEnd - aRow.away_start)))::integer;
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM ((pDay || 'T' || '23:59')::timestamp - pDayStart)))::integer;
+                    WHEN (pNightOverlaps = false AND pDayOverlaps = false) AND (aRow.away_start IS NOT NULL and aRow.away_end IS NULL) AND (aRow.away_start BETWEEN pDayStart AND pDayEnd) THEN
+                      -- does not overlaps, goes out during the day time and does not return home
+                      pDayAwayDuration = pDayAwayDuration + (EXTRACT (EPOCH FROM ((pDay || 'T' || '23:59')::timestamp - aRow.away_start)))::integer;
+
+                    -- IF all scenarios are not taken care of and still cannot get any values, its an invalid data point.
+                    ELSE
+                      pDayAwayDuration = 0;
+                      pNightAwayDuration = 0;
                   END CASE;
-
-                pDayAwayDuration = pDayAwayDuration + pDayAwayDurationTemp;
-                pNightAwayDuration = pNightAwayDuration + pNightAwayDurationTemp;
               END LOOP;
-            ELSE
-
-              -- Check if user is at home.
-              SELECT
-                ey.event_type_id
-                , ey.extra_data
-              INTO
-                lastUserEventTypeId
-                , lastUserExtraData
-              FROM eyecare ey
-              WHERE
-                ey.create_date BETWEEN (pDay  || 'T' || '00:00')::timestamp AND ((pDay || 'T' || '23:59')::timestamp) AND
-                ey.device_id = pDeviceId
-              ORDER BY ey.create_date DESC LIMIT 1;
-
-              IF lastUserEventTypeId = '20001' AND lastUserExtraData = 'Alarm Off' THEN
-                -- user is away from home for the whole day. Do no calculate at all
-                pDayAwayDuration = null;
-                pNightAwayDuration = null;
-              ELSE
-                -- user is at home for the whole day.
-                pDayAwayDuration = 0;
-                pNightAwayDuration = 0;
-              END IF;
           END IF;
 
           -- Calculate the activity level
           IF (pNightDuration - pNightAwayDuration) > 0 THEN
+            -- reduces false calculation, certain people head out home after motion detects, making the additional 5 minutes redundant
+            IF nActive > (pNightDuration - pNightAwayDuration) THEN
+              nActive = nActive - 300;
+            END IF;
             pNightActivityLevel = nActive * 100 / (pNightDuration - pNightAwayDuration);
           ELSE
             pNightActivityLevel = null;
           END IF;
 
           IF (pDayDuration - pDayAwayDuration) > 0 THEN
+            -- reduces false calculation, certain people head out home after motion detects, making the additional 5 minutes redundant
+            IF dActive > (pDayDuration - pDayAwayDuration) THEN
+              dActive = dActive - 300;
+            END IF;
             pDayActivityLevel = dActive * 100 / (pDayDuration - pDayAwayDuration);
           ELSE
             pDayActivityLevel = null;

@@ -179,7 +179,9 @@ BEGIN
         ((pAuthorizationLevels IS NULL) OR (a.authorization_level = pAuthorizationLevels)) AND
         ((pAuthenticationId IS NULL) OR (e.authentication_id = pAuthenticationId))
       )
+      ORDER BY e.name
       LIMIT pPageSize OFFSET pSkipSize;
+    
 
     RETURN QUERY
 
