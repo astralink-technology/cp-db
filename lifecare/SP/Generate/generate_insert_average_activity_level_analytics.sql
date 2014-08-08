@@ -26,6 +26,9 @@ DECLARE
     pAverageNightActivityLevel integer;
     pInformativeAnalyticsExistCount integer;
 
+    pDayDataPoints integer;
+    pNightDataPoints integer;
+
     nInformativeAnalyticsId varchar(32);
 BEGIN
   -- Create a temp table for returning
@@ -81,6 +84,7 @@ BEGIN
 
   FOR uRow IN SELECT * FROM user_away_init LOOP
 
+    -- check if informative analytics are calculated before
     SELECT
       COUNT(*)
     INTO
@@ -90,21 +94,46 @@ BEGIN
       type = 'AVGACT' AND
       date_value = (NOW()::date || ' ' || '00:00:00')::timestamp;
 
-    IF pInformativeAnalyticsExistCount < 1 THEN
-      -- For row that is not analyzed for the user, find the wake up time and do the insert
-      SELECT
-       SUM(int_value3) / COUNT(*)
-      INTO
-        pAverageDayActivityLevel
-      FROM analytics_value WHERE
-        owner_id = uRow.device_id and type = 'ACT' and int_value3 BETWEEN 0 AND 100;
+    -- day data points
+    SELECT
+      COUNT(dd.*)
+    INTO
+      pDayDataPoints
+    FROM
+    (SELECT * FROM analytics_value WHERE type = 'AH' AND owner_id = uRow.device_id AND int_value3 > 80 ORDER BY date_value DESC LIMIT 20) dd;
 
-      SELECT
-       SUM(int_value4) / COUNT(*)
-      INTO
-        pAverageNightActivityLevel
-      FROM analytics_value WHERE
-        owner_id = uRow.device_id and type = 'ACT' and int_value4 BETWEEN 0 AND 100;
+    -- night data points
+    SELECT
+      COUNT(nd.*)
+    INTO
+      pNightDataPoints
+    FROM
+    (SELECT * FROM analytics_value WHERE type = 'AH' AND owner_id = uRow.device_id AND int_value4 > 80 ORDER BY date_value DESC LIMIT 20) nd;
+
+    IF pInformativeAnalyticsExistCount < 1 THEN
+      IF pDayDataPoints = 20 THEN
+        SELECT
+         SUM(int_value3) / COUNT(*)
+        INTO
+          pAverageDayActivityLevel
+        FROM analytics_value WHERE
+          date_value IN (SELECT date_value FROM analytics_value WHERE type = 'AH' AND owner_id = uRow.device_id AND int_value3 > 80 ORDER BY date_value DESC LIMIT 20) AND
+          owner_id = uRow.device_id and type = 'ACT' and int_value3 BETWEEN 0 AND 100;
+      ELSE
+        pAverageDayActivityLevel = null;
+      END IF;
+
+      IF pNightDataPoints = 20 THEN
+        SELECT
+         SUM(int_value4) / COUNT(*)
+        INTO
+          pAverageNightActivityLevel
+        FROM analytics_value WHERE
+          date_value IN (SELECT date_value FROM analytics_value WHERE type = 'AH' AND owner_id = uRow.device_id AND int_value4 > 80 ORDER BY date_value DESC LIMIT 20) AND
+          owner_id = uRow.device_id and type = 'ACT' and int_value4 BETWEEN 0 AND 100;
+      ELSE
+          pAverageNightActivityLevel = null;
+      END IF;
 
       -- Insert into the analytics_value
       SELECT generate_id INTO STRICT nInformativeAnalyticsId FROM generate_id();
