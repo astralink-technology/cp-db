@@ -25,7 +25,10 @@
     INTO
       nights_away_count
     FROM analytics_value WHERE
-    type = 'A' AND owner_id = pDeviceId AND date_value BETWEEN (pDateStart  || 'T' || '00:00')::timestamp AND (pDateEnd  || 'T' || '00:00')::timestamp AND date_value3 IS NULL;
+    type = 'A' AND owner_id = pDeviceId AND
+    date_value BETWEEN (pDateStart  || 'T' || '00:00')::timestamp AND (pDateEnd  || 'T' || '00:00')::timestamp
+    AND date_value2 IS NOT NULL
+    AND date_value3 IS NULL;
 
     RETURN nights_away_count;
 
