@@ -180,7 +180,7 @@ BEGIN
           , node_name varchar(64)
           , zone varchar(64)
           , create_date timestamp without time zone
-          , extra_data varchar(64)
+          , extra_data text
         ) ON COMMIT DROP;
         -- clear the table
         DELETE FROM day_activities_temp;
@@ -242,7 +242,7 @@ BEGIN
           , node_name varchar(64)
           , zone varchar(64)
           , create_date timestamp without time zone
-          , extra_data varchar(64)
+          , extra_data text
         ) ON COMMIT DROP;
         -- clear the table
         DELETE FROM night_activities_temp;

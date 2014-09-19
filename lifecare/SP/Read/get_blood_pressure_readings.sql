@@ -24,7 +24,7 @@ RETURNS TABLE(
     , create_date timestamp without time zone
     , device_id varchar(32)
     , home_id varchar(32)
-    , extra_data varchar(64)
+    , extra_data text
     , entity_id varchar(32)
     , entity_name varchar(64)
     , total_rows integer

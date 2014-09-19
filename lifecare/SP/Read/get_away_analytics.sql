@@ -26,7 +26,7 @@ DECLARE
     oNodeName varchar(64);
     oZone varchar(64);
     oCreateDate timestamp without time zone;
-    oExtraData varchar(64);
+    oExtraData text;
 BEGIN
 
     SELECT

@@ -20,7 +20,7 @@ CREATE FUNCTION add_authentication(
         , pRequestAuthenticationStart  timestamp without time zone
         , pRequestAuthenticationEnd  timestamp without time zone
         , pAuthorizationLevel integer
-        , pCreateDate  timestamp without time zone
+        , psCreateDate  timestamp without time zone
         , pLastUpdate  timestamp without time zone
 )
 RETURNS varchar(32) AS 

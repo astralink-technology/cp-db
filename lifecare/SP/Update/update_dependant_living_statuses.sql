@@ -27,7 +27,7 @@ DECLARE
     pEyecareId varchar(32);
     pEventTypeName varchar(64);
     pEventTypeId varchar(64);
-    pExtraData varchar(64);
+    pExtraData text;
     pZone varchar(64);
     pMotionDetectedDateTime timestamp without time zone;
     pDependantEntityId varchar(32);

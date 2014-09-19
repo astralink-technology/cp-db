@@ -2,19 +2,15 @@
 DO $$
 DECLARE fname text;
 BEGIN
-FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_eyecare_pusher' LOOP
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_weighing_scale_readings' LOOP
   EXECUTE 'DROP FUNCTION ' || fname;
 END loop;
 RAISE INFO 'FUNCTION % DROPPED', fname;
 END$$;
 -- Start function
-CREATE FUNCTION get_eyecare_pusher(
+CREATE FUNCTION get_weighing_scale_readings(
        pEntityId varchar(32)
-        , pZone varchar(64)
         , pDeviceId varchar(32)
-        , pEventTypeId varchar(32)
-        , pStartDateTime timestamp without time zone
-        , pEndDateTime timestamp without time zone
         , pPageSize integer
         , pSkipSize integer
     )
@@ -61,19 +57,9 @@ BEGIN
         , e.entity_id
         , ey.name as entity_name
           FROM eyecare e inner join entity ey on e.entity_id = ey.entity_id WHERE (
-          (
-                 (e.node_name IN ('Door sensor', 'door sensor') AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
-                 (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
-                 (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-                 (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
-                (e.event_type_id IN ('20013')) -- Get BP HR Reading
-           ) AND
+          (e.event_type_id = '20014') AND -- Get Weighing Scale Reading
           ((pEntityId IS NULL) OR (e.entity_id = pEntityId)) AND
-          ((pZone IS NULL) OR (e.zone = pZone)) AND
-          ((pDeviceId IS NULL) OR (e.device_id = pDeviceId)) AND
-          ((pEventTypeId IS NULL) OR (e.event_type_id = pEventTypeId)) AND
-          ((pZone IS NULL) OR (e.zone = pZone)) AND
-          ((pStartDateTime IS NULL OR pEndDateTime IS NULL) OR (e.create_date BETWEEN pStartDateTime AND pEndDateTime)) -- might have syntax error
+          ((pDeviceId IS NULL) OR (e.device_id = pDeviceId))
         )
       ORDER BY e.create_date DESC
       LIMIT pPageSize OFFSET pSkipSize;
