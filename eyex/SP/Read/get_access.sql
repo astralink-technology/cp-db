@@ -12,6 +12,7 @@ CREATE FUNCTION get_access(
         pAccessId varchar(32)
         , pPin varchar(8)
         , pCardId text
+        , pExtension integer
         , pOwnerId varchar(32)
         , pPageSize integer
         , pSkipSize integer
@@ -20,6 +21,7 @@ RETURNS TABLE(
 	access_id varchar(32)
 	, pin varchar(8)
 	, card_id text
+	, extension integer
 	, create_date timestamp without time zone
 	, owner_id varchar(32)
 	, totalRows integer
@@ -42,11 +44,13 @@ BEGIN
         a.access_id
         , a.pin
         , a.card_id
-        , av.create_date
-        , av.owner_id
+        , a.extension
+        , a.create_date
+        , a.owner_id
           FROM access a WHERE (
            ((pAccessId IS NULL) OR (aa.access_id = pAccessId)) AND
            ((pPin IS NULL) OR (a.pin = pPin)) AND
+           ((pExtension IS NULL) OR (a.extension = pExtension)) AND
            ((pCardId IS NULL) OR (a.card_id = pCardId)) AND
            ((pOwnerId IS NULL) OR (a.owner_id = pOwnerId))
           )

@@ -28,11 +28,13 @@ RETURNS TABLE(
     , authentication_id varchar(32)
     , authentication_string_lower varchar(64)
     , last_login timestamp without time zone
+    , authorization_level integer
     , request_authentication_start timestamp without time zone
     , request_authentication_end timestamp without time zone
     , access_id varchar(32)
     , pin varchar(8)
     , card_id text
+    , extension integer
     , access_create_date timestamp without time zone
     , address_id varchar(32)
     , apartment varchar(64)
@@ -79,11 +81,13 @@ BEGIN
           , au.authentication_id
           , au.authentication_string_lower
           , au.last_login
+          , au.authorization_level
           , au.request_authentication_start
           , au.request_authentication_end
           , a.access_id
           , a.pin
           , a.card_id
+          , a.extension
           , a.create_date AS access_create_date
           , ad.address_id
           , ad.apartment

@@ -12,6 +12,7 @@ CREATE FUNCTION add_access(
         pAccessId varchar(32)
         , pPin varchar(8)
         , pCardId text
+        , pAccess integer
         , pCreateDate timestamp without time zone
         , pOwnerId varchar(32)
 )
@@ -22,12 +23,14 @@ BEGIN
         access_id
         , pin
         , card_id
+        , extension
         , create_date
         , owner_id
     ) VALUES(
         pAccessId
         , pPin
         , pCardId
+        , pExtension
         , pCreateDate
         , pOwnerId
     );
