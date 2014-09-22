@@ -10,18 +10,18 @@ END$$;
 -- Start function
 CREATE FUNCTION delete_phone(
         pPhoneId varchar(32),
-        pDeviceId varchar(32)
+        pOwnerId varchar(32)
 )
-RETURNS BOOLEAN AS 
+RETURNS BOOLEAN AS
 $BODY$
 BEGIN
 -- Phone ID is needed if not return
-    IF pPhoneId IS NULL AND pDeviceId IS NULL THEN  
+    IF pPhoneId IS NULL AND pOwnerId IS NULL THEN
         RETURN FALSE;
     ELSE
         DELETE from phone WHERE (
-		    phone_id = pPhoneId OR
-		    device_id = pDeviceId
+		    phone_id = pPhoneId AND
+		    owner_id = pOwnerId
 	);
         RETURN TRUE;
     END IF;
