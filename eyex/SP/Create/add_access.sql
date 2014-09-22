@@ -12,7 +12,7 @@ CREATE FUNCTION add_access(
         pAccessId varchar(32)
         , pPin varchar(8)
         , pCardId text
-        , pAccess integer
+        , pExtension integer
         , pCreateDate timestamp without time zone
         , pOwnerId varchar(32)
 )
