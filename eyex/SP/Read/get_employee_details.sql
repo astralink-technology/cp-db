@@ -11,6 +11,7 @@ END$$;
 CREATE FUNCTION get_employee_details(
         pEntityId varchar(32)
         , pEmployeeId varchar(32)
+        , pEntityStatus char(1)
         , pPageSize integer
         , pSkipSize integer
     )
@@ -109,7 +110,8 @@ BEGIN
         LEFT JOIN access a ON e.entity_id = a.owner_id
         LEFT JOIN address ad ON ad.owner_id = e.entity_id WHERE
         (
-          (er.entity_id = pEntityId) AND
+          ((pEntityId IS NULL) OR (er.entity_id = pEntityId)) AND
+          ((pEntityStatus IS NULL) OR (e.s`tatus = pEntityStatus)) AND
           ((pEmployeeId IS NULL) OR (pEmployeeId = er.related_id))
         )
         LIMIT pPageSize OFFSET pSkipSize;
