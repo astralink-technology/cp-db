@@ -10,19 +10,18 @@ END$$;
 -- Start function
 CREATE FUNCTION get_access(
         pAccessId varchar(32)
-        , pPin varchar(8)
         , pCardId text
-        , pExtension integer
+        , pExtensionId varchar(32)
         , pOwnerId varchar(32)
         , pPageSize integer
         , pSkipSize integer
     )
 RETURNS TABLE(
 	access_id varchar(32)
-	, pin varchar(8)
 	, card_id text
-	, extension integer
+	, extension_id varchar(32)
 	, create_date timestamp without time zone
+	, last_update timestamp without time zone
 	, owner_id varchar(32)
 	, totalRows integer
   )
@@ -42,15 +41,14 @@ BEGIN
     CREATE TEMP TABLE access_init AS
       SELECT
         a.access_id
-        , a.pin
         , a.card_id
-        , a.extension
+        , a.extension_id
         , a.create_date
+        , a.last_update
         , a.owner_id
           FROM access a WHERE (
            ((pAccessId IS NULL) OR (aa.access_id = pAccessId)) AND
-           ((pPin IS NULL) OR (a.pin = pPin)) AND
-           ((pExtension IS NULL) OR (a.extension = pExtension)) AND
+           ((pExtensionId IS NULL) OR (a.extension_id = pExtensionId)) AND
            ((pCardId IS NULL) OR (a.card_id = pCardId)) AND
            ((pOwnerId IS NULL) OR (a.owner_id = pOwnerId))
           )
@@ -60,7 +58,7 @@ BEGIN
     SELECT
       *
       , totalRows
-    FROM access_int;
+    FROM access_init;
 END;
 $BODY$
 LANGUAGE plpgsql;

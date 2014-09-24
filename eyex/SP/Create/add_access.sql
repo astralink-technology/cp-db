@@ -12,8 +12,9 @@ CREATE FUNCTION add_access(
         pAccessId varchar(32)
         , pPin varchar(8)
         , pCardId text
-        , pExtension integer
+        , pExtensionId varchar(32)
         , pCreateDate timestamp without time zone
+        , pLastUpdate timestamp without time zone
         , pOwnerId varchar(32)
 )
 RETURNS varchar(32) AS 
@@ -23,15 +24,17 @@ BEGIN
         access_id
         , pin
         , card_id
-        , extension
+        , extension_id
         , create_date
+        , last_update
         , owner_id
     ) VALUES(
         pAccessId
         , pPin
         , pCardId
-        , pExtension
+        , pExtensionId
         , pCreateDate
+        , pLastUpdate
         , pOwnerId
     );
     RETURN pAccessId;

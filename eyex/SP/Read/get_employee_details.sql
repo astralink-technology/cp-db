@@ -12,6 +12,7 @@ CREATE FUNCTION get_employee_details(
         pEntityId varchar(32)
         , pEmployeeId varchar(32)
         , pEntityStatus char(1)
+        , hasExtension bool
         , pPageSize integer
         , pSkipSize integer
     )
@@ -36,7 +37,7 @@ RETURNS TABLE(
     , access_id varchar(32)
     , pin varchar(8)
     , card_id text
-    , extension integer
+    , extension_id varchar(32)
     , access_create_date timestamp without time zone
     , address_id varchar(32)
     , apartment varchar(64)
@@ -89,7 +90,7 @@ BEGIN
           , a.access_id
           , a.pin
           , a.card_id
-          , a.extension
+          , a.extension_id
           , a.create_date AS access_create_date
           , ad.address_id
           , ad.apartment
@@ -111,7 +112,8 @@ BEGIN
         LEFT JOIN address ad ON ad.owner_id = e.entity_id WHERE
         (
           ((pEntityId IS NULL) OR (er.entity_id = pEntityId)) AND
-          ((pEntityStatus IS NULL) OR (e.s`tatus = pEntityStatus)) AND
+          ((pEntityStatus IS NULL) OR (e.status = pEntityStatus)) AND
+           ((hasExtension IS NULL) OR ((hasExtension = false) AND (a.extension_id IS NULL))) AND
           ((pEmployeeId IS NULL) OR (pEmployeeId = er.related_id))
         )
         LIMIT pPageSize OFFSET pSkipSize;

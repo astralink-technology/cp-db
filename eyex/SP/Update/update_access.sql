@@ -12,19 +12,21 @@ CREATE FUNCTION update_access(
       pAccessId varchar(32)
       , pPin varchar(8)
       , pCardId text
-      , pExtension integer
-      , pOwnerId varchar(32)
+      , pExtensionId varchar(32)
+      , pLastUpdate timestamp without time zone
 )
 RETURNS BOOL AS 
 $BODY$
 DECLARE
     oPin varchar(32);
     oCardId text;
-    oExtension integer;
+    oExtensionId varchar(32);
+    oLastUpdate timestamp without time zone;
 
     nPin varchar(8);
     nCardId text;
-    nExtension integer;
+    nExtensionId varchar(32);
+    nLastUpdate timestamp without time zone;
 BEGIN
     -- Rule ID is needed if not return
     IF pAccessId IS NULL THEN
@@ -59,13 +61,19 @@ BEGIN
             nCardId := pCardId;
         END IF;
 
-        IF pExtension IS NULL THEN
-            nExtension := oExtension;
-        ELSEIF pExtension = '' THEN
+        IF pExtensionId IS NULL THEN
+            nExtensionId := oExtensionId;
+        ELSEIF pExtensionId = '' THEN
             -- defaulted null
-            nExtension := NULL;
+            nExtensionId := NULL;
         ELSE
-            nExtension := pExtension;
+            nExtensionId := pExtensionId;
+        END IF;
+
+        IF pLastUpdate IS NULL THEN
+            nLastUpdate := oLastUpdate;
+        ELSE
+            nLastUpdate := pLastUpdate;
         END IF;
 
         -- start the update
@@ -74,7 +82,8 @@ BEGIN
         SET
             pin = nPin
             , card_id = nCardId
-            , extension = nExtension
+            , extension_id = nExtensionId
+            , last_update = nLastUpdate
         WHERE
             access_id = pAccessId;
         
