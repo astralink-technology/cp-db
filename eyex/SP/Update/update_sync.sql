@@ -127,9 +127,11 @@ BEGIN
             sync
         SET
             sync_master = nSyncMaster
-            , sync_sip = nSyncMaster
-            , sync_extensions = nSyncMaster
-            , sync_extensions = nSyncMaster
+            , sync_sip = nSyncSip
+            , sync_extensions = nSyncExtensions
+            , sync_profile = nSyncProfile
+            , sync_ivrs = nSyncIvrs
+            , sync_announcements = nSyncAnnouncements
             , last_update = nLastUpdate
         WHERE
             sync_id = pSyncId;
