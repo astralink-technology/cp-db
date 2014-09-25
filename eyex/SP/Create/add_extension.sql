@@ -23,7 +23,7 @@ BEGIN
         extension_id
         , extension
         , extension_password
-        , last_udpate
+        , last_update
         , create_date
         , owner_id
     ) VALUES(

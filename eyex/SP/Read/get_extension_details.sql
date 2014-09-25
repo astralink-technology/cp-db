@@ -11,7 +11,7 @@ END$$;
 CREATE FUNCTION get_extension_details(
         pExtensionId varchar(32)
         , pExtension integer
-        , pOwnerId varchar(32)
+        , pDeviceId varchar(32)
         , pPageSize integer
         , pSkipSize integer
     )
@@ -20,7 +20,7 @@ RETURNS TABLE(
     extension integer,
     last_update timestamp without time zone,
     create_date timestamp without time zone,
-    owner_id varchar(32),
+    employee_id varchar(32),
     access_id varchar(32),
     name varchar(64),
     totalRows integer
@@ -44,15 +44,16 @@ BEGIN
         , e.extension
         , e.create_date
         , e.last_update
-        , e.owner_id
+        , a.owner_id as employee_id
         , a.access_id
         , ee.name
           FROM extension e
-          LEFT JOIN access a ON a.extension_id = e.extension_id
-          INNER JOIN entity ee ON ee.entity_id = a.owner_id WHERE (
+          INNER JOIN device d ON e.owner_id = d.device_id
+          LEFT JOIN access a ON e.extension_id = a.extension_id
+          LEFT JOIN entity ee ON a.owner_id = ee.entity_id WHERE (
            ((pExtensionId IS NULL) OR (e.extension_id = pExtensionId)) AND
            ((pExtension IS NULL) OR (e.extension = pExtension)) AND
-           ((pOwnerId IS NULL) OR (e.owner_id = pOwnerId))
+           ((pDeviceId IS NULL) OR (d.device_id = pDeviceId))
           )
           LIMIT pPageSize OFFSET pSkipSize;
 

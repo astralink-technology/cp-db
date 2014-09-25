@@ -66,7 +66,7 @@ BEGIN
        ((pSyncProfile IS NULL) OR (s.sync_profile = pSyncProfile)) AND
        ((pSyncIvrs IS NULL) OR (s.sync_ivrs = pSyncIvrs)) AND
        ((pSyncAnnouncements IS NULL) OR (s.sync_announcements = pSyncAnnouncements)) AND
-       ((pOwnerId IS NULL) OR (a.owner_id = pOwnerId))
+       ((pOwnerId IS NULL) OR (s.owner_id = pOwnerId))
       )
       LIMIT pPageSize OFFSET pSkipSize;
 

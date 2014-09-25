@@ -10,35 +10,36 @@ END$$;
 -- Start function
 CREATE FUNCTION update_sync(
         pSyncId varchar(32)
-        , pSyncMaster boolean
-        , pSyncSip boolean
-        , pSyncExtensions boolean
-        , pSyncProfile boolean
-        , pSyncIvrs boolean
-        , pSyncAnnouncements boolean
+        , pOwnerId varchar(32)
+        , pSyncMaster bool
+        , pSyncSip bool
+        , pSyncExtensions bool
+        , pSyncProfile bool
+        , pSyncIvrs bool
+        , pSyncAnnouncements bool
         , pLastUpdate timestamp without time zone
 )
 RETURNS BOOL AS 
 $BODY$
 DECLARE
-    oSyncMaster boolean;
-    oSyncSip boolean;
-    oSyncExtensions boolean;
-    oSyncProfile boolean;
-    oSyncIvrs boolean;
-    oSyncAnnouncements boolean;
+    oSyncMaster bool;
+    oSyncSip bool;
+    oSyncExtensions bool;
+    oSyncProfile bool;
+    oSyncIvrs bool;
+    oSyncAnnouncements bool;
     oLastUpdate timestamp without time zone;
 
-    nSyncMaster boolean;
-    nSyncSip boolean;
-    nSyncExtensions boolean;
-    nSyncProfile boolean;
-    nSyncIvrs boolean;
-    nSyncAnnouncements boolean;
+    nSyncMaster bool;
+    nSyncSip bool;
+    nSyncExtensions bool;
+    nSyncProfile bool;
+    nSyncIvrs bool;
+    nSyncAnnouncements bool;
     nLastUpdate timestamp without time zone;
 BEGIN
     -- Rule ID is needed if not return
-    IF pSyncId IS NULL THEN
+    IF pSyncId IS NULL AND pOwnerId IS NULL THEN
         RETURN FALSE;
     ELSE
         -- select the variables into the old variables
@@ -59,67 +60,50 @@ BEGIN
             , oSyncAnnouncements
             , oLastUpdate
         FROM sync s WHERE
-            s.sync_id = pSyncId;
+            ((pSyncId IS NULL) AND (owner_id = pOwnerId)) OR
+            ((pOwnerId IS NULL) AND (sync_id = pSyncId));
 
         -- Start the updating process
         IF pSyncMaster IS NULL THEN 
-            nSyncMaster := oSyncMaster;
-        ELSEIF pSyncMaster = '' THEN   
-            -- defaulted null
-            nSyncMaster := NULL;
+            nSyncMaster = oSyncMaster;
         ELSE
-            nSyncMaster := pSyncMaster;
+            nSyncMaster = pSyncMaster;
         END IF;
 
         IF pSyncSip IS NULL THEN
-            nSyncSip := oSyncSip;
-        ELSEIF pSyncSip = '' THEN
-            -- defaulted null
-            nSyncSip := NULL;
+            nSyncSip = oSyncSip;
         ELSE
-            nSyncSip := pSyncSip;
+            nSyncSip = pSyncSip;
         END IF;
 
         IF pSyncExtensions IS NULL THEN
-            nSyncExtensions := oSyncExtensions;
-        ELSEIF pSyncExtensions = '' THEN
-            -- defaulted null
-            nSyncExtensions := NULL;
+            nSyncExtensions = oSyncExtensions;
         ELSE
-            nSyncExtensions := pSyncExtensions;
+            nSyncExtensions = pSyncExtensions;
         END IF;
 
         IF pSyncProfile IS NULL THEN
-            nSyncProfile := oSyncProfile;
-        ELSEIF pSyncProfile = '' THEN
-            -- defaulted null
-            nSyncProfile := NULL;
+            nSyncProfile = oSyncProfile;
         ELSE
-            nSyncProfile := pSyncProfile;
+            nSyncProfile = pSyncProfile;
         END IF;
 
         IF pSyncIvrs IS NULL THEN
-            nSyncIvrs := oSyncIvrs;
-        ELSEIF pSyncIvrs = '' THEN
-            -- defaulted null
-            nSyncIvrs := NULL;
+            nSyncIvrs = oSyncIvrs;
         ELSE
-            nSyncIvrs := pSyncIvrs;
+            nSyncIvrs = pSyncIvrs;
         END IF;
 
         IF pSyncAnnouncements IS NULL THEN
-            nSyncAnnouncements := oSyncAnnouncements;
-        ELSEIF pSyncAnnouncements = '' THEN
-            -- defaulted null
-            nSyncAnnouncements := NULL;
+            nSyncAnnouncements = oSyncAnnouncements;
         ELSE
-            nSyncAnnouncements := pSyncAnnouncements;
+            nSyncAnnouncements = pSyncAnnouncements;
         END IF;
         
         IF pLastUpdate IS NULL THEN
-            nLastUpdate := oLastUpdate;
+            nLastUpdate = oLastUpdate;
         ELSE
-            nLastUpdate := pLastUpdate;
+            nLastUpdate = pLastUpdate;
         END IF;
 
         -- start the update
@@ -134,7 +118,8 @@ BEGIN
             , sync_announcements = nSyncAnnouncements
             , last_update = nLastUpdate
         WHERE
-            sync_id = pSyncId;
+            ((pSyncId IS NULL) AND (owner_id = pOwnerId)) OR
+            ((pOwnerId IS NULL) AND (sync_id = pSyncId));
         
         RETURN TRUE;
     
