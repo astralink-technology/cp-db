@@ -36,9 +36,11 @@ BEGIN
         SELECT
             a.pin
             , a.card_id
+            , a.extension_id
         INTO STRICT
             oPin
             , oCardId
+            , oExtensionId
         FROM access a WHERE
             a.access_id = pAccessId;
 

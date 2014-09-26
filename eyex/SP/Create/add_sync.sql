@@ -11,11 +11,11 @@ END$$;
 CREATE FUNCTION add_sync(
         pSyncId varchar(32)
         , pSyncMaster boolean
-        , pSyncSip boolean
         , pSyncExtensions boolean
         , pSyncProfile boolean
         , pSyncIvrs boolean
         , pSyncAnnouncements boolean
+        , pSyncPin boolean
         , pCreateDate timestamp without time zone
         , pLastUpdate timestamp without time zone
         , pOwnerId varchar(32)
@@ -26,22 +26,22 @@ BEGIN
     INSERT INTO sync (
         sync_id
         , sync_master
-        , sync_sip
         , sync_extensions
         , sync_profile
         , sync_ivrs
         , sync_announcements
+        , sync_pin
         , create_date
         , last_update
         , owner_id
     ) VALUES(
         pSyncId
         , pSyncMaster
-        , pSyncSip
         , pSyncExtensions
         , pSyncProfile
         , pSyncIvrs
         , pSyncAnnouncements
+        , pSyncPin
         , pCreateDate
         , pLastUpdate
         , pOwnerId

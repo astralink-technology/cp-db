@@ -12,30 +12,30 @@ CREATE FUNCTION update_sync(
         pSyncId varchar(32)
         , pOwnerId varchar(32)
         , pSyncMaster bool
-        , pSyncSip bool
         , pSyncExtensions bool
         , pSyncProfile bool
         , pSyncIvrs bool
         , pSyncAnnouncements bool
+        , pSyncPin bool
         , pLastUpdate timestamp without time zone
 )
 RETURNS BOOL AS 
 $BODY$
 DECLARE
     oSyncMaster bool;
-    oSyncSip bool;
     oSyncExtensions bool;
     oSyncProfile bool;
     oSyncIvrs bool;
     oSyncAnnouncements bool;
+    oSyncPin bool;
     oLastUpdate timestamp without time zone;
 
     nSyncMaster bool;
-    nSyncSip bool;
     nSyncExtensions bool;
     nSyncProfile bool;
     nSyncIvrs bool;
     nSyncAnnouncements bool;
+    nSyncPin bool;
     nLastUpdate timestamp without time zone;
 BEGIN
     -- Rule ID is needed if not return
@@ -45,19 +45,19 @@ BEGIN
         -- select the variables into the old variables
         SELECT
             s.sync_master
-            , s.sync_sip
             , s.sync_extensions
             , s.sync_profile
             , s.sync_ivrs
             , s.sync_announcements
+            , s.sync_pin
             , s.last_update
         INTO STRICT
             oSyncMaster
-            , oSyncSip
             , oSyncExtensions
             , oSyncProfile
             , oSyncIvrs
             , oSyncAnnouncements
+            , oSyncPin
             , oLastUpdate
         FROM sync s WHERE
             ((pSyncId IS NULL) AND (owner_id = pOwnerId)) OR
@@ -68,12 +68,6 @@ BEGIN
             nSyncMaster = oSyncMaster;
         ELSE
             nSyncMaster = pSyncMaster;
-        END IF;
-
-        IF pSyncSip IS NULL THEN
-            nSyncSip = oSyncSip;
-        ELSE
-            nSyncSip = pSyncSip;
         END IF;
 
         IF pSyncExtensions IS NULL THEN
@@ -100,6 +94,12 @@ BEGIN
             nSyncAnnouncements = pSyncAnnouncements;
         END IF;
         
+        IF pSyncPin IS NULL THEN
+            nSyncPin = oSyncPin;
+        ELSE
+            nSyncPin = pSyncPin;
+        END IF;
+        
         IF pLastUpdate IS NULL THEN
             nLastUpdate = oLastUpdate;
         ELSE
@@ -111,11 +111,11 @@ BEGIN
             sync
         SET
             sync_master = nSyncMaster
-            , sync_sip = nSyncSip
             , sync_extensions = nSyncExtensions
             , sync_profile = nSyncProfile
             , sync_ivrs = nSyncIvrs
             , sync_announcements = nSyncAnnouncements
+            , sync_pin = nSyncPin
             , last_update = nLastUpdate
         WHERE
             ((pSyncId IS NULL) AND (owner_id = pOwnerId)) OR
