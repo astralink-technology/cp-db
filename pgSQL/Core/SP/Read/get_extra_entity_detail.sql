@@ -59,6 +59,7 @@ RETURNS TABLE(
     , create_date timestamp without time zone
     , last_update timestamp without time zone
     , owner_id varchar(32)
+    , totalRows integer
 ) AS
 $BODY$
 DECLARE
@@ -70,7 +71,7 @@ BEGIN
     INTO STRICT
       totalRows
     FROM extra_entity_detail e WHERE (
-      ((pExtraEntityDetailId IS NULL) OR (e.extra_entity_detail_id = pExtraEntityDetailId )) AND
+      ((pExtraEntityDetailId IS NULL) OR (e.extra_entity_detail_id = pExtraEntityDetailId)) AND
       ((pRelatedDetailId IS NULL) OR (e.related_detail_id = pRelatedDetailId)) AND
       ((pRelatedDetailId2 IS NULL) OR (e.related_detail_id2 = pRelatedDetailId2)) AND
       ((pRelatedDetailId3 IS NULL) OR (e.related_detail_id3 = pRelatedDetailId3)) AND
@@ -95,7 +96,7 @@ BEGIN
 	  );
 
     -- create a temp table to get the data
-    CREATE TEMP TABLE extra_entity_detail AS
+    CREATE TEMP TABLE extra_entity_detail_init AS
       SELECT
         ee.extra_entity_detail_id
         , ee.related_detail_id
@@ -117,7 +118,7 @@ BEGIN
         , ee.create_date
         , ee.last_update
         , ee.owner_id
-      FROM entity_extra_detail ee  WHERE (
+      FROM extra_entity_detail ee  WHERE (
         ((pExtraEntityDetailId IS NULL) OR (ee.extra_entity_detail_id = pExtraEntityDetailId )) AND
         ((pRelatedDetailId IS NULL) OR (ee.related_detail_id = pRelatedDetailId)) AND
         ((pRelatedDetailId2 IS NULL) OR (ee.related_detail_id2 = pRelatedDetailId2)) AND
@@ -144,11 +145,10 @@ BEGIN
       LIMIT pPageSize OFFSET pSkipSize;
 
     RETURN QUERY
-
-    SELECT
-      *
-      , totalRows
-    FROM extra_entity_detail;
+      SELECT
+        *
+        , totalRows
+      FROM extra_entity_detail_init;
 
 END;
 $BODY$

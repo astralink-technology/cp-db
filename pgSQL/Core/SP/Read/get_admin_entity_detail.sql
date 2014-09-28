@@ -115,7 +115,7 @@ BEGIN
       FROM entity e INNER JOIN
       authentication a ON a.authentication_id = e.authentication_id LEFT JOIN
       address ad ON ad.owner_id = e.entity_id LEFT JOIN
-      phone p ON p.owner_id = e.entity_id WHERE (
+      phone p ON p.phone_id = e.primary_phone_id WHERE (
       ((pEntityId IS NULL) OR (e.entity_id = pEntityId)) AND
       ((pAuthorizationLevels IS NULL) OR (a.authorization_level = pAuthorizationLevels)) AND
       ((pAuthenticationId IS NULL) OR (e.authentication_id = pAuthenticationId))
