@@ -18,7 +18,7 @@ CREATE FUNCTION update_access(
 RETURNS BOOL AS 
 $BODY$
 DECLARE
-    oPin varchar(32);
+    oPin varchar(8);
     oCardId text;
     oExtensionId varchar(32);
     oLastUpdate timestamp without time zone;

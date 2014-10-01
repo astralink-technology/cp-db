@@ -14,7 +14,7 @@ CREATE FUNCTION add_entity_relationship(
 	pRelatedId varchar(32), 
 	pStatus char(1),
 	pCreateDate timestamp without time zone,
-	pType char(1)
+	pType char(1)`
 )
 RETURNS varchar(32) AS 
 $BODY$

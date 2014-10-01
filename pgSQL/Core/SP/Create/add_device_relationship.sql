@@ -9,14 +9,14 @@ RAISE INFO 'FUNCTION % DROPPED', fname;
 END$$;
 -- Start function
 CREATE FUNCTION add_device_relationship(
-	pDeviceRelationshipId varchar(32) 
+	pDeviceRelationshipId varchar(32)
 	, pDeviceId varchar(32)
 	, pOwnerId varchar(32)
 	, pLastUpdate timestamp without time zone
 	, pCreateDate timestamp without time zone
 	, pAppName varchar(64)
 )
-RETURNS varchar(32) AS 
+RETURNS varchar(32) AS
 $BODY$
 BEGIN
     INSERT INTO device_relationship(
