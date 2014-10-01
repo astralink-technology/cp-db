@@ -113,7 +113,7 @@ BEGIN
         (
           ((pEntityId IS NULL) OR (er.entity_id = pEntityId)) AND
           ((pEntityStatus IS NULL) OR (e.status = pEntityStatus)) AND
-           ((hasExtension IS NULL) OR ((hasExtension = false) AND (a.extension_id IS NULL))) AND
+           ((hasExtension IS NULL) OR ((hasExtension = false) AND (a.extension_id IS NULL OR a.extension_id = ''))) AND
           ((pEmployeeId IS NULL) OR (pEmployeeId = er.related_id))
         )
         LIMIT pPageSize OFFSET pSkipSize;

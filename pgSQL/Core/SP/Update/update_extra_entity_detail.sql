@@ -68,7 +68,7 @@ DECLARE
     oLastUpdate timestamp without time zone;
 BEGIN
     -- ID is needed if not return
-    IF oExtraEntityDetailId IS NULL THEN
+    IF pExtraEntityDetailId IS NULL THEN
         RETURN FALSE;
     ELSE
         -- select the variables into the old variables

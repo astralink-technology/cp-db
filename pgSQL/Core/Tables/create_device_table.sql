@@ -6,7 +6,7 @@ create table device (
 	type char(1),
 	type2 char(1),
 	description text,
-	deployment_date timestamp without time zone,
+	deployment_date date,
 	create_date timestamp without time zone,
 	last_update timestamp without time zone,
 	owner_id varchar(32)

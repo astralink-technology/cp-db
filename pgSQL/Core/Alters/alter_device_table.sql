@@ -6,7 +6,6 @@ ALTER TABLE device
 ALTER TABLE device
     ADD COLUMN description text;
 
-
 -- Alters to device table 20131204
 ALTER TABLE device
     DROP COLUMN device_value_id

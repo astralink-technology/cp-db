@@ -117,7 +117,7 @@ BEGIN
         INNER JOIN authentication au ON au.authentication_id = e.authentication_id LEFT JOIN
         phone p ON p.phone_id = e.primary_phone_id LEFT JOIN
         address ad ON ad.address_id = ee.related_detail_id LEFT JOIN
-        media m ON m.owner_id = ee.related_detail_id2 WHERE
+        media m ON m.media_id = ee.related_detail_id2 WHERE
         (
           ((pCompanyId IS NULL) OR (e.entity_id = pCompanyId))
         )
