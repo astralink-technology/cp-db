@@ -211,20 +211,20 @@ BEGIN
         UPDATE 
             address
         SET
-          a.apartment = nApartment
-          , a.road_name = nRoadName
-          , a.road_name2 = nRoadName2
-          , a.suite = nSuite
-          , a.zip = nZip
-          , a.country = nCountry
-          , a.province = nProvince
-          , a.state = nState
-          , a.city = nCity
-          , a.type = nType
-          , a.status = nStatus
-          , a.longitude = nLongitude
-          , a.latitude = nLatitude
-          , a.last_update = nLastUpdate
+          apartment = nApartment
+          , road_name = nRoadName
+          , road_name2 = nRoadName2
+          , suite = nSuite
+          , zip = nZip
+          , country = nCountry
+          , province = nProvince
+          , state = nState
+          , city = nCity
+          , type = nType
+          , status = nStatus
+          , longitude = nLongitude
+          , latitude = nLatitude
+          , last_update = nLastUpdate
         WHERE 
             address_id = pAddressId;
 

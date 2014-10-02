@@ -19,35 +19,35 @@ CREATE FUNCTION add_device(
 	, pCreateDate timestamp without time zone
 	, pLastUpdate timestamp without time zone
 	, pOwnerId varchar(32)
-	, pDeploymentDateTime date
+	, pDeploymentDate date
 )
 RETURNS varchar(32) AS
 $BODY$
 BEGIN
     INSERT INTO device(
-	device_id
-	, name
-	, code
-	, status
-	, type
-	, type2
-	, description
-	, create_date
-	, last_update
-	, owner_id
-	, deployment_date
+      device_id
+      , name
+      , code
+      , status
+      , type
+      , type2
+      , description
+      , create_date
+      , last_update
+      , owner_id
+      , deployment_date
     ) VALUES(
-	pDeviceId
-	, pName
-	, pCode
-	, pStatus
-	, pType
-	, pType2
-	, pDescription
-	, pCreateDate
-	, pLastUpdate
-	, pOwnerId
-	, pDeploymentDateTime
+	    pDeviceId
+      , pName
+      , pCode
+      , pStatus
+      , pType
+      , pType2
+      , pDescription
+      , pCreateDate
+      , pLastUpdate
+      , pOwnerId
+      , pDeploymentDate
     );
     RETURN pDeviceId;
 END;
