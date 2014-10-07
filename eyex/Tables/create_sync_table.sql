@@ -5,6 +5,7 @@ CREATE TABLE sync (
 	sync_profile boolean default false,
 	sync_ivrs boolean default false,
 	sync_pin boolean default false,
+	sync_employee_profile boolean default false,
 	sync_announcements boolean default false,
 	create_date timestamp without time zone,
 	last_update timestamp without time zone,

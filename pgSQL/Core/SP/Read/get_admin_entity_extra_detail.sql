@@ -2,13 +2,13 @@
 DO $$
 DECLARE fname text;
 BEGIN
-FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_admin_entity_detail' LOOP
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_admin_entity_extra_detail' LOOP
   EXECUTE 'DROP FUNCTION ' || fname;
 END loop;
 RAISE INFO 'FUNCTION % DROPPED', fname;
 END$$;
 -- Start function
-CREATE FUNCTION get_admin_entity_detail(
+CREATE FUNCTION get_admin_entity_extra_detail(
         pEntityId varchar(32)
         , pAuthenticationId varchar(32)
         , pAuthorizationLevels integer
@@ -82,17 +82,17 @@ BEGIN
     INTO STRICT
       totalRows
     FROM entity e INNER JOIN
-    authentication a ON a.authentication_id = e.authentication_id LEFT JOIN
-    address ad ON ad.owner_id = e.entity_id LEFT JOIN
-    phone p ON p.owner_id = e.entity_id LEFT JOIN
-    extra_entity_detail ee ON e.entity_id = ee.owner_id WHERE (
+      authentication a ON a.authentication_id = e.authentication_id LEFT JOIN
+      address ad ON ad.owner_id = e.entity_id LEFT JOIN
+      phone p ON p.phone_id = e.primary_phone_id LEFT JOIN
+      extra_entity_detail ee ON e.entity_id = ee.owner_id WHERE (
       ((pEntityId IS NULL) OR (e.entity_id = pEntityId)) AND
       ((pAuthorizationLevels IS NULL) OR (a.authorization_level = pAuthorizationLevels)) AND
       ((pAuthenticationId IS NULL) OR (e.authentication_id = pAuthenticationId))
     );
 
     -- create a temp table to get the data
-    CREATE TEMP TABLE admin_entity_init AS
+    CREATE TEMP TABLE admin_entity_extra_init AS
       SELECT
         e.entity_id
         , e.first_name
@@ -148,11 +148,10 @@ BEGIN
         , ee.detail2
         , ee.detail3
         , ee.detail4
-        , total_rows
       FROM entity e INNER JOIN
       authentication a ON a.authentication_id = e.authentication_id LEFT JOIN
       address ad ON ad.owner_id = e.entity_id LEFT JOIN
-      phone p ON p.owner_id = e.entity_id LEFT JOIN
+      phone p ON p.phone_id = e.primary_phone_id LEFT JOIN
       extra_entity_detail ee ON e.entity_id = ee.owner_id WHERE (
       ((pEntityId IS NULL) OR (e.entity_id = pEntityId)) AND
       ((pAuthorizationLevels IS NULL) OR (a.authorization_level = pAuthorizationLevels)) AND
@@ -165,7 +164,7 @@ BEGIN
     SELECT
       *
       , totalRows
-    FROM admin_entity_init;
+    FROM admin_entity_extra_init;
 
 END;
 $BODY$

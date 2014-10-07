@@ -16,6 +16,7 @@ CREATE FUNCTION get_sync(
         , pSyncIvrs boolean
         , pSyncAnnouncements boolean
         , pSyncPin boolean
+        , pSyncEmployeeProfile boolean
         , pOwnerId varchar(32)
         , pPageSize integer
         , pSkipSize integer
@@ -28,6 +29,7 @@ RETURNS TABLE(
       , sync_ivrs boolean
       , sync_announcements boolean
       , sync_pin boolean
+      , sync_employee_profile boolean
       , create_date timestamp without time zone
       , last_update timestamp without time zone
       , owner_id varchar(32)
@@ -55,6 +57,7 @@ BEGIN
         , s.sync_ivrs
         , s.sync_announcements
         , s.sync_pin
+        , s.sync_employee_profile
         , s.create_date
         , s.last_update
         , s.owner_id
@@ -66,6 +69,7 @@ BEGIN
        ((pSyncIvrs IS NULL) OR (s.sync_ivrs = pSyncIvrs)) AND
        ((pSyncAnnouncements IS NULL) OR (s.sync_announcements = pSyncAnnouncements)) AND
        ((pSyncPin IS NULL) OR (s.sync_pin = pSyncPin)) AND
+       ((pSyncEmployeeProfile IS NULL) OR (s.sync_employee_profile = pSyncEmployeeProfile)) AND
        ((pOwnerId IS NULL) OR (s.owner_id = pOwnerId))
       )
       LIMIT pPageSize OFFSET pSkipSize;

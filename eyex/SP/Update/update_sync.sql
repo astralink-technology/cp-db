@@ -17,6 +17,7 @@ CREATE FUNCTION update_sync(
         , pSyncIvrs bool
         , pSyncAnnouncements bool
         , pSyncPin bool
+        , pSyncEmployeeProfile bool
         , pLastUpdate timestamp without time zone
 )
 RETURNS BOOL AS 
@@ -28,6 +29,7 @@ DECLARE
     oSyncIvrs bool;
     oSyncAnnouncements bool;
     oSyncPin bool;
+    oSyncEmployeeProfile bool;
     oLastUpdate timestamp without time zone;
 
     nSyncMaster bool;
@@ -36,6 +38,7 @@ DECLARE
     nSyncIvrs bool;
     nSyncAnnouncements bool;
     nSyncPin bool;
+    nSyncEmployeeProfile bool;
     nLastUpdate timestamp without time zone;
 BEGIN
     -- Rule ID is needed if not return
@@ -50,6 +53,7 @@ BEGIN
             , s.sync_ivrs
             , s.sync_announcements
             , s.sync_pin
+            , s.sync_employee_profile
             , s.last_update
         INTO STRICT
             oSyncMaster
@@ -58,6 +62,7 @@ BEGIN
             , oSyncIvrs
             , oSyncAnnouncements
             , oSyncPin
+            , oSyncEmployeeProfile
             , oLastUpdate
         FROM sync s WHERE
             ((pSyncId IS NULL) AND (owner_id = pOwnerId)) OR
@@ -74,6 +79,12 @@ BEGIN
             nSyncExtensions = oSyncExtensions;
         ELSE
             nSyncExtensions = pSyncExtensions;
+        END IF;
+      
+        IF pSyncEmployeeProfile IS NULL THEN
+            nSyncEmployeeProfile = oSyncEmployeeProfile;
+        ELSE
+            nSyncEmployeeProfile = pSyncEmployeeProfile;
         END IF;
 
         IF pSyncProfile IS NULL THEN
@@ -116,6 +127,7 @@ BEGIN
             , sync_ivrs = nSyncIvrs
             , sync_announcements = nSyncAnnouncements
             , sync_pin = nSyncPin
+            , sync_employee_profile = nSyncEmployeeProfile
             , last_update = nLastUpdate
         WHERE
             ((pSyncId IS NULL) AND (owner_id = pOwnerId)) OR

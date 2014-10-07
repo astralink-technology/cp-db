@@ -73,6 +73,7 @@ BEGIN
             , e.primary_email_id
             , e.primary_phone_id
             , e.disabled
+            , e.date_established
         INTO STRICT
             oFirstName
             , oLastName 
@@ -86,7 +87,8 @@ BEGIN
             , oPrimaryEmailId
             , oPrimaryPhoneId
             , oDisabled
-        FROM entity e WHERE 
+            , oDateEstablished
+        FROM entity e WHERE
             e.entity_id = pEntityId;
 
         -- Start the updating process
@@ -144,10 +146,10 @@ BEGIN
 
         IF pType IS NULL THEN 
             nType := oType;
-        ELSEIF pDevice2Id = '' THEN  
+        ELSEIF pType = '' THEN
             nType := NULL;
         ELSE
-            nType := oType;
+            nType := pType;
         END IF;
 
         IF pLastUpdate IS NULL THEN 

@@ -23,6 +23,7 @@ RETURNS TABLE(
     , name varchar(64)
     , nick_name varchar(32)
     , entity_status char(1)
+    , entity_type char(1)
     , entity_approved boolean
     , entity_disabled boolean
     , date_established timestamp without time zone
@@ -35,7 +36,6 @@ RETURNS TABLE(
     , request_authentication_start timestamp without time zone
     , request_authentication_end timestamp without time zone
     , access_id varchar(32)
-    , pin varchar(8)
     , card_id text
     , extension_id varchar(32)
     , access_create_date timestamp without time zone
@@ -53,7 +53,14 @@ RETURNS TABLE(
     , address_status char(1)
     , longitude decimal
     , latitude decimal
-    , totalRwos integer
+    , media_id varchar(32)
+    , profile_img_title varchar(32)
+    , img_type char(1)
+    , file_name text
+    , img_url text
+    , img_url2 text
+    , extension integer
+    , totalRows integer
   )
 AS
 $BODY$
@@ -65,9 +72,14 @@ BEGIN
       COUNT(*)
     INTO STRICT
       totalRows
-    FROM entity_relationship eri WHERE eri.entity_id = pEntityId;
+    FROM entity_relationship er INNER JOIN entity e ON er.related_id = e.entity_id
+    INNER JOIN authentication au ON e.authentication_id = au.authentication_id
+    LEFT JOIN access a ON e.entity_id = a.owner_id
+    LEFT JOIN extension ext ON ext.extension_id = a.extension_id
+    LEFT JOIN media m ON e.entity_id = m.owner_id
+    LEFT JOIN address ad ON ad.owner_id = e.entity_id;
 
-    -- create a temp table to get the data
+-- create a temp table to get the data
     CREATE TEMP TABLE employee_detail_init AS
       SELECT
           e.entity_id
@@ -76,6 +88,7 @@ BEGIN
           , e.name
           , e.nick_name
           , e.status AS entity_status
+          , e.type AS entity_type
           , e.approved AS entity_approved
           , e.disabled AS entity_disabled
           , e.date_established
@@ -88,7 +101,6 @@ BEGIN
           , au.request_authentication_start
           , au.request_authentication_end
           , a.access_id
-          , a.pin
           , a.card_id
           , a.extension_id
           , a.create_date AS access_create_date
@@ -106,9 +118,18 @@ BEGIN
           , ad.status AS address_status
           , ad.longitude
           , ad.latitude
+          , m.media_id
+          , m.title AS profile_img_title
+          , m.type AS img_type
+          , m.file_name
+          , m.img_url
+          , m.img_url2
+          , ext.extension
         FROM entity_relationship er INNER JOIN entity e ON er.related_id = e.entity_id
         INNER JOIN authentication au ON e.authentication_id = au.authentication_id
         LEFT JOIN access a ON e.entity_id = a.owner_id
+        LEFT JOIN extension ext ON ext.extension_id = a.extension_id
+        LEFT JOIN media m ON e.entity_id = m.owner_id
         LEFT JOIN address ad ON ad.owner_id = e.entity_id WHERE
         (
           ((pEntityId IS NULL) OR (er.entity_id = pEntityId)) AND

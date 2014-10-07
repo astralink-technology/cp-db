@@ -23,6 +23,7 @@ RETURNS TABLE(
     employee_id varchar(32),
     access_id varchar(32),
     name varchar(64),
+    img_url text,
     totalRows integer
   )
 AS
@@ -47,10 +48,12 @@ BEGIN
         , a.owner_id as employee_id
         , a.access_id
         , ee.name
+        , m.img_url
           FROM extension e
           INNER JOIN device d ON e.owner_id = d.device_id
           LEFT JOIN access a ON e.extension_id = a.extension_id
-          LEFT JOIN entity ee ON a.owner_id = ee.entity_id WHERE (
+          LEFT JOIN entity ee ON a.owner_id = ee.entity_id
+          LEFT JOIN media m ON ee.entity_id = m.owner_id WHERE (
            ((pExtensionId IS NULL) OR (e.extension_id = pExtensionId)) AND
            ((pExtension IS NULL) OR (e.extension = pExtension)) AND
            ((pDeviceId IS NULL) OR (d.device_id = pDeviceId))

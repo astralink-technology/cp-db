@@ -16,6 +16,7 @@ CREATE FUNCTION add_sync(
         , pSyncIvrs boolean
         , pSyncAnnouncements boolean
         , pSyncPin boolean
+        , pSyncEmployeeProfile boolean
         , pCreateDate timestamp without time zone
         , pLastUpdate timestamp without time zone
         , pOwnerId varchar(32)
@@ -31,6 +32,7 @@ BEGIN
         , sync_ivrs
         , sync_announcements
         , sync_pin
+        , sync_employee_profile
         , create_date
         , last_update
         , owner_id
@@ -42,6 +44,7 @@ BEGIN
         , pSyncIvrs
         , pSyncAnnouncements
         , pSyncPin
+        , pSyncEmployeeProfile
         , pCreateDate
         , pLastUpdate
         , pOwnerId

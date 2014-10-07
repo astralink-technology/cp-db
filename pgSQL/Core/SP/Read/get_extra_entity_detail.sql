@@ -71,7 +71,7 @@ BEGIN
     INTO STRICT
       totalRows
     FROM extra_entity_detail e WHERE (
-      ((pExtraEntityDetailId IS NULL) OR (e.extra_entity_detail_id = pExtraEntityDetailId )) AND
+      ((pExtraEntityDetailId IS NULL) OR (e.extra_entity_detail_id = pExtraEntityDetailId)) AND
       ((pRelatedDetailId IS NULL) OR (e.related_detail_id = pRelatedDetailId)) AND
       ((pRelatedDetailId2 IS NULL) OR (e.related_detail_id2 = pRelatedDetailId2)) AND
       ((pRelatedDetailId3 IS NULL) OR (e.related_detail_id3 = pRelatedDetailId3)) AND
@@ -145,11 +145,18 @@ BEGIN
       LIMIT pPageSize OFFSET pSkipSize;
 
     RETURN QUERY
+<<<<<<< HEAD
 
     SELECT
       *
       , totalRows
     FROM extra_entity_detail_init;
+=======
+      SELECT
+        *
+        , totalRows
+      FROM extra_entity_detail_init;
+>>>>>>> 022f57c903d29bebdc4622e0d1fbec70b6f63db4
 
 END;
 $BODY$
