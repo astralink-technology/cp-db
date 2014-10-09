@@ -148,10 +148,10 @@
           INNER JOIN authentication au ON e.authentication_id = au.authentication_id
           LEFT JOIN access a ON e.entity_id = a.owner_id
           LEFT JOIN extension ext ON ext.extension_id = a.extension_id
-          LEFT JOIN media m ON e.entity_id = m.owner_id
+          LEFT JOIN media m ON e.entity_id = m.owner_id AND m.type IS NULL
           LEFT JOIN address ad ON ad.owner_id = e.entity_id
           LEFT JOIN entity ee ON er.entity_id = ee.entity_id
-          LEFT JOIN media em ON em.owner_id = ee.entity_id
+          LEFT JOIN media em ON em.owner_id = ee.entity_id AND em.type IS NULL
           LEFT JOIN phone ep ON ep.owner_id = ee.entity_id
           WHERE
           (
