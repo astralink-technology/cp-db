@@ -145,18 +145,10 @@ BEGIN
       LIMIT pPageSize OFFSET pSkipSize;
 
     RETURN QUERY
-<<<<<<< HEAD
-
-    SELECT
-      *
-      , totalRows
-    FROM extra_entity_detail_init;
-=======
       SELECT
         *
         , totalRows
       FROM extra_entity_detail_init;
->>>>>>> 022f57c903d29bebdc4622e0d1fbec70b6f63db4
 
 END;
 $BODY$
