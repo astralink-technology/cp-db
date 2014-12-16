@@ -20,25 +20,25 @@ CREATE FUNCTION add_authentication(
         , pRequestAuthenticationStart  timestamp without time zone
         , pRequestAuthenticationEnd  timestamp without time zone
         , pAuthorizationLevel integer
-        , psCreateDate  timestamp without time zone
+        , pCreateDate  timestamp without time zone
         , pLastUpdate  timestamp without time zone
 )
 RETURNS varchar(32) AS 
 $BODY$
 BEGIN
     INSERT INTO authentication (
-	authentication_id 
-	, authentication_string  
-	, authentication_string_lower 
-	, hash 
-	, salt 
-	, last_login 
-	, last_logout
-	, last_change_password 
-	, request_authentication_start 
-	, request_authentication_end 
-	, authorization_level 
-	, create_date
+        authentication_id
+        , authentication_string
+        , authentication_string_lower
+        , hash
+        , salt
+        , last_login
+        , last_logout
+        , last_change_password
+        , request_authentication_start
+        , request_authentication_end
+        , authorization_level
+        , create_date
         , last_update                            
     ) VALUES(
         pAuthenticationId 
