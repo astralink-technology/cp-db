@@ -9,9 +9,9 @@ RAISE INFO 'FUNCTION % DROPPED', fname;
 END$$;
 -- Start function
 CREATE FUNCTION generate_id()
-RETURNS varchar(32)
+  RETURNS varchar(32)
 AS
-$BODY$
+  $BODY$
 DECLARE
     chars text[] := '{0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z}';
     result varchar(32) := '';

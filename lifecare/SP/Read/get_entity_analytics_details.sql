@@ -34,28 +34,28 @@ RETURNS TABLE(
 	, authorization_level int
 	, last_login timestamp without time zone
 	, last_logout timestamp without time zone
-	, authentication_string varchar(64)
+-- 	, authentication_string varchar(64)
 	, device_id varchar(32)
 	, device_type char(1)
-	, phone_id varchar(32)
-	, digits varchar(32)
-	, phone_digits varchar(32)
-	, country_code varchar(4)
-	, code varchar(8)
-	, address_id varchar(32)
-	, apartment varchar(64)
-	, road_name text
-	, road_name2 text
-	, suite varchar(32)
-	, zip varchar(16)
-	, country varchar(128)
-	, province varchar(128)
-	, state varchar(128)
-	, city varchar(128)
-	, address_type char(1)
-	, address_status char(1)
-	, longitude decimal
-	, latitude decimal
+-- 	, phone_id varchar(32)
+-- 	, digits varchar(32)
+-- 	, phone_digits varchar(32)
+-- 	, country_code varchar(4)
+-- 	, code varchar(8)
+-- 	, address_id varchar(32)
+-- 	, apartment varchar(64)
+-- 	, road_name text
+-- 	, road_name2 text
+-- 	, suite varchar(32)
+-- 	, zip varchar(16)
+-- 	, country varchar(128)
+-- 	, province varchar(128)
+-- 	, state varchar(128)
+-- 	, city varchar(128)
+-- 	, address_type char(1)
+-- 	, address_status char(1)
+-- 	, longitude decimal
+-- 	, latitude decimal
 	, median_wakeup_time timestamp without time zone
 	, median_sleeping_time timestamp without time zone
 	, sleep_efficiency integer
@@ -119,28 +119,28 @@ BEGIN
         , a.authorization_level
         , a.last_login
         , a.last_logout
-        , a.authentication_string
+--         , a.authentication_string
         , dr.device_id
         , d.type as device_type
-        , p.phone_id
-        , p.digits
-        , p.phone_digits
-        , p.country_code
-        , p.code
-        , ad.address_id
-        , ad.apartment
-        , ad.road_name
-        , ad.road_name2
-        , ad.suite
-        , ad.zip
-        , ad.country
-        , ad.province
-        , ad.state
-        , ad.city
-        , ad.type as address_type
-        , ad.status as address_status
-        , ad.longitude
-        , ad.latitude
+--         , p.phone_id
+--         , p.digits
+--         , p.phone_digits
+--         , p.country_code
+--         , p.code
+--         , ad.address_id
+--         , ad.apartment
+--         , ad.road_name
+--         , ad.road_name2
+--         , ad.suite
+--         , ad.zip
+--         , ad.country
+--         , ad.province
+--         , ad.state
+--         , ad.city
+--         , ad.type as address_type
+--         , ad.status as address_status
+--         , ad.longitude
+--         , ad.latitude
         , (SELECT ia.date_value2 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'MW' ORDER BY ia.date_value DESC LIMIT 1) as median_wakeup_time
         , (SELECT ia.date_value2 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'MS' ORDER BY ia.date_value DESC LIMIT 1) as median_sleeping_time
         , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'SE' ORDER BY ia.date_value DESC LIMIT 1) as sleep_efficiency

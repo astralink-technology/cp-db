@@ -56,7 +56,7 @@ BEGIN
         , e.extra_data
         , e.entity_id
         , ey.name as entity_name
-          FROM eyecare e inner join entity ey on e.entity_id = ey.entity_id WHERE (
+      FROM eyecare e LEFT JOIN entity ey ON e.entity_id = ey.entity_id WHERE (
           (e.event_type_id = '20014') AND -- Get Weighing Scale Reading
           ((pEntityId IS NULL) OR (e.entity_id = pEntityId)) AND
           ((pDeviceId IS NULL) OR (e.device_id = pDeviceId))

@@ -216,7 +216,7 @@ BEGIN
               (pNightOverlaps = true AND e.create_date BETWEEN pWakeupTime AND pSleepingTime) -- normal day activities
             )
           AND ((pDeviceId = NULL) OR (e.device_id = pDeviceId))  AND (
-                (e.node_name IN ('Door sensor', 'door sensor')  AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
+                (e.node_name IN ('Door sensor', 'door sensor', 'Door Sensor')  AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
                 (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
                 (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
                 (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
@@ -278,7 +278,7 @@ BEGIN
               (pNightOverlaps = true AND e.create_date BETWEEN (pDay || 'T' || '00:00')::timestamp AND pWakeupTime) -- night activities after 12am
             )
           AND ((pDeviceId = NULL) OR (e.device_id = pDeviceId))  AND (
-                (e.node_name IN ('Door sensor', 'door sensor')  AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
+                (e.node_name IN ('Door sensor', 'door sensor', 'Door Sensor')  AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
                 (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
                 (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
                 (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
@@ -352,7 +352,7 @@ BEGIN
           oEventCount
         FROM eyecare e WHERE (
            (
-               (e.node_name IN ('Door sensor', 'door sensor') AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
+               (e.node_name IN ('Door sensor', 'door sensor', 'Door Sensor') AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
                (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
                (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
                (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
@@ -372,7 +372,7 @@ BEGIN
         FROM eyecare ey
         WHERE
            (
-               (ey.node_name IN ('Door sensor', 'door sensor') AND ey.event_type_id = '20001' AND ey.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
+               (ey.node_name IN ('Door sensor', 'door sensor', 'Door Sensor') AND ey.event_type_id = '20001' AND ey.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
                (ey.event_type_id IN ('20002', '20003', '20004') AND ey.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
                (ey.event_type_id IN ('20002', '20003', '20004') AND ey.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
                (ey.event_type_id IN ('20002', '20003', '20005') AND ey.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
