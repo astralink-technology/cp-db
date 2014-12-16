@@ -23,6 +23,7 @@ CREATE FUNCTION update_media(
     , pImgUrl4 text
     , pOwnerId varchar(32)
     , pFileSize decimal
+    , pLastUpdate timestamp without time zone
 )
 RETURNS BOOL AS 
 $BODY$
@@ -40,6 +41,7 @@ DECLARE
     oImgUrl4 text;
     oOwnerId varchar(32);
     oFileSize decimal;
+    oLastUpdate timestamp without time zone;
 
     nTitle varchar(32);
     nType char(1);
@@ -54,6 +56,7 @@ DECLARE
     nImgUrl4 text;
     nOwnerId varchar(32);
     nFileSize decimal;
+    nLastUpdate timestamp without time zone;
 BEGIN
     -- ID is needed if not return
     IF pMediaId IS NULL THEN  
@@ -74,6 +77,7 @@ BEGIN
             , m.img_url4
             , m.owner_id
             , m.file_size
+            , m.last_update
         INTO STRICT
             oTitle
             , oType
@@ -88,7 +92,8 @@ BEGIN
             , oImgUrl4
             , oOwnerId
             , oFileSize
-        FROM media m WHERE 
+            , oLastUpdate
+        FROM media m WHERE
             m.media_id = pMediaId;
 
         -- Start the updating process
@@ -196,24 +201,31 @@ BEGIN
             nFileSize := pFileSize;
         END IF;
 
+        IF pLastUpdate IS NULL THEN
+            nLastUpdate := oLastUpdate;
+        ELSE
+            nLastUpdate := pLastUpdate;
+        END IF;
+
         -- start the update
         UPDATE 
             media
         SET 
-            title = pTitle
-            , type = pType
-            , file_name = pFileName
-            , media_url = pMediaUrl
-            , status = pStatus
-            , description = pDescription
-            , file_type = pFileType
-            , img_url = pImgUrl
-            , img_url2 = pImgUrl2
-            , img_url3 = pImgUrl3
-            , img_url4 = pImgUrl4
-            , owner_id = pOwnerId
-            , file_size = pFileSize
-        WHERE 
+            title = nTitle
+            , type = nType
+            , file_name = nFileName
+            , media_url = nMediaUrl
+            , status = nStatus
+            , description = nDescription
+            , file_type = nFileType
+            , img_url = nImgUrl
+            , img_url2 = nImgUrl2
+            , img_url3 = nImgUrl3
+            , img_url4 = nImgUrl4
+            , owner_id = nOwnerId
+            , file_size = nFileSize
+            , last_update = nLastUpdate
+        WHERE
             media_id = pMediaId;
 
         RETURN TRUE;

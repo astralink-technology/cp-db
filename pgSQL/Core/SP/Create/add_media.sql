@@ -29,37 +29,37 @@ RETURNS varchar(32) AS
 $BODY$
 BEGIN
     INSERT INTO media(
-	media_id
-	, title 
-	, type
-  , file_name
-	, media_url
-	, status 
-	, create_date
-	, description
-	, file_type
-	, img_url
-	, img_url2
-	, img_url3
-	, img_url4
-	, owner_id
-	, file_size
+      media_id
+      , title
+      , type
+      , file_name
+      , media_url
+      , status
+      , create_date
+      , description
+      , file_type
+      , img_url
+      , img_url2
+      , img_url3
+      , img_url4
+      , owner_id
+      , file_size
     ) VALUES(
-	pMediaId
-	, pTitle
-	, pType
-  , pFilename
-	, pMediaUrl
-	, pStatus
-	, pCreateDate
-	, pDescription
-	, pFileType
-	, pImgUrl
-	, pImgUrl2
-	, pImgUrl3
-	, pImgUrl4
-	, pOwnerId
-	, pFileSize
+      pMediaId
+      , pTitle
+      , pType
+      , pFilename
+      , pMediaUrl
+      , pStatus
+      , pCreateDate
+      , pDescription
+      , pFileType
+      , pImgUrl
+      , pImgUrl2
+      , pImgUrl3
+      , pImgUrl4
+      , pOwnerId
+      , pFileSize
     );
     RETURN pMediaId;
 END;

@@ -36,3 +36,7 @@ ALTER TABLE media
     DROP COLUMN entity_id;
 ALTER TABLE media
     RENAME COLUMN device_id TO owner_id;
+
+-- Atlers to media table 20141216
+ALTER TABLE media
+    ADD COLUMN last_update timestamp without time zone;

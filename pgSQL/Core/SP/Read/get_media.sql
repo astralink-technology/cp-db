@@ -36,6 +36,7 @@ RETURNS TABLE(
 	, create_date timestamp without time zone
 	, owner_id varchar(32)
 	, file_size decimal
+	, last_update timestamp without time zone
 	, total_rows integer
 ) AS
 $BODY$
@@ -76,6 +77,7 @@ BEGIN
       , m.create_date
       , m.owner_id
       , m.file_size
+      , m.last_update
     FROM media m WHERE (
       ((pMediaId IS NULL) OR (m.media_id = pMediaId)) AND
       ((pTitle IS NULL) OR (m.title = pTitle)) AND

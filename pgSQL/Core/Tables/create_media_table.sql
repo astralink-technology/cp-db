@@ -12,6 +12,7 @@ create table media (
 	img_url3 text,
 	img_url4 text,
 	create_date timestamp without time zone,
+	last_update timestamp without time zone,
 	owner_id varchar(32),
 	file_size decimal
 );

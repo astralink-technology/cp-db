@@ -16,8 +16,6 @@ CREATE FUNCTION get_announcement(
 	, pStatus char(1)
 	, pFileType varchar(16)
 	, pOwnerId varchar(32)
-	, pLocalCloudAccessId varchar(32)
-	, pRemoteCloudAccessId varchar(32)
 	, pPageSize integer
 	, pSkipSize integer
 )
@@ -37,6 +35,7 @@ RETURNS TABLE(
 	, create_date timestamp without time zone
 	, owner_id varchar(32)
 	, file_size decimal
+	, last_update timestamp without time zone
 	, total_rows integer
 ) AS
 $BODY$
@@ -48,7 +47,7 @@ BEGIN
       COUNT(*)
     INTO STRICT
       totalRows
-    FROM media m LEFT JOIN cloud_access ca ON m.owner_id = ca.owner_id;
+    FROM media m WHERE m.type = 'A';
 
     -- create a temp table to get the data
     CREATE TEMP TABLE media_init AS
@@ -68,7 +67,8 @@ BEGIN
       , m.create_date
       , m.owner_id
       , m.file_size
-    FROM media m LEFT JOIN cloud_access ca ON m.owner_id = ca.owner_id WHERE (
+      , m.last_update
+    FROM media m WHERE (
       (m.type = 'A') AND
       ((pMediaId IS NULL) OR (m.media_id = pMediaId)) AND
       ((pTitle IS NULL) OR (m.title = pTitle)) AND
@@ -76,9 +76,7 @@ BEGIN
       ((pMediaUrl IS NULL) OR (m.media_url = pMediaUrl))AND
       ((pStatus IS NULL) OR (m.status = pStatus))AND
       ((pFileType IS NULL) OR (m.file_type = pFileType))AND
-      ((pOwnerId IS NULL) OR (m.owner_id = pOwnerId)) AND
-      ((pLocalCloudAccessId IS NULL) OR (ca.local_cloud_access_id = pLocalCloudAccessId)) AND
-      ((pRemoteCloudAccessId IS NULL) OR (ca.cloud_access_id = pRemoteCloudAccessId))
+      ((pOwnerId IS NULL) OR (m.owner_id = pOwnerId))
 	)
   ORDER BY m.create_date
   LIMIT pPageSize OFFSET pSkipSize;
