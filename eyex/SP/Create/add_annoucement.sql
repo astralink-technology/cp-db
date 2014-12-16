@@ -13,6 +13,7 @@ CREATE FUNCTION add_announcement(
 	, pDescription text
 	, pCreateDate timestamp without time zone
 	, pOwnerId varchar(32)
+	, pLastUpdate timestamp without time zone
 )
 RETURNS varchar(32) AS 
 $BODY$
@@ -24,6 +25,7 @@ BEGIN
       , create_date
       , description
       , owner_id
+      , last_update
     ) VALUES(
       pAnnouncementId
       , 'Announcement'
@@ -31,6 +33,7 @@ BEGIN
       , pCreateDate
       , pDescription
       , pOwnerId
+      , pLastUpdate
     );
     RETURN pAnnouncementId;
 END;
