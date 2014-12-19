@@ -23,6 +23,7 @@ RETURNS TABLE(
     , last_update timestamp without time zone
     , owner_id varchar(32)
     , token text
+    , authentication_string_lower varchar(32)
     , total_rows integer
   )
 AS
@@ -35,7 +36,8 @@ BEGIN
       COUNT(*)
     INTO STRICT
       totalRows
-    FROM cloud_access;
+    FROM cloud_access ca INNER JOIN entity e ON e.entity_id = ca.owner_id
+    INNER JOIN authentication a ON a.authentication_id = e.authentication_id;
 
     -- create a temp table to get the data
     CREATE TEMP TABLE cloud_access_init AS
@@ -48,7 +50,9 @@ BEGIN
         , ca.last_update
         , ca.owner_id
         , ca.token
-          FROM cloud_access ca WHERE (
+        , a.authentication_string_lower
+          FROM cloud_access ca INNER JOIN entity e ON e.entity_id = ca.owner_id
+          INNER JOIN authentication a ON a.authentication_id = e.authentication_id WHERE (
            ((pCloudAccessId IS NULL) OR (ca.cloud_access_id = pCloudAccessId)) AND
            ((pOwnerId IS NULL) OR (ca.owner_id = pOwnerId))
           )
