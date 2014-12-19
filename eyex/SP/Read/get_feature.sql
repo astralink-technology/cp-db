@@ -56,21 +56,20 @@ BEGIN
     -- create a temp table to get the data
     CREATE TEMP TABLE feature_init AS
       SELECT
-          feature_id
-          , remote_door
-          , local_door
-          , extension_door
-          , voicemail
-          , voicemail_password
-          , voicemail_extension
-          , pickup
-          , extra1
-          , extra2
-          , extra3
-          , extra4
-          , last_update
-          , owner_id
-          , totalRows
+          f.feature_id
+          , f.remote_door
+          , f.local_door
+          , f.extension_door
+          , f.voicemail
+          , f.voicemail_password
+          , f.voicemail_extension
+          , f.pickup
+          , f.extra1
+          , f.extra2
+          , f.extra3
+          , f.extra4
+          , f.last_update
+          , f.owner_id
           FROM feature f WHERE (
            ((pFeatureId IS NULL) OR (f.feature_id = pFeatureId)) AND
            ((pRemoteDoor IS NULL) OR (f.remote_door = pRemoteDoor)) AND
@@ -91,7 +90,7 @@ BEGIN
     SELECT
       *
       , totalRows
-    FROM access_init;
+    FROM feature_init;
 END;
 $BODY$
 LANGUAGE plpgsql;
