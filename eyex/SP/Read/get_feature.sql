@@ -32,7 +32,7 @@ RETURNS TABLE(
   , voicemail varchar(32)
   , voicemail_password varchar(32)
   , voicemail_extension varchar(32)
-  , pickup varchar(32)
+  , pic kup varchar(32)
   , extra1 varchar(32)
   , extra2 varchar(32)
   , extra3 varchar(32)

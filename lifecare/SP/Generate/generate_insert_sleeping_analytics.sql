@@ -98,7 +98,7 @@ BEGIN
             , null
             , null
             , 'S'
-            , (NOW()  at time zone 'utc')::timestamp
+            , (NOW() at time zone 'utc')::timestamp
             , tempDeviceId
         );
 

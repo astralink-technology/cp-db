@@ -161,10 +161,11 @@ BEGIN
             FROM eyecare e WHERE e.device_id = pDeviceId AND
               (e.create_date BETWEEN (pDay || ' ' ||  '00:00:00')::timestamp AND (pDay || ' ' ||  '23:59:59')::timestamp) AND ((
                   (e.node_name IN ('Door sensor', 'door sensor', 'Door Sensor')  AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
-                  (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
-                  (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-                  (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom')) OR -- Get only the sensor off in the bathroom
+                    (e.event_type_id IN ('20002', '20003', '20004') AND (e.zone = 'Master Bedroom' OR e.zone_code = 'MB')) OR -- Bedroom motion sensor alarm on
+                    (e.event_type_id IN ('20002', '20003', '20004') AND (e.zone = 'Kitchen' OR e.zone_code = 'KI')) OR -- Kitchen  motion sensor alarm on
+                    (e.event_type_id IN ('20002', '20003', '20005') AND (e.zone = 'Bathroom' OR e.zone_code = 'BT1')) OR -- Get only the sensor off in the bathroom
                   (e.event_type_id IN ('20013')) -- Get BP HR Reading
+                  )
                    ))ee
       WHERE ee.inactivity_duration > 299 AND -- more than 5 minutes to consider inactive
       ee.create_date NOT IN (SELECT * FROM away_start_end_timings_init) AND
@@ -188,10 +189,11 @@ BEGIN
             FROM eyecare e WHERE e.device_id = pDeviceId AND
               (e.create_date BETWEEN (pDay || ' ' ||  '00:00:00')::timestamp AND (pDay || ' ' ||  '23:59:59')::timestamp) AND ((
                   (e.node_name IN ('Door sensor', 'door sensor', 'Door Sensor')  AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
-                  (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
-                  (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-                  (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom')) OR -- Get only the sensor off in the bathroom
+                    (e.event_type_id IN ('20002', '20003', '20004') AND (e.zone = 'Master Bedroom' OR e.zone_code = 'MB')) OR -- Bedroom motion sensor alarm on
+                    (e.event_type_id IN ('20002', '20003', '20004') AND (e.zone = 'Kitchen' OR e.zone_code = 'KI')) OR -- Kitchen  motion sensor alarm on
+                    (e.event_type_id IN ('20002', '20003', '20005') AND (e.zone = 'Bathroom' OR e.zone_code = 'BT1')) OR -- Get only the sensor off in the bathroom
                   (e.event_type_id IN ('20013')) -- Get BP HR Reading
+                  )
                    ))ee
       WHERE ee.inactivity_duration > 299 AND -- more than 5 minutes to consider inactive
       ee.create_date NOT IN (SELECT * FROM away_start_end_timings_init) AND
@@ -212,10 +214,11 @@ BEGIN
               FROM eyecare e WHERE e.device_id = pDeviceId AND
               (e.create_date BETWEEN (pDay || ' ' ||  '00:00:00')::timestamp AND (pDay || ' ' ||  '23:59:59')::timestamp) AND ((
                     (e.node_name IN ('Door sensor', 'door sensor', 'Door Sensor')  AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
-                    (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
-                    (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-                    (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom')) OR -- Get only the sensor off in the bathroom
+                    (e.event_type_id IN ('20002', '20003', '20004') AND (e.zone = 'Master Bedroom' OR e.zone_code = 'MB')) OR -- Bedroom motion sensor alarm on
+                    (e.event_type_id IN ('20002', '20003', '20004') AND (e.zone = 'Kitchen' OR e.zone_code = 'KI')) OR -- Kitchen  motion sensor alarm on
+                    (e.event_type_id IN ('20002', '20003', '20005') AND (e.zone = 'Bathroom' OR e.zone_code = 'BT1')) OR -- Get only the sensor off in the bathroom
                     (e.event_type_id IN ('20013')) -- Get BP HR Reading
+                    )
                      ))ee
         WHERE ee.inactivity_duration > 299 AND -- more than 5 minutes to consider inactive
         ee.create_date NOT IN (SELECT * FROM away_start_end_timings_init) AND

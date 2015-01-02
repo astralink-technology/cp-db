@@ -34,23 +34,27 @@ BEGIN
               , e.next_create_date
               , e.current_zone
               , e.next_zone
+              , e.next_zone_code
               , EXTRACT(epoch FROM((e.next_create_date - e.create_date)))::integer + 24 AS duration
                   FROM (SELECT e.*,
                      lead(e.create_date) over (ORDER BY eyecare_id) AS next_create_date,
                      lead(e.event_type_id) over (ORDER BY eyecare_id) AS next_event_type,
                      lag(e.zone) over (ORDER BY eyecare_id) AS prev_zone,
                      e.zone as current_zone,
-                     lead(e.zone) over (ORDER BY eyecare_id) AS next_zone
+                     e.zone_code as current_zone_code,
+                     lead(e.zone) over (ORDER BY eyecare_id) AS next_zone,
+                     lead(e.zone_code) over (ORDER BY eyecare_id) AS next_zone_code
                 FROM eyecare e WHERE
                  ((pDeviceId = NULL) OR (e.device_id = pDeviceId))  AND
                   e.create_date BETWEEN (pDay  || 'T' || '00:00')::timestamp AND ((pDay || 'T' || '23:59')::timestamp) AND((
                     (e.node_name IN ('Door sensor', 'door sensor', 'Door Sensor')  AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
-                    (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
-                    (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-                    (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom')) OR -- Get only the sensor off in the bathroom
+                    (e.event_type_id IN ('20002', '20003', '20004') AND (e.zone = 'Master Bedroom' OR e.zone_code = 'MB')) OR -- Bedroom motion sensor alarm on
+                    (e.event_type_id IN ('20002', '20003', '20004') AND (e.zone = 'Kitchen' OR e.zone_code = 'KI')) OR -- Kitchen  motion sensor alarm on
+                    (e.event_type_id IN ('20002', '20003', '20005') AND (e.zone = 'Bathroom' OR e.zone_code = 'BT1')) OR -- Get only the sensor off in the bathroom
                     (e.event_type_id IN ('20013')) -- Get BP HR Reading
+                    )
                      )) e
-                 WHERE e.current_zone = 'Bathroom'
+                 WHERE (e.current_zone = 'Bathroom' OR e.current_zone_code = 'BT1')
                  AND (EXTRACT(epoch FROM((e.next_create_date - e.create_date)))::integer < 600) -- filter out values greater than 10 minutes as thats not possible
                  )er;
 
@@ -65,7 +69,7 @@ BEGIN
     FOR bRow IN SELECT * from bathroom_usage_intervals_raw LOOP
 
       --loop through all the record
-      IF bRow.next_zone = 'Bathroom' THEN
+      IF (bRow.next_zone = 'Bathroom' OR bRow.next_zone_code = 'BT1') THEN
           bTempDuration = bTempDuration + bRow.duration;
       ELSEIF bRow.prev_row_create_date IS NOT NULL AND EXTRACT(epoch FROM((bRow.next_row_create_date - bRow.create_date)))::integer < 300 THEN
           bTempDuration = bTempDuration + bRow.duration;

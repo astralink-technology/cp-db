@@ -52,9 +52,9 @@
       WHERE e.create_date BETWEEN (pDay  || 'T' || '00:00')::timestamp AND ((pDay || 'T' || '23:59')::timestamp)
       AND ((pDeviceId = NULL) OR (e.device_id = pDeviceId))  AND (
             (e.node_name = 'Door sensor' AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
-            (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
-            (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-            (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
+            (e.event_type_id IN ('20002', '20003', '20004') AND (e.zone = 'Master Bedroom' OR e.zone_code = 'MB')) OR -- Bedroom motion sensor alarm on
+            (e.event_type_id IN ('20002', '20003', '20004') AND (e.zone = 'Kitchen' OR e.zone_code = 'KI')) OR -- Kitchen  motion sensor alarm on
+            (e.event_type_id IN ('20002', '20003', '20005') AND (e.zone = 'Bathroom' OR e.zone_code = 'BT1')) OR -- Get only the sensor off in the bathroom
                 (e.event_type_id IN ('20013')) -- Get BP HR Reading
              )
       ORDER BY eyecare_id LIMIT 1;
@@ -68,14 +68,14 @@
               WHERE e.create_date BETWEEN (pDay  || 'T' || '00:00')::timestamp AND ((pDay || 'T' || '23:59')::timestamp) AND
               ((pDeviceId = NULL) OR (e.device_id = pDeviceId)) AND (
               (e.node_name = 'Door sensor' AND e.event_type_id = '20001' AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
-              (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Master Bedroom') OR -- Bedroom motion sensor alarm on
-              (e.event_type_id IN ('20002', '20003', '20004') AND e.zone = 'Kitchen') OR -- Kitchen  motion sensor alarm on
-              (e.event_type_id IN ('20002', '20003', '20005') AND e.zone = 'Bathroom') OR -- Get only the sensor off in the bathroom
+              (e.event_type_id IN ('20002', '20003', '20004') AND (e.zone = 'Master Bedroom' OR e.zone_code = 'MB')) OR -- Bedroom motion sensor alarm on
+              (e.event_type_id IN ('20002', '20003', '20004') AND (e.zone = 'Kitchen' OR e.zone_code = 'KI')) OR -- Kitchen  motion sensor alarm on
+              (e.event_type_id IN ('20002', '20003', '20005') AND (e.zone = 'Bathroom' OR e.zone_code = 'BT1')) OR -- Get only the sensor off in the bathroom
                 (e.event_type_id IN ('20013')) -- Get BP HR Reading
           )
-             ) e WHERE
+         ) e WHERE
         e.event_type_id = '20001'
-        AND e.zone = 'Living room'
+        AND (e.zone = 'Living room' OR e.zone_code = 'LR')
         AND e.extra_data = 'Alarm Off'
         AND (next_event_type_id IS NULL OR next_event_type_id IN ('20001'))
         AND (next_create_date > create_date + 0.5 * INTERVAL '1 hour' OR next_create_date IS NULL);

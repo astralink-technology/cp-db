@@ -39,8 +39,6 @@ BEGIN
         -- Start the updating process
         IF pDescription IS NULL THEN
             nDescription := oDescription;
-        ELSEIF pDescription = '' THEN
-            nDescription := NULL;
         ELSE
             nDescription := pDescription;
         END IF;

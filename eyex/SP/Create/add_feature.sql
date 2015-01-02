@@ -22,7 +22,7 @@ CREATE FUNCTION add_feature(
         , pExtra2 varchar(32)
         , pExtra3 varchar(32)
         , pExtra4 varchar(32)
-        , pLastUpdate varchar(32)
+        , pLastUpdate timestamp without time zone
         , pOwnerId varchar(32)
 )
 RETURNS varchar(32) AS 

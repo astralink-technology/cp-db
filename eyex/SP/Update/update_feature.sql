@@ -21,7 +21,7 @@ CREATE FUNCTION update_feature(
         , pExtra2 varchar(32)
         , pExtra3 varchar(32)
         , pExtra4 varchar(32)
-        , pLastUpdate varchar(32)
+        , pLastUpdate timestamp without time zone
 )
 RETURNS BOOL AS 
 $BODY$
@@ -37,7 +37,7 @@ DECLARE
       oExtra2 varchar(32);
       oExtra3 varchar(32);
       oExtra4 varchar(32);
-      oLastUpdate varchar(32);
+      oLastUpdate timestamp without time zone;
 
       nRemoteDoor varchar(32);
       nLocalDoor varchar(32);
@@ -50,7 +50,7 @@ DECLARE
       nExtra2 varchar(32);
       nExtra3 varchar(32);
       nExtra4 varchar(32);
-      nLastUpdate varchar(32);
+      nLastUpdate timestamp without time zone;
 BEGIN
     -- Feature ID is needed if not return
     IF pFeatureId IS NULL THEN
@@ -89,18 +89,12 @@ BEGIN
         -- Start the updating process
         IF pRemoteDoor IS NULL THEN 
             nRemoteDoor := oRemoteDoor;
-        ELSEIF pRemoteDoor = '' THEN   
-            -- defaulted null
-            nRemoteDoor := NULL;
         ELSE
             nRemoteDoor := pRemoteDoor;
         END IF;
         
         IF pLocalDoor IS NULL THEN 
             nLocalDoor := oLocalDoor;
-        ELSEIF pLocalDoor = '' THEN   
-            -- defaulted null
-            nLocalDoor := NULL;
         ELSE
             nLocalDoor := pLocalDoor;
         END IF;
@@ -194,7 +188,7 @@ BEGIN
 
         -- start the update
         UPDATE 
-            access
+            feature
         SET
             remote_door = nRemoteDoor
             , local_door = nLocalDoor
