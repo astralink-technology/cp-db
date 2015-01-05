@@ -21,6 +21,7 @@ RETURNS TABLE(
   , door_name varchar(64)
   , door_node integer
   , owner_id varchar(32)
+  , last_update timestamp without time zone
 	, totalRows integer
   )
 AS
@@ -47,7 +48,7 @@ BEGIN
            ((pDoorId IS NULL) OR (d.door_id = pDoorId)) AND
            ((pDoorName IS NULL) OR (d.door_name = pDoorName)) AND
            ((pDoorNode IS NULL) OR (d.door_node = pDoorNode)) AND
-           ((pOwnerId IS NULL) OR (f.owner_id = pOwnerId))
+           ((pOwnerId IS NULL) OR (d.owner_id = pOwnerId))
           )
           LIMIT pPageSize OFFSET pSkipSize;
 

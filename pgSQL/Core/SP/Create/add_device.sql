@@ -13,8 +13,8 @@ CREATE FUNCTION add_device(
 	, pName varchar(32)
 	, pCode varchar(32)
 	, pStatus char(1)
-	, pType char(1)
-	, pType2 char(1)
+	, pType varchar(4)
+	, pType2 varchar(4)
 	, pDescription text
 	, pCreateDate timestamp without time zone
 	, pLastUpdate timestamp without time zone

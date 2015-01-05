@@ -14,7 +14,7 @@ CREATE FUNCTION update_door(
         , pDoorNode integer
         , pLastUpdate timestamp without time zone
 )
-RETURNS BOOL AS 
+RETURNS BOOL AS
 $BODY$
 DECLARE
       oDoorName varchar(64);
@@ -50,16 +50,13 @@ BEGIN
         ELSE
             nDoorName := pDoorName;
         END IF;
-        
+
         IF pDoorNode IS NULL THEN
             nDoorNode := oDoorNode;
-        ELSEIF pDoorNode = '' THEN
-            -- defaulted null
-            nDoorNode := NULL;
         ELSE
             nDoorNode := pDoorNode;
         END IF;
-        
+
         IF pLastUpdate IS NULL THEN
             nLastUpdate := oLastUpdate;
         ELSE
@@ -67,7 +64,7 @@ BEGIN
         END IF;
 
         -- start the update
-        UPDATE 
+        UPDATE
             door
         SET
             door_name = nDoorName
@@ -75,9 +72,9 @@ BEGIN
             , last_update = nLastUpdate
         WHERE
             door_id = pDoorId;
-        
+
         RETURN TRUE;
-    
+
     END IF;
 END;
 $BODY$

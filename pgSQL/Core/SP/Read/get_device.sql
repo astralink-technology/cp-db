@@ -13,8 +13,8 @@ CREATE FUNCTION get_device(
 	, pName varchar(32) 
 	, pCode varchar(32)
 	, pStatus char(1)
-	, pType char(1)
-	, pType2 char(1)
+	, pType varchar(4)
+	, pType2 varchar(4)
 	, pOwnerId varchar(32)
   , pPageSize integer
   , pSkipSize integer
@@ -24,8 +24,8 @@ RETURNS TABLE(
 	, name varchar(32) 
 	, code varchar(32)
 	, status char(1)
-	, type char(1)
-	, type2 char(1)
+	, type varchar(4)
+	, type2 varchar(4)
 	, description text
 	, create_date timestamp without time zone
 	, last_update timestamp without time zone

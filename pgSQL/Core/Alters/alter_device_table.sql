@@ -17,3 +17,9 @@ ALTER TABLE device
 -- Alters to device table 20140621
 ALTER TABLE device
     ADD COLUMN deployment_date date
+
+-- Alters to device table 20150105
+ALTER TABLE device
+    ALTER COLUMN type TYPE varchar(4);
+ALTER TABLE device
+    ALTER COLUMN type2 TYPE varchar(4);

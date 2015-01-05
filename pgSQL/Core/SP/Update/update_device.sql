@@ -13,8 +13,8 @@ CREATE FUNCTION update_device(
     , pName varchar(32)
     , pCode varchar(32)
     , pStatus char(1)
-    , pType char(1)
-    , pType2 char(1)
+    , pType varchar(4)
+    , pType2 varchar(4)
     , pDescription text
     , pLastUpdate timestamp without time zone
     , pOwnerId varchar(32)
@@ -26,8 +26,8 @@ DECLARE
     nName varchar(32);
     nCode varchar(32);
     nStatus char(1);
-    nType char(1);
-    nType2 char(1);
+    nType varchar(4);
+    nType2 varchar(4);
     nDescription text;
     nLastUpdate timestamp without time zone;
     nOwnerId varchar(32);
@@ -36,8 +36,8 @@ DECLARE
     oName varchar(32);
     oCode varchar(32);
     oStatus char(1);
-    oType char(1);
-    oType2 char(1);
+    oType varchar(4);
+    oType2 varchar(4);
     oDescription text;
     oLastUpdate timestamp without time zone;
     oOwnerId varchar(32);
