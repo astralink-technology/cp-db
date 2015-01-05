@@ -32,7 +32,7 @@ BEGIN
         INTO STRICT
           oCardSerial
         FROM card c WHERE
-            c.card_id = pCard;
+            c.card_id = pCardId;
 
         -- Start the updating process
         IF pCardSerial IS NULL THEN
@@ -60,7 +60,6 @@ BEGIN
         SET
             card_serial = nCardSerial
             , type = nType
-            , last_update = nLastUpdate
         WHERE
             card_id = pCardId;
         
