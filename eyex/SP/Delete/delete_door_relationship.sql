@@ -10,16 +10,20 @@ END$$;
 -- Start function
 CREATE FUNCTION delete_door_relationship(
         pDoorRelationshipId varchar(32)
+        , pDoorId varchar(32)
+        , pDeviceId varchar(32)
 )
 RETURNS BOOLEAN AS 
 $BODY$
 BEGIN
 -- Door Relationship ID is needed if not return
-    IF pDoorRelationshipId  IS NULL THEN
+    IF pDoorRelationshipId  IS NULL AND pDoorId IS NULL AND pDeviceId IS NULL THEN
         RETURN FALSE;
     ELSE
-        DELETE from door_relationship where
-        door_relationship_id = pDoorRelationshipId;
+        DELETE FROM door_relationship WHERE
+          ((pDoorRelationshipId IS NULL) OR (door_relationship_id = pDoorRelationshipId)) AND
+          ((pDoorId IS NULL) OR (door_id = pDoorId)) AND
+          ((pDeviceId IS NULL) OR (device_id = pDeviceId));
         RETURN TRUE;
     END IF;
 END;

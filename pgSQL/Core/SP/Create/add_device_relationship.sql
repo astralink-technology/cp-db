@@ -15,6 +15,7 @@ CREATE FUNCTION add_device_relationship(
 	, pLastUpdate timestamp without time zone
 	, pCreateDate timestamp without time zone
 	, pAppName varchar(64)
+	, pAuthorize char(1)
 )
 RETURNS varchar(32) AS
 $BODY$
@@ -26,13 +27,15 @@ BEGIN
       , last_update
       , create_date
       , app_name
+      , authorize
     ) VALUES(
 	pDeviceRelationshipId
       , pDeviceId
       , pOwnerId
       , pLastUpdate
       , pCreateDate
-	, pAppName
+	    , pAppName
+	    , pAuthorize
     );
     RETURN pDeviceRelationshipId;
 END;

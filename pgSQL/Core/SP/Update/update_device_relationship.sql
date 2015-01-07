@@ -14,6 +14,7 @@ CREATE FUNCTION update_device_relationship(
     , pOwnerId varchar(32)
     , pLastUpdate timestamp without time zone
     , pAppName varchar(64)
+    , pAuthorize char(1)
 )
 RETURNS BOOL AS
 $BODY$
@@ -22,11 +23,13 @@ DECLARE
      nOwnerId varchar(32);
      nLastUpdate timestamp without time zone;
      nAppName varchar(64);
+     nAuthorize char(1);
 
      oDeviceId varchar(32);
      oOwnerId varchar(32);
      oLastUpdate timestamp without time zone;
      oAppName varchar(64);
+     oAuthorize char(1);
 BEGIN
     -- ID is needed if not return
     IF pDeviceRelationshipId IS NULL THEN  
@@ -38,11 +41,13 @@ BEGIN
             , dr.owner_id
             , dr.last_update
             , dr.app_name
+            , dr.authorize
         INTO STRICT
             oDeviceId
             , oOwnerId
             , oLastUpdate
             , oAppName
+            , oAuthorize
         FROM device_relationship dr WHERE
             dr.device_relationship_id = pDeviceRelationshipId;
 
@@ -79,6 +84,14 @@ BEGIN
             nAppName := pAppName;
         END IF;
 
+        IF pAuthorize IS NULL THEN
+            nAuthorize := oAuthorize;
+        ELSEIF pAuthorize = '' THEN
+            nAuthorize := NULL;
+        ELSE
+            nAuthorize := pAuthorize;
+        END IF;
+
         -- start the update
         UPDATE 
             device_relationship
@@ -87,6 +100,7 @@ BEGIN
             , owner_id = nOwnerId
             , last_update = nLastUpdate
             , app_name = nAppName
+            , authorize = nAuthorize
         WHERE
             device_relationship_id = pDeviceRelationshipId;
 

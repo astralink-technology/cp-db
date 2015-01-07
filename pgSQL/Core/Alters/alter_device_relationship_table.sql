@@ -20,3 +20,7 @@ ALTER TABLE device_relationship
 -- Alters to device relationship table 20140407
 ALTER TABLE device_relationship
     ADD COLUMN app_name varchar(64);
+
+-- Alters to device relationship table 20150106
+ALTER TABLE device_relationship
+    ADD COLUMN authorize char(1);

@@ -10,16 +10,20 @@ END$$;
 -- Start function
 CREATE FUNCTION delete_device_relationship(
         pDeviceRelationshipId varchar(32)
+        , pOwnerId varchar(32)
+        , pDeviceId varchar(32)
 )
 RETURNS BOOLEAN AS 
 $BODY$
 BEGIN
 -- Phone ID is needed if not return
-    IF pDeviceRelationshipId IS NULL THEN  
+    IF (pDeviceRelationshipId IS NULL OR pOwnerID IS NULL OR pDeviceId IS NULL)THEN
         RETURN FALSE;
     ELSE
         DELETE from device_relationship where 
-        device_relationship_id = pDeviceRelationshipId;
+        ((pDeviceRelationshipId IS NULL) OR device_relationship_id = pDeviceRelationshipId) AND
+        ((pOwnerId IS NULL) OR (owner_id = pOwnerId)) AND
+        ((pDeviceId IS NULL) OR (device_id = pDeviceId));
         RETURN TRUE;
     END IF;
 END;
