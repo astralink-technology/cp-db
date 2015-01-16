@@ -2,48 +2,41 @@
 DO $$
 DECLARE fname text;
 BEGIN
-FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'update_card' LOOP
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'update_leave_approval' LOOP
   EXECUTE 'DROP FUNCTION ' || fname;
 END loop;
 RAISE INFO 'FUNCTION % DROPPED', fname;
 END$$;
 -- Start function
-CREATE FUNCTION update_card(
-    pCardId varchar(32)
-  , pCardSerial varchar(32)
+CREATE FUNCTION update_leave_approval(
+    pLeaveApprovalId varchar(32)
   , pType CHAR(1)
+  , pNotes TEXT
 )
   RETURNS BOOL AS
   $BODY$
 DECLARE
-    oCardSerial varchar(32);
     oType CHAR(1);
+    oNotes TEXT;
 
-    nCardSerial varchar(32);
     nType CHAR(1);
+    nNotes TEXT;
 BEGIN
     -- Rule ID is needed if not return
-    IF pCardId IS NULL THEN
+    IF pLeaveApprovalId IS NULL THEN
         RETURN FALSE;
     ELSE
         -- select the variables into the old variables
         SELECT
-            c.card_serial
+            l.type
+            , l.notes
         INTO STRICT
-          oCardSerial
-        FROM card c WHERE
-            c.card_id = pCardId;
+          oType
+          , oNotes
+        FROM leave_approval l WHERE
+            l.leave_approval_id = pLeaveApprovalId;
 
         -- Start the updating process
-        IF pCardSerial IS NULL THEN
-          nCardSerial := oCardSerial;
-        ELSEIF pCardSerial = '' THEN
-            -- defaulted null
-          nCardSerial := NULL;
-        ELSE
-          nCardSerial := pCardSerial;
-        END IF;
-        
         IF pType IS NULL THEN
           nType := oType;
         ELSEIF pType = '' THEN
@@ -53,15 +46,24 @@ BEGIN
           nType := pType;
         END IF;
 
+        IF pNotes IS NULL THEN
+          nNotes := oNotes;
+        ELSEIF pNotes = '' THEN
+        -- defaulted null
+          nNotes := NULL;
+        ELSE
+          nNotes := pNotes;
+        END IF;
+
 
         -- start the update
         UPDATE
-            card
+            leave_approval
         SET
-            card_serial = nCardSerial
-            , type = nType
+            type = nType
+            , notes = nNotes
         WHERE
-            card_id = pCardId;
+            leave_approval_id = pLeaveApprovalId;
         
         RETURN TRUE;
     
