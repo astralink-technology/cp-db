@@ -94,10 +94,13 @@ BEGIN
       COUNT(*)
     INTO STRICT
       totalRows
-    FROM entity e INNER JOIN
-    authentication a ON a.authentication_id = e.authentication_id  LEFT JOIN
-    device_relationship dr ON dr.owner_id = e.entity_id LEFT JOIN
-    device d ON d.device_id = dr.device_id;
+     FROM entity e INNER JOIN
+      authentication a ON a.authentication_id = e.authentication_id LEFT JOIN
+      device_relationship dr ON dr.owner_id = e.entity_id LEFT JOIN
+      device d ON d.device_id = dr.device_id LEFT JOIN
+      phone p ON p.owner_id = e.entity_id WHERE
+      d.type = 'L';
+--       LEFT JOIN address ad ON ad.owner_id = e.entity_id;
 
     -- create a temp table to get the data
     CREATE TEMP TABLE admin_entity_device_relationship_init AS
@@ -172,8 +175,11 @@ BEGIN
       authentication a ON a.authentication_id = e.authentication_id LEFT JOIN
       device_relationship dr ON dr.owner_id = e.entity_id LEFT JOIN
       device d ON d.device_id = dr.device_id LEFT JOIN
-      phone p ON p.owner_id = e.entity_id LEFT JOIN
-      address ad ON ad.owner_id = e.entity_id   WHERE (
+      phone p ON p.owner_id = e.entity_id
+--       LEFT JOIN address ad ON ad.owner_id = e.entity_id
+      WHERE
+      d.type = 'L' AND
+      (
         ((pDeviceId IS NULL) OR (dr.device_id = pDeviceId)) AND
         ((pEntityId IS NULL) OR (e.entity_id = pEntityId)) AND
         ((pAuthorizationLevels IS NULL) OR (a.authorization_level = pAuthorizationLevels)) AND

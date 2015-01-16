@@ -10,10 +10,10 @@ END$$;
 -- Start function
 CREATE FUNCTION update_entity(
 	pEntityId varchar(32), 
-	pFirstName varchar(32), 
-	pLastName varchar(32),
-	pNickName varchar(32),
-	pName varchar(64),
+	pFirstName varchar(128),
+	pLastName varchar(128),
+	pNickName varchar(256),
+	pName varchar(256),
 	pStatus char(1),
 	pApproved boolean,
 	pType char(1),
@@ -27,10 +27,10 @@ CREATE FUNCTION update_entity(
 RETURNS BOOL AS 
 $BODY$
 DECLARE
-    oFirstName varchar(32); 
-    oLastName varchar(32);
-    oNickName varchar(32);
-    oName varchar(64);
+    oFirstName varchar(128);
+    oLastName varchar(128);
+    oNickName varchar(256);
+    oName varchar(256);
     oStatus char(1);
     oApproved boolean;
     oType char(1);
@@ -41,10 +41,10 @@ DECLARE
     oDateEstablished timestamp without time zone;
     oDisabled boolean;
 
-    nFirstName varchar(32); 
-    nLastName varchar(32);
-    nNickName varchar(32);
-    nName varchar(64);
+    nFirstName varchar(128);
+    nLastName varchar(128);
+    nNickName varchar(256);
+    nName varchar(256);
     nStatus char(1);
     nApproved boolean;
     nType char(1);

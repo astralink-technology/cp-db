@@ -17,7 +17,7 @@ RETURNS BOOLEAN AS
 $BODY$
 BEGIN
 -- Phone ID is needed if not return
-    IF (pDeviceRelationshipId IS NULL OR pOwnerID IS NULL OR pDeviceId IS NULL)THEN
+    IF pDeviceRelationshipId IS NULL AND pOwnerID IS NULL AND pDeviceId IS NULL THEN
         RETURN FALSE;
     ELSE
         DELETE from device_relationship where 

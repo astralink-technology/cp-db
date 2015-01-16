@@ -19,8 +19,8 @@ BEGIN
         RETURN FALSE;
     ELSE
         DELETE from device_value WHERE (
-        device_id = pDeviceId OR
-        device_value_id = pDeviceValueId
+        ((pDeviceId IS NULL) OR (device_id = pDeviceId)) AND
+        ((pDeviceValueId IS NULL) OR (device_value_id = pDeviceValueId))
 	);
         RETURN TRUE;
     END IF;

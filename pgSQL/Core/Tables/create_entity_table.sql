@@ -1,9 +1,9 @@
 create table entity (
 	entity_id varchar(32) primary key, 
-	first_name varchar(32), 
-	last_name varchar(32),
-	nick_name varchar(32),
-	name varchar(64),
+	first_name varchar(128),
+	last_name varchar(128),
+	nick_name varchar(256),
+	name varchar(256),
 	status char(1),
 	approved boolean,
 	disabled boolean,

@@ -10,10 +10,10 @@ END$$;
 -- Start function
 CREATE FUNCTION add_entity(
 	pEntityId varchar(32),
-	pFirstName varchar(32),
-	pLastName varchar(32),
-	pNickName varchar(32),
-	pName varchar(64),
+	pFirstName varchar(128),
+	pLastName varchar(128),
+	pNickName varchar(256),
+	pName varchar(256),
 	pStatus char(1),
 	pApproved boolean,
 	pType char(1),
