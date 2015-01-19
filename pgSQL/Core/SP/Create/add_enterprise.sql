@@ -20,12 +20,12 @@ RETURNS varchar(32) AS
 $BODY$
 BEGIN
     INSERT INTO enterprise (
-	enterpriseId 
+	      enterprise_id
         , name
         , code
         , description
-        , createDate
-	, lastUpdate
+        , create_date
+	      , last_update
     ) VALUES(
 	pEnterpriseId
         , pName
