@@ -2,7 +2,7 @@
 DO $$
 DECLARE fname text;
 BEGIN
-FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_product' LOOP
+FOR fname IN SELECT oid::regprocedure FROM pg_catalog.pg_proc WHERE proname = 'get_sip' LOOP
   EXECUTE 'DROP FUNCTION ' || fname;
 END loop;
 RAISE INFO 'FUNCTION % DROPPED', fname;
@@ -12,6 +12,8 @@ CREATE FUNCTION get_sip(
     pSipId varchar(32)
     , pUsername varchar(128)
     , pOwnerId varchar(32)
+    , pPageSize integer
+    , pSkipSize integer
 )
 RETURNS TABLE(
     sip_id varchar(32)

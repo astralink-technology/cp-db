@@ -15,6 +15,8 @@ CREATE FUNCTION get_room_value(
         , pStatus char(1)
         , pValue varchar(64)
         , pIntValue decimal
+        , pPageSize integer
+        , pSkipSize integer
     )
 RETURNS TABLE(
     room_value_id varchar(32)

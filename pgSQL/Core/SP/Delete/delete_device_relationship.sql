@@ -16,7 +16,7 @@ CREATE FUNCTION delete_device_relationship(
 RETURNS BOOLEAN AS 
 $BODY$
 BEGIN
--- Phone ID is needed if not return
+-- Device Relationship ID is needed if not return
     IF pDeviceRelationshipId IS NULL AND pOwnerID IS NULL AND pDeviceId IS NULL THEN
         RETURN FALSE;
     ELSE
