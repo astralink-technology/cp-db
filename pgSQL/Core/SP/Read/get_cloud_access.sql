@@ -11,6 +11,7 @@ END$$;
 CREATE FUNCTION get_cloud_access(
         pCloudAccessId varchar(32)
         , pOwnerId varchar(32)
+        , pType varchar(4)
         , pPageSize integer
         , pSkipSize integer
     )
@@ -22,8 +23,8 @@ RETURNS TABLE(
     , create_date timestamp without time zone
     , last_update timestamp without time zone
     , owner_id varchar(32)
+    , type varchar(4)
     , token text
-    , authentication_string_lower varchar(32)
     , total_rows integer
   )
 AS
@@ -36,8 +37,7 @@ BEGIN
       COUNT(*)
     INTO STRICT
       totalRows
-    FROM cloud_access ca INNER JOIN entity e ON e.entity_id = ca.owner_id
-    INNER JOIN authentication a ON a.authentication_id = e.authentication_id;
+    FROM cloud_access ca;
 
     -- create a temp table to get the data
     CREATE TEMP TABLE cloud_access_init AS
@@ -49,11 +49,11 @@ BEGIN
         , ca.create_date
         , ca.last_update
         , ca.owner_id
+        , ca.type
         , ca.token
-        , a.authentication_string_lower
-          FROM cloud_access ca INNER JOIN entity e ON e.entity_id = ca.owner_id
-          INNER JOIN authentication a ON a.authentication_id = e.authentication_id WHERE (
+          FROM cloud_access ca WHERE (
            ((pCloudAccessId IS NULL) OR (ca.cloud_access_id = pCloudAccessId)) AND
+           ((pType IS NULL) OR (ca.type = pType)) AND
            ((pOwnerId IS NULL) OR (ca.owner_id = pOwnerId))
           )
           LIMIT pPageSize OFFSET pSkipSize;

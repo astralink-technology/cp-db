@@ -10,6 +10,7 @@ END$$;
 -- Start function
 CREATE FUNCTION generate_insert_individual_sleeping_time_analytics(
         pDeviceId varchar(32)
+        , pEntityId varchar(32)
         , pDay date
         )
 RETURNS TABLE (
@@ -26,6 +27,7 @@ RETURNS TABLE (
     , intValue3 integer
     , intValue4 integer
     , owner_id varchar(32)
+    , entity_id varchar(32)
 )
 AS
 $BODY$
@@ -50,6 +52,7 @@ BEGIN
     , intValue3 integer
     , intValue4 integer
     , owner_id varchar(32)
+    , entity_id varchar(32)
   )ON COMMIT DROP;
 
   DELETE FROM analytics_value_return;
@@ -76,6 +79,7 @@ BEGIN
       , type
       , create_date
       , owner_id
+      , entity_id
     ) VALUES(
         nAnalyticsValueId
         , 'Sleeping Time'
@@ -89,6 +93,7 @@ BEGIN
         , 'S'
         , (NOW() at time zone 'utc')::timestamp
         , pDeviceId
+        , pEntityId
     );
 
     -- insert into the return table for the return data
@@ -107,6 +112,7 @@ BEGIN
           , null
           , null
           , pDeviceId
+          , pEntityId
       );
 
   RETURN QUERY

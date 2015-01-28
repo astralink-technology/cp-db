@@ -15,6 +15,7 @@ CREATE FUNCTION update_cloud_access(
       , pExtraDateTime timestamp without time zone
       , pLastUpdate timestamp without time zone
       , pToken text
+      , pType varchar(4)
 )
 RETURNS BOOL AS
 $BODY$
@@ -25,6 +26,7 @@ DECLARE
       oExtraDateTime timestamp without time zone;
       oLastUpdate timestamp without time zone;
       oToken text;
+      oType varchar(4);
 
       nCloudAccessId varchar(32);
       nSecret varchar(32);
@@ -32,6 +34,7 @@ DECLARE
       nExtraDateTime timestamp without time zone;
       nLastUpdate timestamp without time zone;
       nToken text;
+      nType varchar(4);
 BEGIN
     -- Rule ID is needed if not return
     IF pCloudAccessId IS NULL THEN
@@ -92,6 +95,15 @@ BEGIN
             nToken := pToken;
         END IF;
 
+        IF pType IS NULL THEN
+            nType := oType;
+        ELSEIF pType = '' THEN
+            -- defaulted null
+            nType := NULL;
+        ELSE
+            nType := pType;
+        END IF;
+
         IF pLastUpdate IS NULL THEN
             nLastUpdate := oLastUpdate;
         ELSE
@@ -107,6 +119,7 @@ BEGIN
             , extra_date_time = nExtraDateTime
             , last_update = nLastUpdate
             , token = nToken
+            , type = nType
         WHERE
             cloud_access_id = pCloudAcessId;
         

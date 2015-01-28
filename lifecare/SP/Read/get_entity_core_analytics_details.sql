@@ -35,7 +35,7 @@ RETURNS TABLE(
 	, last_logout timestamp without time zone
 	, authentication_string varchar(64)
 	, device_id varchar(32)
-	, device_type char(1)
+	, device_type varchar(4)
 	, phone_id varchar(32)
 	, digits varchar(32)
 	, phone_digits varchar(32)

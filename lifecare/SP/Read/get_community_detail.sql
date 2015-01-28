@@ -55,7 +55,7 @@ RETURNS TABLE(
 	, latitude decimal
 	, device_id varchar(32)
 	, device_name varchar(32)
-	, device_type char(1)
+	, device_type varchar(4)
 	, deployment_date date
 	, total_rows integer
 ) AS

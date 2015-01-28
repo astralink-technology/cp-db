@@ -15,6 +15,7 @@ CREATE FUNCTION update_enterprise_relationship(
     , pStatus char(1)
     , pType varchar(4)
     , pLastUpdate timestamp without time zone
+    , pExternalUniqueIdentifier varchar(32)
 )
 RETURNS BOOL AS 
 $BODY$
@@ -24,13 +25,14 @@ DECLARE
     nStatus char(1);
     nType varchar(4);
     nLastUpdate timestamp without time zone;
+    nExternalUniqueIdentifier varchar(32);
 
     oEnterpriseId varchar(32);
     oOwnerId varchar(32);
     oStatus char(1);
     oType varchar(4);
     oLastUpdate timestamp without time zone;
-
+    oExternalUniqueIdentifier varchar(32);
 BEGIN
     -- Enterprise Relationship ID is needed if not return
     IF pEnterpriseRelationshipId IS NULL THEN
@@ -85,6 +87,14 @@ BEGIN
             nType := pType;
         END IF;
 
+        IF pExternalUniqueIdentifier IS NULL THEN 
+            nExternalUniqueIdentifier := oExternalUniqueIdentifier;
+        ELSEIF pFirstExternalUniqueIdentifier = '' THEN  
+            nExternalUniqueIdentifier := NULL;
+        ELSE
+            nExternalUniqueIdentifier := pExternalUniqueIdentifier;
+        END IF;
+
         IF pLastUpdate IS NULL THEN 
             nLastUpdate := oLastUpdate;
         ELSE
@@ -100,7 +110,8 @@ BEGIN
             , status = nStatus
             , type = nType
             , last_update = nLastUpdate
-        WHERE 
+            , external_unique_identifier = nExternalUniqueIdentifier
+        WHERE
             enterprise_relationship_id = pEnterpriseRelationshipId;
 
         RETURN TRUE;

@@ -53,6 +53,7 @@ BEGIN
   CREATE TEMP TABLE IF NOT EXISTS user_away_init(
         owner_id varchar(32)
         , device_id varchar(32)
+        , entity_id varchar(32)
         , name varchar(64)
         , deployment_date date
         , type char(1)
@@ -64,6 +65,7 @@ BEGIN
   (
       owner_id
       , device_id
+      , entity_id
       , name
       , deployment_date
       , type
@@ -71,13 +73,13 @@ BEGIN
     SELECT
       dr.owner_id
       , dr.device_id
+      , e.entity_id
       , e.name
       , d.deployment_date
       , d.type
     FROM device_relationship dr INNER JOIN device d ON d.device_id = dr.device_id
     INNER JOIN entity e ON e.entity_id = dr.owner_id
     WHERE d.type = 'L';
-
 
   pAverageDayActivityLevel = 0;
   pAverageNightActivityLevel = 0;
@@ -89,8 +91,9 @@ BEGIN
       COUNT(*)
     INTO
       pInformativeAnalyticsExistCount
-    FROM informative_analytics WHERE
-      owner_id = uRow.device_id AND
+    FROM informative_analytics ia WHERE
+      ia.owner_id = uRow.device_id AND
+      ia.entity_id = uRow.entity_id AND
       type = 'AVGACT' AND
       date_value = (NOW()::date || ' ' || '00:00:00')::timestamp;
 
@@ -100,7 +103,7 @@ BEGIN
     INTO
       pDayDataPoints
     FROM
-    (SELECT * FROM analytics_value WHERE type = 'AH' AND owner_id = uRow.device_id AND int_value3 > 80 ORDER BY date_value DESC LIMIT 20) dd;
+    (SELECT * FROM analytics_value av WHERE type = 'AH' AND av.owner_id = uRow.device_id AND av.entity_id = uRow.entity_id AND av.int_value3 > 80 ORDER BY av.date_value DESC LIMIT 20) dd;
 
     -- night data points
     SELECT
@@ -108,7 +111,7 @@ BEGIN
     INTO
       pNightDataPoints
     FROM
-    (SELECT * FROM analytics_value WHERE type = 'AH' AND owner_id = uRow.device_id AND int_value4 > 80 ORDER BY date_value DESC LIMIT 20) nd;
+    (SELECT * FROM analytics_value av WHERE av.type = 'AH' AND av.owner_id = uRow.device_id AND av.entity_id = uRow.entity_id AND av.int_value4 > 80 ORDER BY av.date_value DESC LIMIT 20) nd;
 
     IF pInformativeAnalyticsExistCount < 1 THEN
       IF pDayDataPoints = 20 THEN
@@ -116,9 +119,9 @@ BEGIN
          SUM(int_value3) / COUNT(*)
         INTO
           pAverageDayActivityLevel
-        FROM analytics_value WHERE
-          date_value IN (SELECT date_value FROM analytics_value WHERE type = 'AH' AND owner_id = uRow.device_id AND int_value3 > 80 ORDER BY date_value DESC LIMIT 20) AND
-          owner_id = uRow.device_id and type = 'ACT' and int_value3 BETWEEN 0 AND 100;
+        FROM analytics_value av WHERE
+          av.date_value IN (SELECT avv.date_value FROM analytics_value avv WHERE avv.type = 'AH' AND avv.owner_id = uRow.device_id AND avv.entity_id = uRow.entity_id AND avv.int_value3 > 80 ORDER BY avv.date_value DESC LIMIT 20) AND
+          av.owner_id = uRow.device_id AND av.entity_id = uRow.entity_id AND av.type = 'ACT' AND av.int_value3 BETWEEN 0 AND 100;
       ELSE
         pAverageDayActivityLevel = null;
       END IF;
@@ -128,9 +131,9 @@ BEGIN
          SUM(int_value4) / COUNT(*)
         INTO
           pAverageNightActivityLevel
-        FROM analytics_value WHERE
-          date_value IN (SELECT date_value FROM analytics_value WHERE type = 'AH' AND owner_id = uRow.device_id AND int_value4 > 80 ORDER BY date_value DESC LIMIT 20) AND
-          owner_id = uRow.device_id and type = 'ACT' and int_value4 BETWEEN 0 AND 100;
+        FROM analytics_value av WHERE
+          av.date_value IN (SELECT avv.date_value FROM analytics_value avv WHERE avv.type = 'AH' AND avv.owner_id = uRow.device_id AND avv.int_value4 > 80 ORDER BY avv.date_value DESC LIMIT 20) AND
+          av.owner_id = uRow.device_id AND av.entity_id = uRow.entity_id AND av.type = 'ACT' AND av.int_value4 BETWEEN 0 AND 100;
       ELSE
           pAverageNightActivityLevel = null;
       END IF;
@@ -155,6 +158,7 @@ BEGIN
           , type
           , create_date
           , owner_id
+          , entity_id
         ) VALUES(
             nInformativeAnalyticsId
             , 'Average Activity Level'
@@ -173,6 +177,7 @@ BEGIN
             , 'AVGACT'
             , (NOW() at time zone 'utc')::timestamp
             , uRow.device_id
+            , uRow.entity_Id
         );
 
         -- insert into the return table for the return data

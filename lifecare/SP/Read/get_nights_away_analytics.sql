@@ -12,6 +12,7 @@
           pDeviceId varchar(32)
           , pDateStart date
           , pDateEnd date
+          , pEntityId varchar(32)
       )
   RETURNS integer
   AS
@@ -25,10 +26,13 @@
     INTO
       nights_away_count
     FROM analytics_value WHERE
-    type = 'A' AND owner_id = pDeviceId AND
-    date_value BETWEEN (pDateStart  || 'T' || '00:00')::timestamp AND (pDateEnd  || 'T' || '00:00')::timestamp
-    AND date_value2 IS NOT NULL
-    AND date_value3 IS NULL;
+    type = 'A' AND
+    date_value2 IS NOT NULL AND
+    date_value3 IS NULL AND (
+      ((pDeviceId IS NULL) OR (owner_id = pDeviceId)) AND
+      ((pEntityId IS NULL) OR (entity_id = pEntityId)) AND
+      ((pDateStart IS NULL OR pDateEnd IS NULL) OR (date_value BETWEEN (pDateStart  || 'T' || '00:00')::timestamp AND (pDateEnd  || 'T' || '00:00')::timestamp))
+    );
 
     RETURN nights_away_count;
 

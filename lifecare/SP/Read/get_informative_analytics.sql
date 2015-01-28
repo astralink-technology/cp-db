@@ -33,6 +33,7 @@ CREATE FUNCTION get_informative_analytics(
       , pIntValue4 integer
       , pType varchar(8)
       , pOwnerId varchar(32)
+      , pEntityId varchar(32)
     )
 RETURNS TABLE(
       informative_analytics_id varchar(32)
@@ -52,6 +53,7 @@ RETURNS TABLE(
       , type varchar(8)
       , create_date timestamp without time zone
       , owner_id varchar(32)
+      , entity_id varchar(32)
       , total_rows integer
   )
 AS
@@ -86,6 +88,7 @@ BEGIN
             , ia.type
             , ia.create_date
             , ia.owner_id
+            , ia.entity_id
           FROM informative_analytics ia WHERE (
            ((pInformativeAnalyticsId IS NULL) OR (ia.informative_analytics_id = pInformativeAnalyticsId)) AND
            ((pName IS NULL) OR (ia.name = pName)) AND
@@ -106,7 +109,8 @@ BEGIN
            ((pIntValue3 IS NULL) OR (ia.int_value3 = pIntValue3)) AND
            ((pIntValue4 IS NULL) OR (ia.int_value4 = pIntValue4)) AND
            ((pType IS NULL) OR (ia.type = pType)) AND
-           ((pOwnerId IS NULL) OR (ia.owner_id = pOwnerId))
+           ((pOwnerId IS NULL) OR (ia.owner_id = pOwnerId)) AND
+           ((pEntityId IS NULL) OR (ia.entity_id = pEntityId))
           )
           ORDER BY ia.create_date DESC;
 

@@ -16,6 +16,7 @@ CREATE FUNCTION add_cloud_access(
       , pCreateDate timestamp without time zone
       , pLastUpdate timestamp without time zone
       , pOwnerId varchar(32)
+      , pType varchar(4)
       , pToken text
 )
 RETURNS varchar(32) AS 
@@ -29,6 +30,7 @@ BEGIN
         , create_date
         , last_update
         , owner_id
+        , type
         , token
     ) VALUES(
         pCloudAccessId
@@ -38,6 +40,7 @@ BEGIN
         , pCreateDate
         , pLastUpdate
         , pOwnerId
+        , pType
         , pToken
     );
     RETURN pCloudAccessId;

@@ -6,6 +6,8 @@ ALTER TABLE analytics_value ADD COLUMN int_value3 integer;
 ALTER TABLE analytics_value ADD COLUMN int_value4 integer;
 ALTER TABLE analytics_value ADD COLUMN value3 varchar(32);
 ALTER TABLE analytics_value ADD COLUMN value4 varchar(32);
-
 ALTER TABLE analytics_value
-  ALTER COLUMN type TYPE varchar(8)
+  ALTER COLUMN type TYPE varchar(8);
+
+-- Alters to analytics value table 2015-01-27
+ALTER TABLE analytics_value ADD COLUMN entity_id varchar(32);

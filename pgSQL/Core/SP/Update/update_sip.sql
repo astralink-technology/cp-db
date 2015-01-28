@@ -49,7 +49,7 @@ END$$;
           -- Start the updating process
           IF pUsername IS NULL THEN
               nUsername := oUsername;
-          ELSEIF pDevice2Id = '' THEN
+          ELSEIF pUsername = '' THEN
               nUsername := NULL;
           ELSE
               nUsername := pUsername;
@@ -57,7 +57,7 @@ END$$;
 
           IF pPassword IS NULL THEN
               nPassword := oPassword;
-          ELSEIF pDevice2Id = '' THEN
+          ELSEIF pPassword = '' THEN
               nPassword := NULL;
           ELSE
               nPassword := oPassword;
@@ -65,7 +65,7 @@ END$$;
 
           IF pOwnerId IS NULL THEN
               nOwnerId := oOwnerId;
-          ELSEIF pDevice2Id = '' THEN
+          ELSEIF pOwnerId = '' THEN
               nOwnerId := NULL;
           ELSE
               nOwnerId := oOwnerId;

@@ -26,6 +26,7 @@ CREATE FUNCTION add_informative_analytics(
     , pType varchar(8)
     , pCreateDate timestamp without time zone
     , pOwnerId varchar(32)
+    , pEntityId varchar(32)
 )
 RETURNS varchar(32) AS 
 $BODY$
@@ -48,6 +49,7 @@ BEGIN
         , type
         , create_date
         , owner_id
+        , entity_id
     ) VALUES(
         pInformativeAnalyticsId
         , pName
@@ -66,6 +68,7 @@ BEGIN
         , pType
         , pCreateDate
         , pOwnerId
+        , pEntityId
     );
     RETURN pInformativeAnalyticsId;
 END;

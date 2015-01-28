@@ -66,7 +66,7 @@ BEGIN
     SELECT
       dr.owner_id
       , e.name
-      , e.entity_Id
+      , e.entity_id
       , dr.device_id
       , d.deployment_date
       , d.type
@@ -82,10 +82,11 @@ BEGIN
       COUNT(*)
     INTO
       pInformativeAnalyticsExistCount
-    FROM informative_analytics WHERE
-      owner_id = uRow.device_id AND
-      type = 'MSE' AND
-      date_value = (NOW()::date || ' ' || '00:00:00')::timestamp;
+    FROM informative_analytics ia WHERE
+      ia.owner_id = uRow.device_id AND
+      ia.entity_id = uRow.entity_id AND
+      ia.type = 'MSE' AND
+      ia.date_value = (NOW()::date || ' ' || '00:00:00')::timestamp;
 
     IF pInformativeAnalyticsExistCount < 1 THEN
       SELECT
@@ -93,11 +94,12 @@ BEGIN
       INTO
         pSleepEfficiencyCount
       FROM
-        informative_analytics
-      WHERE type = 'SE' AND
-        date_value BETWEEN (pMonthStart || ' ' || '00:00:00')::timestamp AND (pMonthEnd || ' ' || '23:59:59')::timestamp AND
-        int_value IS NOT NULL AND
-        owner_id = uRow.device_id;
+        informative_analytics ia
+      WHERE ia.type = 'SE' AND
+        ia.date_value BETWEEN (pMonthStart || ' ' || '00:00:00')::timestamp AND (pMonthEnd || ' ' || '23:59:59')::timestamp AND
+        ia.int_value IS NOT NULL AND
+        ia.entity_id = uRow.entity_id AND
+        ia.owner_id = uRow.device_id;
 
       IF pSleepEfficiencyCount > 0 THEN
         SELECT
@@ -105,11 +107,12 @@ BEGIN
         INTO
           pMonthlySleepEfficiency
         FROM
-          informative_analytics
-        WHERE type = 'SE' AND
-          date_value BETWEEN (pMonthStart || ' ' || '00:00:00')::timestamp AND (pMonthEnd || ' ' || '23:59:59')::timestamp AND
-          int_value IS NOT NULL AND
-          owner_id = uRow.device_id;
+          informative_analytics ia
+        WHERE ia.type = 'SE' AND
+          ia.date_value BETWEEN (pMonthStart || ' ' || '00:00:00')::timestamp AND (pMonthEnd || ' ' || '23:59:59')::timestamp AND
+          ia.int_value IS NOT NULL AND
+          ia.entity_id = uRow.entity_id AND
+          ia.owner_id = uRow.device_id;
       ELSE
         pMonthlySleepEfficiency = null;
       END IF;
@@ -134,6 +137,7 @@ BEGIN
           , type
           , create_date
           , owner_id
+          , entity_id
         ) VALUES(
             nInformativeAnalyticsId
             , 'Monthly Sleep Efficiency'
@@ -152,6 +156,7 @@ BEGIN
             , 'MSE'
             , (NOW() at time zone 'utc')::timestamp
             , uRow.device_id
+            , uRow.entity_id
         );
 
         -- insert into the return table for the return data
@@ -166,7 +171,6 @@ BEGIN
     END IF;
 
   END LOOP;
-
 
   RETURN QUERY
     SELECT

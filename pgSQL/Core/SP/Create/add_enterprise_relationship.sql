@@ -16,6 +16,7 @@ CREATE FUNCTION add_enterprise_relationship(
       , pType varchar(4)
       , pCreateDate timestamp without time zone
       , pLastUpdate timestamp without time zone
+	    , pExternalUniqueIdentifier varchar(32)
 )
 RETURNS varchar(32) AS 
 $BODY$
@@ -28,6 +29,7 @@ BEGIN
         , type
         , create_date
         , last_update
+        , external_unique_identifier
     ) VALUES(
         pEnterpriseRelationshipId
         , pEnterpriseId
@@ -36,6 +38,7 @@ BEGIN
         , pType
         , pCreateDate
         , pLastUpdate
+        , pExternalUniqueIdentifier
     );
     RETURN pEnterpriseRelationshipId;
 END;

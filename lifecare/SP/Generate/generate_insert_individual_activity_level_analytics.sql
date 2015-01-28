@@ -10,6 +10,7 @@ END$$;
 -- Start function
 CREATE FUNCTION generate_insert_individual_activity_level_analytics(
         pDeviceId varchar(32)
+        , pEntityId varchar(32)
         , pDay date
 )
 RETURNS TABLE (
@@ -26,6 +27,7 @@ RETURNS TABLE (
     , intValue3 integer
     , intValue4 integer
     , owner_id varchar(32)
+    , entity_id varchar(32)
 )
 AS
 $BODY$
@@ -60,6 +62,7 @@ BEGIN
     , intValue3 integer
     , intValue4 integer
     , owner_id varchar(32)
+    , entity_id varchar(32)
   );
 
   -- For row that is not analyzed for the user, find the wake up time and do the insert
@@ -107,6 +110,7 @@ BEGIN
       , type
       , create_date
       , owner_id
+      , entity_id
     ) VALUES(
         nAnalyticsValueId
         , 'Activity Level'
@@ -124,6 +128,7 @@ BEGIN
         , 'ACT'
         , (NOW() at time zone 'utc')::timestamp
         , pDeviceId
+        , pEntityId
     );
 
     -- insert into the return table for the return data
@@ -142,6 +147,7 @@ BEGIN
           , tempDayActivityLevel
           , tempNightActivityLevel
           , pDeviceId
+          , pEntityId
       );
 
   RETURN QUERY

@@ -10,16 +10,18 @@ END$$;
 -- Start function
 CREATE FUNCTION generate_insert_individual_bathroom_usage_analytics(
         pDeviceId varchar(32)
+        , pEntityId varchar(32)
         , pDay date
         )
 RETURNS TABLE (
-    analytics_value_id varchar(32),
-    date_value timestamp without time zone,
-    bathroom_usage_start timestamp without time zone,
-    bathroom_usage_end timestamp without time zone,
-    bathroom_usage_count integer,
-    bathroom_usage_interval integer,
-    owner_id varchar(32)
+    analytics_value_id varchar(32)
+    , date_value timestamp without time zone
+    , bathroom_usage_start timestamp without time zone
+    , bathroom_usage_end timestamp without time zone
+    , bathroom_usage_count integer
+    , bathroom_usage_interval integer
+    , owner_id varchar(32)
+    , entity_id varchar(32)
 )
 AS
 $BODY$
@@ -37,13 +39,14 @@ DECLARE
 BEGIN
   -- Create a temp table for returning
   CREATE TEMP TABLE analytics_value_return(
-    analytics_value_id varchar(32),
-    date_value timestamp without time zone,
-    bathroom_usage_start timestamp without time zone,
-    bathroom_usage_end timestamp without time zone,
-    bathroom_usage_count integer,
-    bathroom_usage_interval integer,
-    owner_id varchar(32)
+    analytics_value_id varchar(32)
+    , date_value timestamp without time zone
+    , bathroom_usage_start timestamp without time zone
+    , bathroom_usage_end timestamp without time zone
+    , bathroom_usage_count integer
+    , bathroom_usage_interval integer
+    , owner_id varchar(32)
+    , entity_id varchar(32)
   );
 
   DELETE FROM analytics_value_return;
@@ -77,6 +80,7 @@ BEGIN
             , type
             , create_date
             , owner_id
+            , entity_id
         ) VALUES(
               nAnalyticsValueId
               , 'Bathroom Usage'
@@ -90,6 +94,7 @@ BEGIN
               , 'B'
               , (NOW() at time zone 'utc')::timestamp
               , pDeviceId
+              , pEntityId
         );
         -- insert into the return table for the return data
         INSERT INTO analytics_value_return VALUES
@@ -101,6 +106,7 @@ BEGIN
               , oBathroomCount
               , bathroomRow.bathroom_usage_interval
               , pDeviceId
+              , pEntityId
           );
       END LOOP;
     ELSE
@@ -119,6 +125,7 @@ BEGIN
           , type
           , create_date
           , owner_id
+          , entity_id
         ) VALUES(
             nAnalyticsValueId
             , 'Bathroom Usage'
@@ -132,6 +139,7 @@ BEGIN
             , 'B'
             , (NOW() at time zone 'utc')::timestamp
             , pDeviceId
+            , pEntityId
         );
         -- insert into the return table for the return data
         INSERT INTO analytics_value_return VALUES
@@ -143,6 +151,7 @@ BEGIN
               , null
               , null
               , pDeviceId
+              , pEntityId
           );
     END IF;
 

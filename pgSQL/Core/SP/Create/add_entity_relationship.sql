@@ -9,12 +9,12 @@ RAISE INFO 'FUNCTION % DROPPED', fname;
 END$$;
 -- Start function
 CREATE FUNCTION add_entity_relationship(
-	pEntityRelationshipId varchar(32), 
-	pEntityId varchar(32), 
-	pRelatedId varchar(32), 
-	pStatus char(1),
-	pCreateDate timestamp without time zone,
-	pType char(1)
+	pEntityRelationshipId varchar(32)
+	, pEntityId varchar(32)
+	, pRelatedId varchar(32)
+	, pStatus char(1)
+	, pCreateDate timestamp without time zone
+	, pType char(1)
 )
 RETURNS varchar(32) AS 
 $BODY$

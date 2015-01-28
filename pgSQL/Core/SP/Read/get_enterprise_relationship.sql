@@ -14,6 +14,7 @@ CREATE FUNCTION get_enterprise_relationship(
        , pOwnerId varchar(32)
        , pStatus char(1)
        , pType varchar(4)
+       , pExternalUniqueIdentifier varchar(32)
        , pPageSize integer
        , pSkipSize integer
     )
@@ -25,6 +26,7 @@ RETURNS TABLE(
   , type varchar(4)
   , create_date timestamp without time zone
   , last_update timestamp without time zone
+  , external_unique_identifier varchar(32)
   , total_rows integer
 ) AS
 $BODY$
@@ -48,11 +50,13 @@ BEGIN
           , er.type
           , er.create_date
           , er.last_update
+          , er.external_unique_identifier
       FROM enterprise_relationship er WHERE (
         ((pEnterpriseRelationshipId IS NULL) OR (er.enterprise_relationship_id = pEnterpriseRelationshipId)) AND
         ((pEnterpriseId IS NULL) OR (er.enterprise_id = pEnterpriseId)) AND
         ((pOwnerId IS NULL) OR (er.owner_id = pOwnerId)) AND
         ((pStatus IS NULL) OR (er.status = pStatus)) AND
+        ((pExternalUniqueIdentifier IS NULL) OR (er.external_unique_identifier = pExternalUniqueIdentifier)) AND
         ((pType IS NULL) OR (er.type = pType))
         )
       ORDER BY er.create_date

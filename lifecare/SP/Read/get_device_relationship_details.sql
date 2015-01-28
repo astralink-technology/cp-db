@@ -14,8 +14,8 @@ CREATE FUNCTION get_device_relationship_details(
 	, pOwnerId varchar(32)
 	, pDeviceCode varchar(32)
 	, pDeviceStatus char(1)
-	, pDeviceType char(1)
-	, pDeviceType2 char(1)
+	, pDeviceType varchar(4)
+	, pDeviceType2 varchar(4)
 	, pDeviceValueId varchar(32)
 	, pPush char(1)
 	, pSms char(1)
@@ -34,8 +34,8 @@ RETURNS TABLE(
 	, device_name varchar(32)
 	, device_code varchar(32)
 	, device_status char(1)
-	, device_type char(1)
-	, device_type2 char(1)
+	, device_type varchar(4)
+	, device_type2 varchar(4)
 	, device_description text
 	, device_create_date timestamp without time zone
 	, device_last_update timestamp without time zone
