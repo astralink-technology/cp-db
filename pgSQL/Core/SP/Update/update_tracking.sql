@@ -15,6 +15,12 @@ END$$;
       , pCountry varchar(256)
       , pCountryCode varchar(8)
       , pType varchar(4)
+      , pOperatingSystem varchar(256)
+      , pOperatingSystemVersion varchar(256)
+      , pUserAgent varchar(256)
+      , pUserAgentVersion varchar(256)
+      , pDevice varchar(256)
+      , pExtraData text
       , pOwnerId varchar(32)
   )
   RETURNS BOOL AS
@@ -25,6 +31,12 @@ END$$;
       oCountry varchar(256);
       oCountryCode varchar(8);
       oType varchar(4);
+      oOperatingSystem varchar(256);
+      oOperatingSystemVersion varchar(256);
+      oUserAgent varchar(256);
+      oUserAgentVersion varchar(256);
+      oDevice varchar(256);
+      oExtraData text;
       oOwnerId varchar(32);
 
       nName text;
@@ -32,6 +44,12 @@ END$$;
       nCountry varchar(256);
       nCountryCode varchar(8);
       nType varchar(4);
+      nOperatingSystem varchar(256);
+      nOperatingSystemVersion varchar(256);
+      nUserAgent varchar(256);
+      nUserAgentVersion varchar(256);
+      nDevice varchar(256);
+      nExtraData text;
       nOwnerId varchar(32);
   BEGIN
       -- ID is needed if not return
@@ -40,19 +58,31 @@ END$$;
       ELSE
           -- select the variables into the old variables
           SELECT
-              t.name
-              , t.ip_address
-              , t.country
-              , t.country_code
-              , t.type
-              , t.owner_id
+            t.name
+            , t.ip_address
+            , t.country
+            , t.country_code
+            , t.type
+            , t.operating_system
+            , t.operating_system_version
+            , t.user_agent
+            , t.user_agent_version
+            , t.device
+            , t.extra_data
+            , t.owner_id
           INTO STRICT
-              oName
-              , oIpAddress
-              , oCountry
-              , oCountryCode
-              , oType
-              , oOwnerId
+            oName
+            , oIpAddress
+            , oCountry
+            , oCountryCode
+            , oType
+            , oOperatingSystem
+            , oOperatingSystemVersion
+            , oUserAgent
+            , oUserAgentVersion
+            , oDevice
+            , oExtraData
+            , oOwnerId
           FROM tracking t WHERE
               t.tracking_id = pTrackingId;
 
@@ -97,6 +127,54 @@ END$$;
               nType := oType;
           END IF;
 
+          IF pOperatingSystem IS NULL THEN
+              nOperatingSystem := oOperatingSystem;
+          ELSEIF pOperatingSystem = '' THEN
+              nOperatingSystem := NULL;
+          ELSE
+              nOperatingSystem := oOperatingSystem;
+          END IF;
+
+          IF pOperatingSystemVersion IS NULL THEN
+              nOperatingSystemVersion := oOperatingSystemVersion;
+          ELSEIF pOperatingSystemVersion = '' THEN
+              nOperatingSystemVersion := NULL;
+          ELSE
+              nOperatingSystemVersion := oOperatingSystemVersion;
+          END IF;
+
+          IF pUserAgent IS NULL THEN
+              nUserAgent := oUserAgent;
+          ELSEIF pUserAgent = '' THEN
+              nUserAgent := NULL;
+          ELSE
+              nUserAgent := oUserAgent;
+          END IF;
+
+          IF pUserAgentVersion IS NULL THEN
+              nUserAgentVersion := oUserAgentVersion;
+          ELSEIF pUserAgentVersion = '' THEN
+              nUserAgentVersion := NULL;
+          ELSE
+              nUserAgentVersion := oUserAgentVersion;
+          END IF;
+
+          IF pDevice IS NULL THEN
+              nDevice := oDevice;
+          ELSEIF pDevice = '' THEN
+              nDevice := NULL;
+          ELSE
+              nDevice := oDevice;
+          END IF;
+
+          IF pExtraData IS NULL THEN
+              nExtraData := oExtraData;
+          ELSEIF pExtraData = '' THEN
+              nExtraData := NULL;
+          ELSE
+              nExtraData := oExtraData;
+          END IF;
+
           IF pOwnerId IS NULL THEN
               nOwnerId := oOwnerId;
           ELSEIF pOwnerId = '' THEN
@@ -107,13 +185,19 @@ END$$;
 
           -- start the update
           UPDATE
-              trackin
+              tracking
           SET
               name = nName
-              , ip_address = nIpAddress
+              , ip_address = nName
               , country = nCountry
-              , country_code = nCountryCode
+              , country_code = nCountryCOde
               , type = nType
+              , operating_system = nOperatingSystem
+              , operating_system_version = nOperatingSystemVersion
+              , user_agent = nUserAgent
+              , user_agent_version = nUserAgentVersion
+              , device = nDevice
+              , extra_data = nExtraData
               , owner_id = nOwnerId
           WHERE
               tracking_id = pTrackingId;

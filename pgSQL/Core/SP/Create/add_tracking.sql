@@ -15,6 +15,12 @@
       , pCountry varchar(256)
       , pCountryCode varchar(8)
       , pType varchar(4)
+      , pOperatingSystem varchar(256)
+      , pOperatingSystemVersion varchar(256)
+      , pUserAgent varchar(256)
+      , pUserAgentVersion varchar(256)
+      , pDevice varchar(256)
+      , pExtraData text
       , pCreateDate timestamp without time zone
       , pOwnerId varchar(32)
   )
@@ -28,6 +34,12 @@
         , country
         , country_code
         , type
+        , operating_system
+        , operating_system_version
+        , user_agent
+        , user_agent_version
+        , device
+        , extra_data
         , create_date
         , owner_id
       ) VALUES(
@@ -37,6 +49,12 @@
         , pCountry
         , pCountryCode
         , pType
+        , pOperatingSystem
+        , pOperatingSystemVersion
+        , pUserAgent
+        , pUserAgentVersion
+        , pDevice
+        , pExtraData
         , pCreateDate
         , pOwnerId
       );
