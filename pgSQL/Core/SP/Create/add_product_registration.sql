@@ -21,21 +21,21 @@ RETURNS varchar(32) AS
 $BODY$
 BEGIN
     INSERT INTO product_registration(
-		product_registration_id,
-		status,
-		type,
-		create_date,
-		last_update,
-		product_id,
-		owner_id
+      product_registration_id,
+      status,
+      type,
+      create_date,
+      last_update,
+      product_id,
+      owner_id
     ) VALUES(
-		pProductRegistrationId,
-		pStatus,
-		pType,
-		pCreateDate,
-		pLastUpdate,
-		pProductId,
-		pOwnerId
+      pProductRegistrationId,
+      pStatus,
+      pType,
+      pCreateDate,
+      pLastUpdate,
+      pProductId,
+      pOwnerId
     );
     RETURN pProductRegistrationId;
 END;

@@ -22,6 +22,8 @@ END$$;
       , pDevice varchar(256)
       , pExtraData text
       , pOwnerId varchar(32)
+      , pParameters text
+      , pMethod varchar(32)
   )
   RETURNS BOOL AS
   $BODY$
@@ -38,6 +40,8 @@ END$$;
       oDevice varchar(256);
       oExtraData text;
       oOwnerId varchar(32);
+      oParameters text;
+      oMethod varchar(32);
 
       nName text;
       nIpAddress text;
@@ -51,6 +55,8 @@ END$$;
       nDevice varchar(256);
       nExtraData text;
       nOwnerId varchar(32);
+      nParameters text;
+      nMethod varchar(32);
   BEGIN
       -- ID is needed if not return
       IF pTrackingId IS NULL THEN
@@ -70,6 +76,8 @@ END$$;
             , t.device
             , t.extra_data
             , t.owner_id
+            , t.parameters
+            , t.method
           INTO STRICT
             oName
             , oIpAddress
@@ -83,6 +91,8 @@ END$$;
             , oDevice
             , oExtraData
             , oOwnerId
+            , oParameters
+            , oMethod
           FROM tracking t WHERE
               t.tracking_id = pTrackingId;
 
@@ -183,6 +193,22 @@ END$$;
               nOwnerId := oOwnerId;
           END IF;
 
+          IF pMethod IS NULL THEN
+              nMethod := oMethod;
+          ELSEIF pMethod = '' THEN
+              nMethod := NULL;
+          ELSE
+              nMethod := oMethod;
+          END IF;
+
+          IF pParameters IS NULL THEN
+              nParameters := oParameters;
+          ELSEIF pParameters = '' THEN
+              nParameters := NULL;
+          ELSE
+              nParameters := oParameters;
+          END IF;
+
           -- start the update
           UPDATE
               tracking
@@ -199,6 +225,8 @@ END$$;
               , device = nDevice
               , extra_data = nExtraData
               , owner_id = nOwnerId
+              , method = nMethod
+              , parameters = nParameters
           WHERE
               tracking_id = pTrackingId;
 

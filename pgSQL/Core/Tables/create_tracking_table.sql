@@ -11,6 +11,8 @@ create table tracking (
 	, user_agent_version varchar(256)
 	, device varchar(256)
 	, extra_data text
+	, method varchar(32)
+	, parameters text
 	, create_date timestamp without time zone
 	, owner_id varchar(32)
 );

@@ -22,14 +22,14 @@ RETURNS varchar(32) AS
 $BODY$
 BEGIN
     INSERT INTO phone (
-	phone_id 
-	, phone_digits 
-	, digits
-	, country_code
-	, code
-	, create_date 
-	, last_update 
-	, owner_id
+      phone_id
+      , phone_digits
+      , digits
+      , country_code
+      , code
+      , create_date
+      , last_update
+      , owner_id
     ) VALUES(
         pPhoneId 
         , pPhoneDigits 

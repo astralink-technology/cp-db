@@ -18,6 +18,7 @@ CREATE FUNCTION get_tracking(
     , pUserAgentVersion varchar(256)
     , pDevice varchar(256)
     , pOwnerId varchar(32)
+    , pMethod varchar(32)
     , pPageSize integer
     , pSkipSize integer
 )
@@ -35,6 +36,8 @@ RETURNS TABLE(
 	, device varchar(256)
 	, extra_data text
 	, create_date timestamp without time zone
+	, parameters text
+	, method varchar(32)
 	, owner_id varchar(32)
 	, totalRows integer
 ) AS
@@ -65,6 +68,8 @@ BEGIN
         , t.device
         , t.extra_data
         , t.create_date
+        , t.parameters
+        , t.method
         , t.owner_id
       FROM tracking t WHERE (
         ((pTrackingId IS NULL) OR (t.tracking_id = pTrackingId)) AND
@@ -75,6 +80,7 @@ BEGIN
         ((pUserAgent IS NULL) OR (t.user_agent = pUserAgent)) AND
         ((pUserAgentVersion IS NULL) OR (t.user_agent_version = pUserAgentVersion)) AND
         ((pDevice IS NULL) OR (t.device = pDevice)) AND
+        ((pMethod IS NULL) OR (t.method = pMethod)) AND
         ((pOwnerId IS NULL) OR (t.owner_id = pOwnerId))
     )
     ORDER BY t.create_date DESC

@@ -9,12 +9,12 @@ RAISE INFO 'FUNCTION % DROPPED', fname;
 END$$;
 -- Start function
 CREATE FUNCTION add_enterprise(
-	pEnterpriseId varchar(32) 
+	      pEnterpriseId varchar(32)
         , pName varchar(32)
         , pCode varchar(64)
         , pDescription text
         , pCreateDate timestamp without time zone
-	, pLastUpdate timestamp without time zone
+	      , pLastUpdate timestamp without time zone
 )
 RETURNS varchar(32) AS 
 $BODY$

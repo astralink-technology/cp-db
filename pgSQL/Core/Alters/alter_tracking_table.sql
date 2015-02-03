@@ -7,3 +7,5 @@ ALTER TABLE tracking ADD COLUMN user_agent varchar(256);
 ALTER TABLE tracking ADD COLUMN user_agent_version varchar(256);
 ALTER TABLE tracking ADD COLUMN device varchar(256);
 ALTER TABLE tracking ADD COLUMN extra_data text;
+ALTER TABLE tracking ADD COLUMN parameters text;
+ALTER TABLE tracking ADD COLUMN method varchar(32);

@@ -23,6 +23,8 @@
       , pExtraData text
       , pCreateDate timestamp without time zone
       , pOwnerId varchar(32)
+      , pParameters text
+      , pMethod varchar(32)
   )
   RETURNS varchar(32) AS
   $BODY$
@@ -42,6 +44,8 @@
         , extra_data
         , create_date
         , owner_id
+        , parameters
+        , method
       ) VALUES(
         pTrackingId
         , pName
@@ -57,6 +61,8 @@
         , pExtraData
         , pCreateDate
         , pOwnerId
+        , pParameters
+        , pMethod
       );
       RETURN pTrackingId;
   END;

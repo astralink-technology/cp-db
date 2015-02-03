@@ -21,6 +21,7 @@ RETURNS TABLE(
 	, last_update timestamp without time zone
 	, owner_id varchar(32)
 	, deployment_date date
+	, entity_name varchar(32)
 ) AS
 $BODY$
 BEGIN
@@ -37,7 +38,9 @@ BEGIN
         , d.last_update
         , d.owner_id
         , d.deployment_date
-      FROM device d WHERE
+        , e.name as entity_name
+      FROM device d LEFT JOIN device_relationship dr ON dr.device_id = d.device_id
+      INNER JOIN entity e ON e.entity_id = dr.owner_id WHERE
       d.owner_id IS NULL AND d.type = 'L';
 END;
 $BODY$
