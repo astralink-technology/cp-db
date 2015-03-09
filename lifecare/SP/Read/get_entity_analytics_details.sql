@@ -160,7 +160,7 @@ BEGIN
         , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NBF' ORDER BY ia.date_value DESC LIMIT 1) as night_bathroom_usage_freq
         , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'DBD' ORDER BY ia.date_value DESC LIMIT 1) as max_day_bathroom_usage_dur
         , (SELECT ia.int_value2 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'DBD' ORDER BY ia.date_value DESC LIMIT 1) as median_day_bathroom_usage_dur
-        , (SELECT ia.int_value3 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'DBD' ORDER BY ia.date_value DESC LIMIT 1) as min_day_bathroom_usage_dur
+          , (SELECT ia.int_value3 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'DBD' ORDER BY ia.date_value DESC LIMIT 1) as min_day_bathroom_usage_dur
         , (SELECT ia.int_value FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NBD' ORDER BY ia.date_value DESC LIMIT 1) as max_night_bathroom_usage_dur
         , (SELECT ia.int_value2 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NBD' ORDER BY ia.date_value DESC LIMIT 1) as median_night_bathroom_usage_dur
         , (SELECT ia.int_value3 FROM informative_analytics ia WHERE ia.owner_id = dr.device_id AND ia.type = 'NBD' ORDER BY ia.date_value DESC LIMIT 1) as min_night_bathroom_usage_dur
