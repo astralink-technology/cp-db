@@ -217,8 +217,7 @@ BEGIN
             )
           AND ((pDeviceId = NULL) OR (e.device_id = pDeviceId))  AND (
                  (e.event_type_id = '20001' AND ((e.zone IN ('Living Room', 'Living room')) OR e.node_name IN ('Door sensor', 'door sensor') OR e.zone_code = 'LR') AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
-                 (e.event_type_id IN ('20002', '20003', '20004') AND ((e.zone IN ('Living Room', 'Living room')) OR e.zone_code = 'LR')) OR -- Door Opening and Closing
-                 (e.event_type_id IN ('20004') AND e.node_id = '4' AND ((e.zone IN ('Living Room', 'Living room')) OR e.zone_code = 'LR')) OR -- Living room motion detected
+                 (e.event_type_id IN ('20004')AND ((e.zone IN ('Living Room', 'Living room')) OR e.zone_code = 'LR')) OR -- Living room motion detected
                  (e.event_type_id IN ('20002', '20003', '20004') AND ((e.zone = 'Master Bedroom') OR e.zone_code = 'MR')) OR -- Bedroom motion sensor alarm on
                  (e.event_type_id IN ('20002', '20003', '20004') AND ((e.zone = 'Kitchen') OR e.zone_code = 'KI')) OR -- Kitchen  motion sensor alarm on
                  (e.event_type_id IN ('20002', '20003', '20005') AND ((e.zone = 'Bathroom') OR e.zone_code = 'BT1')) OR -- Get only the sensor off in the bathroom
@@ -281,8 +280,7 @@ BEGIN
             )
           AND ((pDeviceId = NULL) OR (e.device_id = pDeviceId))  AND (
                  (e.event_type_id = '20001' AND ((e.zone IN ('Living Room', 'Living room')) OR e.node_name IN ('Door sensor', 'door sensor') OR e.zone_code = 'LR') AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
-                 (e.event_type_id IN ('20002', '20003', '20004') AND ((e.zone IN ('Living Room', 'Living room')) OR e.zone_code = 'LR')) OR -- Door Opening and Closing
-                 (e.event_type_id IN ('20004') AND e.node_id = '4' AND ((e.zone IN ('Living Room', 'Living room')) OR e.zone_code = 'LR')) OR -- Living room motion detected
+                 (e.event_type_id IN ('20004')AND ((e.zone IN ('Living Room', 'Living room')) OR e.zone_code = 'LR')) OR -- Living room motion detected
                  (e.event_type_id IN ('20002', '20003', '20004') AND ((e.zone = 'Master Bedroom') OR e.zone_code = 'MR')) OR -- Bedroom motion sensor alarm on
                  (e.event_type_id IN ('20002', '20003', '20004') AND ((e.zone = 'Kitchen') OR e.zone_code = 'KI')) OR -- Kitchen  motion sensor alarm on
                  (e.event_type_id IN ('20002', '20003', '20005') AND ((e.zone = 'Bathroom') OR e.zone_code = 'BT1')) OR -- Get only the sensor off in the bathroom
@@ -357,8 +355,7 @@ BEGIN
         FROM eyecare e WHERE (
            (
                  (e.event_type_id = '20001' AND ((e.zone IN ('Living Room', 'Living room')) OR e.node_name IN ('Door sensor', 'door sensor') OR e.zone_code = 'LR') AND e.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
-                 (e.event_type_id IN ('20002', '20003', '20004') AND ((e.zone IN ('Living Room', 'Living room')) OR e.zone_code = 'LR')) OR -- Door Opening and Closing
-                 (e.event_type_id IN ('20004') AND e.node_id = '4' AND ((e.zone IN ('Living Room', 'Living room')) OR e.zone_code = 'LR')) OR -- Living room motion detected
+                 (e.event_type_id IN ('20004')AND ((e.zone IN ('Living Room', 'Living room')) OR e.zone_code = 'LR')) OR -- Living room motion detected
                  (e.event_type_id IN ('20002', '20003', '20004') AND ((e.zone = 'Master Bedroom') OR e.zone_code = 'MR')) OR -- Bedroom motion sensor alarm on
                  (e.event_type_id IN ('20002', '20003', '20004') AND ((e.zone = 'Kitchen') OR e.zone_code = 'KI')) OR -- Kitchen  motion sensor alarm on
                  (e.event_type_id IN ('20002', '20003', '20005') AND ((e.zone = 'Bathroom') OR e.zone_code = 'BT1')) OR -- Get only the sensor off in the bathroom
@@ -379,8 +376,7 @@ BEGIN
         WHERE
            (
                  (ey.event_type_id = '20001' AND ((ey.zone IN ('Living Room', 'Living room')) OR ey.node_name IN ('Door sensor', 'door sensor') OR ey.zone_code = 'LR') AND ey.extra_data IN ('Alarm On', 'Alarm Off')) OR -- door sensor alarm report on door open "Alarm On"
-                 (ey.event_type_id IN ('20002', '20003', '20004') AND ((ey.zone IN ('Living Room', 'Living room')) OR ey.zone_code = 'LR')) OR -- Door Opening and Closing
-                 (ey.event_type_id IN ('20004') AND ey.node_id = '4' AND ((ey.zone IN ('Living Room', 'Living room')) OR ey.zone_code = 'LR')) OR -- Living room motion detected
+                 (ey.event_type_id IN ('20004')AND ((ey.zone IN ('Living Room', 'Living room')) OR ey.zone_code = 'LR')) OR -- Living room motion detected
                  (ey.event_type_id IN ('20002', '20003', '20004') AND ((ey.zone = 'Master Bedroom') OR ey.zone_code = 'MR')) OR -- Bedroom motion sensor alarm on
                  (ey.event_type_id IN ('20002', '20003', '20004') AND ((ey.zone = 'Kitchen') OR ey.zone_code = 'KI')) OR -- Kitchen  motion sensor alarm on
                  (ey.event_type_id IN ('20002', '20003', '20005') AND ((ey.zone = 'Bathroom') OR ey.zone_code = 'BT1')) OR -- Get only the sensor off in the bathroom
