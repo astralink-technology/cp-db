@@ -170,7 +170,9 @@ BEGIN
       device_relationship dr ON dr.owner_id = e.entity_id LEFT JOIN
       device d ON d.device_id = dr.device_id LEFT JOIN
       phone p ON p.owner_id = e.entity_id LEFT JOIN
-      address ad ON ad.owner_id = e.entity_id   WHERE (
+      address ad ON ad.owner_id = e.entity_id
+      WHERE
+      d.type = 'L' AND(
         e.entity_id IN (
            SELECT er.related_id FROM entity_relationship er WHERE er.entity_id = pCaregiveEntityId
         )

@@ -11,7 +11,7 @@ END$$;
 CREATE FUNCTION update_rule(
       pRuleId varchar(32)
       , pRuleName varchar(20)
-      , pOwnerId varchar(32)
+      , pOwnerId varchar(64)
       , pIdentification varchar(32)
       , pType char(1)
       , pStartTime integer
@@ -21,7 +21,9 @@ CREATE FUNCTION update_rule(
       , pAlertDuration integer
       , pAlertTriggerInterval integer
       , pZone varchar(32)
+      , pZoneCode varchar(8)
       , pArmState varchar(16)
+      , pEntityId varchar(64)
 )
 RETURNS BOOL AS 
 $BODY$
@@ -37,6 +39,7 @@ DECLARE
     oAlertTriggerInterval integer;
     oZone varchar(32);
     oArmState varchar(16);
+    oEntityId varchar(64);
 
     nIdentification varchar(32);
     nRuleName varchar(20);
@@ -49,6 +52,7 @@ DECLARE
     nAlertTriggerInterval integer;
     nZone varchar(32);
     nArmState varchar(16);
+    nEntityId varchar(64);
 
 BEGIN
     -- Rule ID is needed if not return
@@ -68,6 +72,7 @@ BEGIN
             , r.alert_trigger_interval
             , r.zone
             , r.arm_state
+            , r.entity_id
         INTO STRICT
             oIdentification
             , oRuleName
@@ -80,6 +85,7 @@ BEGIN
             , oAlertTriggerInterval
             , oZone
             , oArmState
+            , oEntityId
         FROM rule r WHERE
             r.rule_id = pRuleId;
 
@@ -171,6 +177,14 @@ BEGIN
             nAlertDuration := pAlertDuration;
         END IF;
 
+        IF pEntityId IS NULL THEN
+            nEntityId := oEntityId;
+        ELSEIF pEntityId = '' THEN
+            -- defaulted null
+            nEntityId := NULL;
+        ELSE
+            nEntityId := pEntityId;
+        END IF;
 
         -- start the update
         UPDATE 
@@ -186,6 +200,7 @@ BEGIN
             , alert_duration = nAlertDuration
             , alert_trigger_interval = nAlertTriggerInterval
             , arm_state = nArmState
+            , entity_id = nEntityId
             , zone = nZone
         WHERE
             rule_id = pRuleId;

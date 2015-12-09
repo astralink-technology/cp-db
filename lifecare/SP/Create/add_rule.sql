@@ -21,8 +21,10 @@ CREATE FUNCTION add_rule(
       , pAlertTriggerInterval integer
       , pCreateDate timestamp without time zone
       , pZone varchar(32)
+      , pZoneCode varchar(8)
       , pArmState varchar(16)
-      , pOwnerId varchar(32)
+      , pOwnerId varchar(64)
+      , pEntityId varchar(64)
 )
 RETURNS varchar(32) AS 
 $BODY$
@@ -40,8 +42,10 @@ BEGIN
         , alert_trigger_interval
         , create_date
         , zone
+        , zone_code
         , arm_state
         , owner_id
+        , entity_id
     ) VALUES(
         pRuleId
         , pRuleName
@@ -55,8 +59,10 @@ BEGIN
         , pAlertTriggerInterval
         , pCreateDate
         , pZone
+        , pZoneCode
         , pArmState
         , pOwnerId
+        , pEntityId
     );
     RETURN pRuleId;
 END;

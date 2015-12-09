@@ -18,6 +18,7 @@ CREATE FUNCTION get_rule(
         , pZone varchar(32)
         , pOwnerId varchar(32)
         , pArmState varchar(16)
+        , pEntityId varchar(64)
     )
 RETURNS TABLE(
     rule_id varchar(32)
@@ -34,6 +35,7 @@ RETURNS TABLE(
     , create_date timestamp without time zone
     , zone varchar(32)
     , owner_id varchar(32)
+    , entity_id varchar(64)
     , totalRows integer
   )
 AS
@@ -65,6 +67,7 @@ BEGIN
           , r.create_date
           , r.zone
           , r.owner_id
+          , r.entity_id
           FROM rule r WHERE
           ((pRuleId IS NULL) OR (r.rule_id = pRuleId)) AND
           ((pRuleName IS NULL) OR (r.rule_name = pRuleName)) AND
@@ -74,6 +77,7 @@ BEGIN
           ((pActivityName IS NULL) OR (r.activity_name = pActivityName)) AND
           ((pZone IS NULL) OR (r.zone = pZone)) AND
           ((pArmState IS NULL) OR (r.arm_state = pArmState)) AND
+          ((pEntityId IS NULL) OR (r.entity_id = pEntityId)) AND
           ((pOwnerId IS NULL) OR (r.owner_id = pOwnerId))
       ORDER BY r.create_date ASC;
 
